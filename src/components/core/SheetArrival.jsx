@@ -1,6 +1,10 @@
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "../../animation/gsap";
-import { EASE_SCRUB, SCRUB_PIN, prefersReducedMotion } from "../../animation/motion-tokens";
+import {
+  EASE_SCRUB,
+  SCRUB_PIN,
+  prefersReducedMotion,
+} from "../../animation/motion-tokens";
 
 /*
  * LEMBARAN YANG MELAYANG MASUK.
@@ -91,7 +95,10 @@ export function SheetArrival({ children, header = null, className = "" }) {
           gsap.set(grid, { scale: 1 });
           return;
         }
-        gsap.set(grid, { scale: neededScale(), transformOrigin: "center center" });
+        gsap.set(grid, {
+          scale: neededScale(),
+          transformOrigin: "center center",
+        });
       };
       applyFit();
 
@@ -279,9 +286,12 @@ export function SheetArrival({ children, header = null, className = "" }) {
         for (const s of sheets) {
           gsap.set(s.el, {
             y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
-            rotate: Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
-            rotateY: Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
-            rotateX: Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
+            rotate:
+              Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
+            rotateY:
+              Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
+            rotateX:
+              Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
           });
         }
       };
@@ -313,6 +323,34 @@ export function SheetArrival({ children, header = null, className = "" }) {
         gsap.ticker.remove(tick);
         gsap.set([...cards, ...floats, grid], { clearProps: "all" });
       };
+    });
+
+    mm.add("(max-width: 899px)", () => {
+      const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
+      if (!cards.length) return;
+
+      cards.forEach((card, index) => {
+        gsap.fromTo(
+          card,
+          { y: 55, opacity: 0, rotate: index % 2 === 0 ? -2 : 2 },
+          {
+            y: 0,
+            opacity: 1,
+            rotate: 0,
+            duration: 0.7,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 92%",
+              end: "top 78%",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      });
+
+      return () => gsap.set(cards, { clearProps: "all" });
     });
 
     return () => mm.revert();

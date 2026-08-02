@@ -49,5 +49,8 @@ export function buildWhatsAppLink({ phone, nama, email, pesan }) {
 export function buildEmailLink({ tujuan, nama, email, pesan }) {
   const subjek = `Pesan dari ${nama} — lewat portofolio`;
   const isi = susunPesan({ nama, emailPengirim: email, pesan });
-  return `mailto:${tujuan}?subject=${encodeURIComponent(subjek)}&body=${encodeURIComponent(isi)}`;
+
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    tujuan,
+  )}&su=${encodeURIComponent(subjek)}&body=${encodeURIComponent(isi)}`;
 }

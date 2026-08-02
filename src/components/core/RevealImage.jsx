@@ -1,6 +1,11 @@
 import { useLayoutEffect, useRef } from "react";
 import { gsap } from "../../animation/gsap";
-import { CLIP, EASE, SCRUB, prefersReducedMotion } from "../../animation/motion-tokens";
+import {
+  CLIP,
+  EASE,
+  SCRUB,
+  prefersReducedMotion,
+} from "../../animation/motion-tokens";
 import { useAppReady } from "./ready-context";
 
 /*
@@ -12,7 +17,14 @@ import { useAppReady } from "./ready-context";
  * Sama seperti ScrubReveal, seluruh urutannya terikat posisi scroll: berhenti
  * di tengah berarti pita warnanya ikut berhenti di tengah.
  */
-export function RevealImage({ src, alt, delay = 0, className = "", imgClassName = "", ...rest }) {
+export function RevealImage({
+  src,
+  alt,
+  delay = 0,
+  className = "",
+  imgClassName = "",
+  ...rest
+}) {
   const ref = useRef(null);
   const ready = useAppReady();
 
@@ -32,7 +44,8 @@ export function RevealImage({ src, alt, delay = 0, className = "", imgClassName 
     /* Sama seperti ScrubReveal: gambar yang sudah terlihat saat halaman dibuka
        tidak punya jarak scroll untuk menggerakkan animasinya, sehingga pita
        warnanya akan berhenti di tengah dan menutupi separuh gambar. */
-    const visibleOnLoad = el.getBoundingClientRect().top < window.innerHeight * 0.9;
+    const visibleOnLoad =
+      el.getBoundingClientRect().top < window.innerHeight * 0.9;
 
     const ctx = gsap.context(() => {
       const bg = el.querySelector(".bg");
@@ -64,10 +77,24 @@ export function RevealImage({ src, alt, delay = 0, className = "", imgClassName 
     return () => ctx.revert();
   }, [ready, delay]);
 
+  const imageStyle = imgClassName.includes("object-contain")
+    ? { objectFit: "contain" }
+    : undefined;
+
   return (
-    <div ref={ref} data-component="image-reveal" className={className} {...rest}>
+    <div
+      ref={ref}
+      data-component="image-reveal"
+      className={className}
+      {...rest}
+    >
       <span className="bg" aria-hidden="true" />
-      <img src={src} alt={alt} className={`media ${imgClassName}`} />
+      <img
+        src={src}
+        alt={alt}
+        className={`media ${imgClassName}`}
+        style={imageStyle}
+      />
     </div>
   );
 }
