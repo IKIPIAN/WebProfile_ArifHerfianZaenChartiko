@@ -56,7 +56,7 @@ export function Odometer({ value, className = "", delay = 0 }) {
   }, [value, delay]);
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={`odometer-value ${className}`}>
       {/* Nilai sebenarnya, hanya untuk pembaca layar dan penyalinan teks.
           Tiap kolom di bawah memuat SELURUH digit 0–9 dan hanya satu yang
           terlihat lewat overflow — jadi tanpa salinan utuh ini, menyalin

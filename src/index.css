@@ -71,24 +71,6 @@
   --duration-slow: 500ms;
 }
 
-/* Mode terang membalik bidang utamanya, tapi tetap memakai kosakata yang sama. */
-.light-mode {
-  --background: #f2f2f2;
-  --surface: #ffffff;
-  --text: #0c0c0c;
-  --text-muted: #6b6b6b;
-  --divider: #d8d8d8;
-  --line: #cfcfcf;
-
-  --panel: #0c0c0c;
-  --panel-text: #d8d8d8;
-  --panel-muted: #767676;
-  --panel-line: #434343;
-  --panel-surface: #16181f;
-
-  --shadow-card-color: rgb(0 0 0 / 0.12);
-}
-
 body {
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -119,6 +101,7 @@ body {
    Grotesk dengan tracking negatif yang mengetat seiring ukuran membesar —
    itulah yang membuat judul besar terbaca padat, bukan renggang. */
 .-display,
+.-display-stat,
 .-h1,
 .-h2,
 .-title-3,
@@ -131,6 +114,21 @@ body {
   font-size: 52px;
   line-height: 0.92;
   letter-spacing: -0.045em;
+}
+
+/*
+ * Angka besar yang berdiri di dalam kolom, bukan di lebar halaman.
+ *
+ * `-display` melompat ke 108px di layar lebar — ukuran yang dihitung untuk
+ * judul selebar halaman. Di kartu statistik yang lebarnya dibatasi 22rem,
+ * angka sebesar itu memakan hampir seluruh ruang dan menyisakan terlalu
+ * sedikit untuk keterangan skalanya di sebelahnya. Ukurannya di sini ikut
+ * lebar layar lewat clamp, bukan melompat di satu titik henti.
+ */
+.-display-stat {
+  font-size: clamp(3.25rem, 5.2vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .-h1 {
@@ -151,8 +149,11 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Dinaikkan dari 16px. Pada ukuran yang sama persis dengan `-body`, judul
+   tingkat empat hanya dibedakan oleh jenis huruf — dan itu terlalu tipis untuk
+   terbaca sebagai judul. */
 .-title-4 {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.3;
   letter-spacing: -0.015em;
 }
@@ -163,37 +164,49 @@ body {
 }
 
 .-body-small {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
 }
 
 .-body-smaller {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
 }
 
-/* Label mono huruf besar berspasi lebar — penanda struktur di seluruh situs. */
+/*
+ * Label mono huruf besar berspasi lebar — penanda struktur di seluruh situs.
+ *
+ * Ukurannya dinaikkan, dan SPASI HURUFNYA JUSTRU DIRAPATKAN. Keduanya sejalan,
+ * bukan bertentangan: pada ukuran kecil spasi lebar dipakai supaya huruf besar
+ * tidak saling menempel, tapi begitu ukurannya naik, spasi selebar itu memecah
+ * kata jadi deretan huruf lepas yang harus dieja satu per satu. Yang bikin
+ * label ini sulit dibaca bukan cuma kecilnya — tapi kecil DAN renggang
+ * sekaligus.
+ */
 .-caption {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.4;
 }
 
+/* Dinaikkan dari 10px. Ini kelas yang paling banyak dipakai di situs ini
+   sekaligus yang paling kecil — kombinasi huruf besar, jenis mono, dan spasi
+   0,22em pada 10px membuatnya lebih terbaca sebagai tekstur daripada teks. */
 .-caption-small {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   line-height: 1.4;
 }
 
 .-mono {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -210,6 +223,19 @@ body {
   }
   .-title-3 {
     font-size: 22px;
+  }
+  /* Label dan teks mono ikut naik di layar besar. Sebelumnya hanya judul yang
+     punya tingkatan desktop, sehingga selisih antara judul dan labelnya melebar
+     terus — label yang tetap 10px di sebelah judul 108px berhenti terbaca
+     sebagai pasangan dan mulai terbaca sebagai catatan kaki. */
+  .-caption {
+    font-size: 14px;
+  }
+  .-caption-small {
+    font-size: 13px;
+  }
+  .-mono {
+    font-size: 15px;
   }
 }
 
@@ -334,6 +360,16 @@ html.lenis body {
 
 /* ── 5. Odometer angka ────────────────────────────────────────────────────
    Kolom digit 0–9 digeser vertikal di dalam jendela setinggi satu digit. */
+/*
+ * Tiap digit adalah elemen `inline-block` yang berdiri sendiri, jadi bagi
+ * pembungkusnya angka "3.62" bukan satu kata melainkan empat benda yang boleh
+ * dipisah. Di kolom sempit ia benar-benar patah jadi "3.6" lalu "2" di baris
+ * berikutnya. Angka harus utuh dalam satu baris apa pun lebar wadahnya.
+ */
+.odometer-value {
+  white-space: nowrap;
+}
+
 .odometer {
   display: inline-block;
   overflow: hidden;
@@ -465,13 +501,37 @@ html.lenis body {
   );
 }
 
+/*
+ * Empat kata bertumpuk — dan tumpukan itu harus tetap terbaca sebagai EMPAT,
+ * bukan satu blok teks.
+ *
+ * `line-height: 0.82` membuat tinggi baris lebih pendek daripada tinggi huruf
+ * kapitalnya sendiri, jadi celah antarkata praktis nol dan keempatnya menyatu
+ * jadi satu bidang. Dinaikkan ke 0.94: masih rapat — memang itu maunya — tapi
+ * sekarang ada garis pemisah yang bisa dilihat mata.
+ */
 .stage-word {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: clamp(2.6rem, 8.2vw, 8.5rem);
-  line-height: 0.82;
+  line-height: 0.94;
   letter-spacing: -0.05em;
   text-transform: uppercase;
+  color: var(--text);
+}
+
+/*
+ * Baris berselang dibuat BERONGGA, bukan sekadar diredupkan.
+ *
+ * Versi sebelumnya membedakan barisnya lewat warna saja (terang vs redup), dan
+ * itu kalah oleh monolit di belakangnya: di atas bidang yang terang, kata redup
+ * ikut terbaca terang. Perbedaan isi-versus-garis tidak punya masalah itu —
+ * ia tetap terbaca di atas latar apa pun, karena yang membedakan bentuknya,
+ * bukan kecerahannya.
+ */
+.stage-word--hollow {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--text);
 }
 
 /* Panel kaca: latar nyaris gelap dengan blur di belakangnya, jadi kabut dan
@@ -575,12 +635,28 @@ html.lenis body {
   overflow: hidden;
 }
 
+/* Kepala panggung: tinggi seperlunya, tidak ikut dibagi ruang sisa. */
+.arrival-head {
+  flex: none;
+  padding: 6vh 0 2vh;
+}
+
+/*
+ * `flex: 1` menggantikan tinggi tetap 68vh.
+ *
+ * Sekarang ada judul di atasnya, dan angka tetap berarti keduanya bisa
+ * berjumlah lebih dari satu layar. Dengan mengambil SISA ruang, tinggi yang
+ * tersedia untuk kisi selalu benar berapa pun tinggi judulnya — dan
+ * `neededScale()` di SheetArrival.jsx membaca `fit.clientHeight`, jadi
+ * perhitungan perkecilan-agar-muat ikut menyesuaikan tanpa diberi tahu.
+ */
 .arrival-fit {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 68vh;
 }
 
 /* Mode tumbuh: dipasang dari JS ketika kartunya sudah terlalu banyak untuk
@@ -592,6 +668,11 @@ html.lenis body {
 }
 .arrival-stage--flow {
   padding: 4rem 0 5rem;
+}
+/* Panggungnya sudah punya padding sendiri di mode ini, jadi jarak atas milik
+   kepala tidak perlu ditumpuk lagi. */
+.arrival-stage--flow .arrival-head {
+  padding-top: 0;
 }
 
 .arrival-grid {
@@ -620,6 +701,11 @@ html.lenis body {
   }
   .arrival-fit {
     height: auto;
+  }
+  /* Tanpa pin, tinggi layar berhenti jadi ukuran yang berarti — jarak atasnya
+     kembali diukur dalam rem seperti bagian lain. */
+  .arrival-head {
+    padding: 5rem 0 2.5rem;
   }
   .arrival-grid > * {
     width: min(22rem, 100%);
@@ -671,8 +757,8 @@ html.lenis body {
   gap: 0.75rem;
   padding-bottom: 6px;
   font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-size: 13px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text);
 }

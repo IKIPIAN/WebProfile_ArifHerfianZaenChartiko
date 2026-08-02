@@ -45,7 +45,11 @@ export function RevealImage({ src, alt, delay = 0, className = "", imgClassName 
               scrollTrigger: {
                 trigger: el,
                 start: "clamp(top 90%)",
-                end: "clamp(bottom 55%)",
+                /* Selesai kira-kira saat gambarnya baru saja utuh masuk
+                   pandangan. `bottom 55%` menahan penyingkapan sampai gambar
+                   nyaris habis dilewati — separuh perjalanannya tidak pernah
+                   sempat dilihat sebagai gambar yang lengkap. */
+                end: "clamp(bottom 88%)",
                 scrub: SCRUB,
               },
             },

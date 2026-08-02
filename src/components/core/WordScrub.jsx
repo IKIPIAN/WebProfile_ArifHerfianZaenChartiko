@@ -45,8 +45,8 @@ export function WordScrub({ text, as: Tag = "p", className = "" }) {
           scrollTrigger: {
             trigger: el,
             start: "clamp(top 82%)",
-            end: "clamp(bottom 55%)",
-            scrub: 0.5,
+            end: "clamp(bottom 80%)",
+            scrub: 0.4,
           },
         },
       );
