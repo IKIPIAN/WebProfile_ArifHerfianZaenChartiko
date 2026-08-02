@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { gsap } from "../../animation/gsap";
-import { EASE_SCRUB, SCRUB_PIN, prefersReducedMotion } from "../../animation/motion-tokens";
+import {
+  EASE_SCRUB,
+  SCRUB_PIN,
+  prefersReducedMotion,
+} from "../../animation/motion-tokens";
 
 /*
  * PANGGUNG KEAHLIAN — tiga babak dalam satu bentangan scroll yang di-pin.
@@ -55,7 +59,12 @@ function Glyph({ index }) {
 
 function Card({ item, side, order }) {
   return (
-    <article data-card data-side={side} data-order={order} className="stage-card">
+    <article
+      data-card
+      data-side={side}
+      data-order={order}
+      className="stage-card"
+    >
       <div className="mb-6 flex items-start justify-between gap-6">
         <h3 className="-h2 max-w-[9em]">{item.title}</h3>
         <Glyph index={order} />
@@ -73,8 +82,12 @@ export function SkillStage({ items, label, title, tagline }) {
 
   /* Selang-seling kiri/kanan, dengan urutan aslinya dibawa serta supaya jeda
      masuknya tetap mengikuti urutan keahlian, bukan urutan kolom. */
-  const leftItems = items.filter((_, i) => i % 2 === 0).map((it, i) => ({ ...it, _order: i }));
-  const rightItems = items.filter((_, i) => i % 2 === 1).map((it, i) => ({ ...it, _order: i }));
+  const leftItems = items
+    .filter((_, i) => i % 2 === 0)
+    .map((it, i) => ({ ...it, _order: i }));
+  const rightItems = items
+    .filter((_, i) => i % 2 === 1)
+    .map((it, i) => ({ ...it, _order: i }));
 
   /* Huruf dipecah sekali saja lewat useMemo. Memecahnya di dalam render
      membuat React membuang dan membuat ulang setiap <span> pada tiap render,
@@ -96,7 +109,9 @@ export function SkillStage({ items, label, title, tagline }) {
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 900px)", () => {
-      const letters = gsap.utils.toArray(root.querySelectorAll("[data-letter]"));
+      const letters = gsap.utils.toArray(
+        root.querySelectorAll("[data-letter]"),
+      );
       const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
 
@@ -123,7 +138,10 @@ export function SkillStage({ items, label, title, tagline }) {
       const CARD_DUR = 0.26;
       const SETTLE = 0.79;
 
-      const lastOrder = cards.reduce((max, c) => Math.max(max, Number(c.dataset.order) || 0), 0);
+      const lastOrder = cards.reduce(
+        (max, c) => Math.max(max, Number(c.dataset.order) || 0),
+        0,
+      );
       const total = (CARD_START + lastOrder * CARD_GAP + CARD_DUR) / SETTLE;
 
       const tl = gsap.timeline({
@@ -222,7 +240,14 @@ export function SkillStage({ items, label, title, tagline }) {
              kecepatan — dan lompatan itu paling terasa saat halaman di-scroll
              balik ke atas, tepat sebelum kartunya bubar. Sama persis dengan
              yang dilakukan panggung sertifikat. */
-          { x: 0, y: 0, opacity: 1, scale: 1, duration: CARD_DUR, ease: "power2.out" },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: CARD_DUR,
+            ease: "power2.out",
+          },
           CARD_START + order * CARD_GAP,
         );
       });
@@ -238,7 +263,10 @@ export function SkillStage({ items, label, title, tagline }) {
   }, [rows]);
 
   return (
-    <div ref={rootRef} className="stage relative h-screen w-full overflow-hidden">
+    <div
+      ref={rootRef}
+      className="stage relative h-auto sm:h-screen w-full overflow-hidden"
+    >
       <div aria-hidden="true" className="stage-fog" />
 
       {/* Kanvas desain yang melayang. Dibangun dari lapisan gradien, kisi, dan
@@ -275,7 +303,11 @@ export function SkillStage({ items, label, title, tagline }) {
             }`}
           >
             {row.chars.map((char, c) => (
-              <span key={c} data-letter className="inline-block will-change-transform">
+              <span
+                key={c}
+                data-letter
+                className="inline-block will-change-transform"
+              >
                 {char}
               </span>
             ))}
@@ -295,12 +327,22 @@ export function SkillStage({ items, label, title, tagline }) {
       <div ref={cardsRef} className="stage-cards">
         <div className="stage-col">
           {leftItems.map((item) => (
-            <Card key={item.title} item={item} side="left" order={item._order} />
+            <Card
+              key={item.title}
+              item={item}
+              side="left"
+              order={item._order}
+            />
           ))}
         </div>
         <div className="stage-col stage-col-offset">
           {rightItems.map((item) => (
-            <Card key={item.title} item={item} side="right" order={item._order} />
+            <Card
+              key={item.title}
+              item={item}
+              side="right"
+              order={item._order}
+            />
           ))}
         </div>
       </div>

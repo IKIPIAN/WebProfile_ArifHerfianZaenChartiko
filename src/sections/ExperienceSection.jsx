@@ -27,14 +27,20 @@ export function ExperienceSection() {
   const number = chapterNumber("pengalaman");
 
   return (
-    <section id="pengalaman" data-component="chapter" className="relative scroll-mt-24">
+    <section
+      id="pengalaman"
+      data-component="chapter"
+      className="relative scroll-mt-24"
+    >
       <Container wide className="py-24 sm:py-28 nav:py-40">
         <ScrubReveal className="mb-6 flex items-center gap-4 sm:mb-7">
           <span className="-mono tabular-nums text-text-muted">
             {String(number).padStart(2, "0")}
           </span>
           <span className="h-px w-12 bg-line" />
-          <span className="-caption-small text-text-muted">{chapter.label}</span>
+          <span className="-caption-small text-text-muted">
+            {chapter.label}
+          </span>
         </ScrubReveal>
 
         <LineMask
@@ -44,7 +50,10 @@ export function ExperienceSection() {
           lineClassName="last:text-text-muted"
         />
 
-        <ScrubReveal as="p" className="-body-small mb-12 max-w-md text-text-muted sm:mb-20">
+        <ScrubReveal
+          as="p"
+          className="-body-small mb-12 max-w-md text-text-muted sm:mb-20"
+        >
           {chapter.subtitle}
         </ScrubReveal>
 
@@ -61,9 +70,12 @@ export function ExperienceSection() {
             >
               <div className="mb-8 flex items-baseline justify-between gap-4 border-b border-line pb-5">
                 <span className="-mono tabular-nums text-text-muted">
-                  {String(i + 1).padStart(2, "0")} / {String(experienceList.length).padStart(2, "0")}
+                  {String(i + 1).padStart(2, "0")} /{" "}
+                  {String(experienceList.length).padStart(2, "0")}
                 </span>
-                <span className="-caption-small text-text-muted">{entry.period}</span>
+                <span className="-caption-small text-text-muted">
+                  {entry.period}
+                </span>
               </div>
 
               <h3 className="-h2 mb-3">{entry.role}</h3>
@@ -82,8 +94,14 @@ export function ExperienceSection() {
 
               <ul className="mb-10 flex flex-col gap-3">
                 {entry.responsibilities.map((task) => (
-                  <li key={task} className="-body-small flex gap-3 text-text-muted">
-                    <span aria-hidden="true" className="mt-2 h-px w-3 shrink-0 bg-line" />
+                  <li
+                    key={task}
+                    className="-body-small flex gap-3 text-text-muted"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-2 h-px w-3 shrink-0 bg-line"
+                    />
                     {task}
                   </li>
                 ))}

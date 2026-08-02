@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { site } from "../../data/site";
-import { CONTOH_PESAN, buildEmailLink, buildWhatsAppLink } from "../../lib/contact-links";
+import {
+  CONTOH_PESAN,
+  buildEmailLink,
+  buildWhatsAppLink,
+} from "../../lib/contact-links";
 import { Button } from "./Button";
 
 /* Input tanpa kotak: hanya garis bawah, dan garis itu menebal saat difokus.
@@ -34,7 +38,11 @@ export function ContactForm() {
     const isian = ambilIsian();
     if (!isian) return;
 
-    window.open(buildWhatsAppLink({ phone: site.phone, ...isian }), "_blank", "noopener,noreferrer");
+    window.open(
+      buildWhatsAppLink({ phone: site.phone, ...isian }),
+      "_blank",
+      "noopener,noreferrer",
+    );
   }
 
   function kirimEmail() {
@@ -55,7 +63,10 @@ export function ContactForm() {
       <form onSubmit={kirimWA} className="flex flex-col gap-6 sm:gap-7">
         <div className="grid grid-cols-1 gap-6 sm:gap-7 nav:grid-cols-2">
           <div>
-            <label htmlFor="namaPengirim" className="-caption-small mb-1 block text-text-muted">
+            <label
+              htmlFor="namaPengirim"
+              className="-caption-small mb-1 block text-text-muted"
+            >
               Nama
             </label>
             <input
@@ -69,7 +80,10 @@ export function ContactForm() {
           </div>
 
           <div>
-            <label htmlFor="emailPengirim" className="-caption-small mb-1 block text-text-muted">
+            <label
+              htmlFor="emailPengirim"
+              className="-caption-small mb-1 block text-text-muted"
+            >
               Email
             </label>
             <input
@@ -84,7 +98,10 @@ export function ContactForm() {
         </div>
 
         <div>
-          <label htmlFor="isiPesan" className="-caption-small mb-1 block text-text-muted">
+          <label
+            htmlFor="isiPesan"
+            className="-caption-small mb-1 block text-text-muted"
+          >
             Pesan
           </label>
           <textarea
@@ -104,7 +121,12 @@ export function ContactForm() {
           <Button type="submit" className="w-full sm:w-auto">
             <i className="fa-brands fa-whatsapp" /> Kirim via WhatsApp
           </Button>
-          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={kirimEmail}>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={kirimEmail}
+          >
             <i className="fa-solid fa-envelope" /> Kirim via Email
           </Button>
         </div>
