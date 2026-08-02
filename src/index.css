@@ -914,18 +914,33 @@ html.lenis body {
 
 @media (max-width: 899px) {
   .stage {
-    height: auto;
-    padding: 3.5rem 0 2.5rem;
+    min-height: 100vh;
+    padding: 2rem 0 1.5rem;
   }
 
   .stage-words {
-    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0 1.25rem;
+    text-align: center;
+  }
+
+  .slab {
+    width: 75vw;
+    max-width: 340px;
+    margin-top: -4rem;
   }
 
   .stage-cards {
     position: relative;
     flex-direction: column;
-    padding: 2rem 1rem 0;
+    padding: 1rem 1rem 0;
     gap: 1rem;
   }
 
@@ -946,6 +961,10 @@ html.lenis body {
   .slab {
     width: 75vw;
     max-width: 340px;
+  }
+
+  .stage > .-caption-small {
+    bottom: 0.75rem;
   }
 }
 

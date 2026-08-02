@@ -241,6 +241,106 @@ export function SkillStage({ items, label, title, tagline }) {
       return () => gsap.set(cards, { clearProps: "all" });
     });
 
+    mm.add(DEVICE.mobile, () => {
+      const letters = gsap.utils.toArray(
+        root.querySelectorAll("[data-letter]"),
+      );
+      const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
+      const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
+      if (!letters.length || !cards.length || !rowEls.length) return;
+
+      const CARD_START = 0.45;
+      const CARD_GAP = 0.08;
+      const CARD_DUR = 0.26;
+      const SETTLE = 0.79;
+
+      const lastOrder = cards.reduce(
+        (max, c) => Math.max(max, Number(c.dataset.order) || 0),
+        0,
+      );
+      const total = (CARD_START + lastOrder * CARD_GAP + CARD_DUR) / SETTLE;
+
+      const tl = gsap.timeline({
+        defaults: { ease: EASE_SCRUB },
+        scrollTrigger: {
+          trigger: root,
+          start: "top top",
+          end: () => "+=" + Math.round(window.innerHeight * 1.6),
+          pin: true,
+          scrub: SCRUB_PIN,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: 1,
+        },
+      });
+
+      tl.fromTo(
+        slabRef.current,
+        { rotate: -14, scale: 0.82 },
+        { rotate: 12, scale: 1.04, duration: total },
+        0,
+      );
+
+      tl.fromTo(
+        rowEls,
+        { scale: 0.94, opacity: 0.75 },
+        { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
+        0,
+      );
+
+      let seed = 0;
+      rowEls.forEach((row, r) => {
+        const len = row.querySelectorAll("[data-letter]").length;
+        const vy = rows.length > 1 ? (r / (rows.length - 1)) * 2 - 1 : 0;
+
+        row.querySelectorAll("[data-letter]").forEach((el, c) => {
+          const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
+          const n1 = noise(seed + 1);
+          const n2 = noise(seed + 97);
+          const n3 = noise(seed + 613);
+          seed += 1;
+
+          tl.to(
+            el,
+            {
+              x: hx * (260 + n1 * 460),
+              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
+              rotate: (n1 - 0.5) * 240,
+              scale: 0.35 + n2 * 0.75,
+              opacity: 0,
+              duration: 0.36,
+              delay: n3 * 0.08,
+            },
+            0.24,
+          );
+        });
+      });
+
+      cards.forEach((card) => {
+        const fromLeft = card.dataset.side === "left";
+        const order = Number(card.dataset.order) || 0;
+        tl.fromTo(
+          card,
+          { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: CARD_DUR,
+            ease: "power2.out",
+          },
+          CARD_START + order * CARD_GAP,
+        );
+      });
+
+      return () => {
+        gsap.set([...letters, ...cards, ...rowEls, slabRef.current], {
+          clearProps: "all",
+        });
+      };
+    });
+
     return () => mm.revert();
   }, [rows]);
 
