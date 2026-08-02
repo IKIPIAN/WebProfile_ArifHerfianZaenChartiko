@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Website profil Arif Herfian Zaen Chartiko - Lulusan S1 Pendidikan Teknik Informatika Universitas Negeri Malang">
+  <title>Profil - Arif Herfian Zaen Chartiko</title>
+
+  <!-- Inter buat body teks, Fraunces (display serif) buat heading, JetBrains Mono buat aksen -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- icon dari font awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    // cegah flash tema salah sebelum React mount. Gelap jadi default, jadi yang
+    // ditempel di sini justru penanda TERANG — menempelkan kelas untuk keadaan
+    // default berarti halaman sempat tampil salah warna satu frame.
+    // kunci "theme-v3": preferensi tersimpan dari dua versi sebelumnya diabaikan
+    (function () {
+      if (localStorage.getItem("theme-v3") === "light") {
+        document.documentElement.classList.add("light-mode");
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
