@@ -354,6 +354,34 @@ export function SheetArrival({ children, header = null, className = "" }) {
       return () => gsap.set(cards, { clearProps: "all" });
     });
 
+    mm.add(DEVICE.mobile, () => {
+      const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
+      if (!cards.length) return;
+
+      cards.forEach((card, index) => {
+        gsap.fromTo(
+          card,
+          { y: 70, opacity: 0, rotate: index % 2 === 0 ? -2 : 2 },
+          {
+            y: 0,
+            opacity: 1,
+            rotate: 0,
+            duration: 0.75,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 98%",
+              end: "top 70%",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      });
+
+      return () => gsap.set(cards, { clearProps: "all" });
+    });
+
     return () => mm.revert();
   }, [children]);
 
