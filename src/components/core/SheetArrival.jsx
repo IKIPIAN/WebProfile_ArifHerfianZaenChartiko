@@ -356,30 +356,94 @@ export function SheetArrival({ children, header = null, className = "" }) {
 
     mm.add(DEVICE.mobile, () => {
       const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
+      const floats = gsap.utils.toArray(grid.querySelectorAll("[data-float]"));
       if (!cards.length) return;
 
-      cards.forEach((card, index) => {
-        gsap.fromTo(
+      const animatedCount = Math.min(cards.length, 2);
+      const animatedCards = cards.slice(0, animatedCount);
+      const animatedFloats = floats.slice(0, animatedCount);
+
+      const tl = gsap.timeline({
+        defaults: { ease: EASE_SCRUB },
+        scrollTrigger: {
+          trigger: root,
+          start: "top 90%",
+          end: () => "+=" + Math.round(window.innerHeight * 0.9),
+          scrub: SCRUB_PIN,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      animatedCards.forEach((card, i) => {
+        const arah = i % 2 === 0 ? -1 : 1;
+        const ragam = ((i * 41) % 17) / 16;
+        const offsetY = (ragam - 0.5) * 40;
+
+        tl.fromTo(
           card,
-          { y: 70, opacity: 0, rotate: index % 2 === 0 ? -2 : 2 },
           {
-            y: 0,
-            opacity: 1,
-            rotate: 0,
-            duration: 0.75,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 98%",
-              end: "top 70%",
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
+            x: arah * (window.innerWidth * 0.38 + ragam * 90),
+            y: offsetY,
+            rotate: arah * (1.2 + ragam * 1.3),
+            scale: 0.95,
+            opacity: 0,
           },
+          {
+            x: 0,
+            y: 0,
+            rotate: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 0.5 + ragam * 0.18,
+            ease: "power2.out",
+          },
+          0.06 + i * 0.03,
         );
       });
 
-      return () => gsap.set(cards, { clearProps: "all" });
+      const wave = { amp: 1 };
+      const sheets = animatedFloats.map((el, i) => {
+        const ragam = ((i * 29) % 13) / 12;
+        const arah = i % 2 === 0 ? 1 : -1;
+        gsap.set(el, { transformPerspective: 900, transformOrigin: "50% 50%" });
+        return {
+          el,
+          arah,
+          fase: ragam * Math.PI * 2,
+          ay: 11 + ragam * 6,
+          ar: 0.9 + ragam * 0.8,
+          at: 3.5 + ragam * 3,
+          ax: 2 + ragam * 2.4,
+          fy: 0.19 + ragam * 0.05,
+          fr: 0.13 + ragam * 0.04,
+          ft: 0.1 + ragam * 0.03,
+        };
+      });
+
+      const TAU = Math.PI * 2;
+      const tick = (waktu) => {
+        const a = wave.amp;
+        for (const s of sheets) {
+          gsap.set(s.el, {
+            y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
+            rotate:
+              Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
+            rotateY:
+              Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
+            rotateX:
+              Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
+          });
+        }
+      };
+      gsap.ticker.add(tick);
+
+      tl.to(wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
+      tl.to({}, { duration: 0.2 }, 0.8);
+
+      return () => {
+        gsap.ticker.remove(tick);
+        gsap.set([...cards, ...animatedFloats, grid], { clearProps: "all" });
+      };
     });
 
     return () => mm.revert();
