@@ -65,12 +65,18 @@ export function Button({
   }
 
   if (href) {
+    /* Hanya tautan web yang dibuka di tab baru. `mailto:` dan `tel:` diserahkan
+       ke aplikasi luar, dan memaksanya ke tab baru menyisakan tab kosong yang
+       harus ditutup sendiri oleh pengunjung — di sebagian browser tab itu malah
+       menampilkan halaman galat sebelum aplikasi surelnya terbuka. */
+    const tautanWeb = /^https?:/i.test(href);
+
     return (
       <a
         href={href}
         onClick={onClick}
-        target="_blank"
-        rel="noopener noreferrer"
+        target={tautanWeb ? "_blank" : undefined}
+        rel={tautanWeb ? "noopener noreferrer" : undefined}
         data-component="button"
         className={classes}
       >

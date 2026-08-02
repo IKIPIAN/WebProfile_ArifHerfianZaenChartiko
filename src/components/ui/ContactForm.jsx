@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { site } from "../../data/site";
-import { buildWhatsAppLink } from "../../lib/whatsapp";
+import { CONTOH_PESAN, buildEmailLink, buildWhatsAppLink } from "../../lib/contact-links";
 import { Button } from "./Button";
 
 /* Input tanpa kotak: hanya garis bawah, dan garis itu menebal saat difokus.
@@ -14,25 +14,38 @@ export function ContactForm() {
   const [email, setEmail] = useState("");
   const [pesan, setPesan] = useState("");
 
-  function kirimWA(e) {
-    e.preventDefault();
-
+  /* Pemeriksaan yang sama dipakai kedua tombol. Kalau masing-masing memeriksa
+     sendiri, cepat atau lambat salah satunya ketinggalan saat aturannya
+     berubah — dan yang lolos adalah pesan kosong ke kotak masuk Anda. */
+  function ambilIsian() {
     const namaTrim = nama.trim();
     const pesanTrim = pesan.trim();
 
     if (namaTrim === "" || pesanTrim === "") {
       alert("Mohon isi nama dan pesan terlebih dahulu!");
-      return;
+      return null;
     }
 
-    const link = buildWhatsAppLink({
-      phone: site.phone,
-      nama: namaTrim,
-      email: email.trim(),
-      pesan: pesanTrim,
-    });
+    return { nama: namaTrim, email: email.trim(), pesan: pesanTrim };
+  }
 
-    window.open(link, "_blank", "noopener,noreferrer");
+  function kirimWA(e) {
+    e.preventDefault();
+    const isian = ambilIsian();
+    if (!isian) return;
+
+    window.open(buildWhatsAppLink({ phone: site.phone, ...isian }), "_blank", "noopener,noreferrer");
+  }
+
+  function kirimEmail() {
+    const isian = ambilIsian();
+    if (!isian) return;
+
+    /* `window.location`, BUKAN `window.open`. Tautan `mailto:` diserahkan ke
+       aplikasi surel dan tidak pernah menggambar halaman apa pun, jadi membuka
+       tab baru untuknya hanya menyisakan tab kosong yang harus ditutup sendiri
+       oleh pengunjung. */
+    window.location.href = buildEmailLink({ tujuan: site.email, ...isian });
   }
 
   return (
@@ -77,16 +90,24 @@ export function ContactForm() {
           <textarea
             id="isiPesan"
             rows={4}
-            placeholder="Tulis pesan Anda di sini..."
+            placeholder={CONTOH_PESAN}
             value={pesan}
             onChange={(e) => setPesan(e.target.value)}
             className={`${inputClass} resize-y`}
           />
         </div>
 
-        <Button type="submit" className="self-start">
-          <i className="fa-brands fa-whatsapp" /> Kirim via WhatsApp
-        </Button>
+        {/* Dua jalur, satu isian. Keduanya mengirim pesan yang bentuknya sama —
+            yang berbeda hanya aplikasi yang membukanya, jadi pengunjung memilih
+            berdasarkan kebiasaannya sendiri, bukan dipaksa satu jalan. */}
+        <div className="flex flex-wrap gap-3">
+          <Button type="submit">
+            <i className="fa-brands fa-whatsapp" /> Kirim via WhatsApp
+          </Button>
+          <Button type="button" variant="outline" onClick={kirimEmail}>
+            <i className="fa-solid fa-envelope" /> Kirim via Email
+          </Button>
+        </div>
       </form>
     </div>
   );

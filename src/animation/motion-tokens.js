@@ -40,7 +40,7 @@ export const DURATION = {
  * terbaca sebagai isi yang masih menyusul saat bagiannya sudah lewat separuh
  * layar, jadi diturunkan — masih cukup untuk meredam getaran roda mouse.
  */
-export const SCRUB = 0.45;
+export const SCRUB = 0.35;
 
 /* Scrub untuk elemen ter-pin dibuat lebih rapat: saat halaman diam di tempat,
    kelambatan besar terbaca sebagai kendali yang lepas dari jari. */

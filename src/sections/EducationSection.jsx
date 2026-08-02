@@ -40,7 +40,7 @@ export function EducationSection() {
           className="mb-20"
           top={chapter.title}
           bottom={chapter.accent}
-          lineClassName="-display leading-[0.85]"
+          lineClassName="-display leading-[0.95]"
         />
 
         <div className="grid grid-cols-1 gap-x-16 gap-y-12 border-t border-line pt-14 nav:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">

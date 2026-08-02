@@ -41,7 +41,7 @@ export function SplitWords({
         scrollTrigger: {
           trigger: el,
           start: "clamp(top 95%)",
-          end: "clamp(center 72%)",
+          end: "clamp(center 80%)",
           scrub: SCRUB,
         },
       });
@@ -54,7 +54,11 @@ export function SplitWords({
   }, [top, bottom, distance]);
 
   return (
-    <div ref={ref} className={`overflow-hidden ${className}`}>
+    /* `overflow-hidden` di sini menahan kedua kata selama mereka masih di luar
+       bingkai — itu inti transisinya. Tapi ia memotong ke SEGALA arah, termasuk
+       ke bawah, sehingga ekor huruf kata terakhir ikut terpangkas. Padding
+       menambah ruang potongnya, margin negatif mengembalikan tata letaknya. */
+    <div ref={ref} className={`overflow-hidden pb-[0.2em] mb-[-0.2em] ${className}`}>
       <div className={`top-word will-change-transform ${lineClassName}`}>{top}</div>
       <div className={`bottom-word will-change-transform ${lineClassName}`}>{bottom}</div>
     </div>

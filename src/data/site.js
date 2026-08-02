@@ -1,7 +1,7 @@
 export const site = {
   name: "Arif Herfian Zaen Chartiko",
-  /* Dipecah karena nama ini dipakai sebagai elemen morph: preloader menampilkan
-     versi kecilnya, hero melanjutkannya jadi judul besar. Markupnya harus sama. */
+  /* Dipecah karena judul hero menampilkannya sebagai dua baris bertopeng yang
+     naik bergantian — tiap baris butuh elemennya sendiri untuk ditopengi. */
   firstName: "Arif Herfian",
   lastName: "Zaen Chartiko",
 
@@ -33,19 +33,15 @@ export const site = {
   phoneDisplay: "+62 857-9022-6536",
 
   /*
-   * Tiga angka ini digulung sebagai odometer di bagian pendidikan, jadi tiap
+   * Angka-angka ini digulung sebagai odometer di bagian pendidikan, jadi tiap
    * nilainya harus benar-benar bisa dipertanggungjawabkan.
    *
-   * "7 Bulan Pengalaman" mengukur rentang Februari–Agustus 2024, yaitu dari
-   * hari pertama mengajar sampai hari terakhir di dinas. Angka sebelumnya
-   * ("6 Bulan Mengajar") ikut hitungan lama yang menganggap masa mengajar
-   * dimulai Januari; CV terbaru menyebut Februari, jadi angka itu tidak lagi
-   * benar. Menghitung rentang total juga lebih jujur daripada menjumlahkan
-   * kedua peran, karena Juni terhitung di dua-duanya.
+   * Entri pertama sengaja dilewati saat dirender (`stats.slice(1)`): IPK sudah
+   * tampil sendiri sebagai angka besar di kartu yang sama, jadi mengulangnya
+   * di daftar bawah hanya membuatnya terbaca dua kali.
    */
   stats: [
     { value: "3.62", label: "IPK" },
-    { value: "7", label: "Bulan Pengalaman" },
     { value: "6", label: "Sertifikat" },
   ],
 };

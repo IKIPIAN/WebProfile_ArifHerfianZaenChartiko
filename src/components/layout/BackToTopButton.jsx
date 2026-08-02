@@ -29,10 +29,18 @@ const MAX_DURATION = 3; // detik — dari dasar halaman, seberapa pun panjangnya
  */
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-/* Di pojok kanan bawah. Mulai 900px ke atas, deretan penanda bagian milik
-   StatusBar menempati sudut yang sama, jadi tombolnya diangkat ke atas deretan
-   itu — bukan digeser ke samping, supaya tetap terbaca sebagai satu kolom
-   kontrol di tepi kanan. */
+/*
+ * Di pojok kanan bawah. Mulai 900px ke atas, deretan penanda bagian milik
+ * StatusBar menempati sudut yang sama, jadi tombolnya diangkat ke atas deretan
+ * itu — bukan digeser ke samping, supaya tetap terbaca sebagai satu kolom
+ * kontrol di tepi kanan.
+ *
+ * Tingginya dihitung dari LABEL penanda, bukan dari garisnya. Garis-garis itu
+ * berhenti di 44px, tapi nama bagian yang muncul saat disentuh menjulang
+ * sampai 82px — dan label milik garis terakhir dirapatkan ke kanan, tepat ke
+ * ruang yang ditempati tombol ini. Pada 4,5rem keduanya bertindih 10px.
+ * 6rem menyisakan 14px jarak bersih.
+ */
 export function BackToTopButton() {
   const visible = useScrolled(600);
   const { scrollTo } = useScroller();
@@ -54,7 +62,7 @@ export function BackToTopButton() {
           transition={{ duration: 0.25 }}
           onClick={handleClick}
           title="Kembali ke atas"
-          className="fixed right-6 bottom-6 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-background/70 text-text-muted backdrop-blur-md transition-colors duration-300 ease-power nav:bottom-18 hover:border-text/50 hover:text-text"
+          className="fixed right-6 bottom-6 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-background/70 text-text-muted backdrop-blur-md transition-colors duration-300 ease-power nav:bottom-24 hover:border-text/50 hover:text-text"
         >
           <i className="fa-solid fa-arrow-up text-sm" />
         </motion.button>

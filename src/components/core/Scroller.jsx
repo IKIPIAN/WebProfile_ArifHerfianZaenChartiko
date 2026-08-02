@@ -19,13 +19,33 @@ export function Scroller({ children }) {
    * yang sudah terlewat, sehingga animasinya diam di keadaan akhir dan penanda
    * bagian tidak pernah berpindah.
    *
-   * Dijalankan di rAF supaya berjalan setelah frame tempat preloader dilepas,
-   * bukan di tengah-tengahnya.
+   * Dijalankan di rAF supaya jatuh setelah frame pertama selesai digambar,
+   * bukan di tengah-tengahnya — pada saat itulah tata letak awal sudah ada
+   * untuk diukur.
    */
   useEffect(() => {
     if (!ready) return;
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => cancelAnimationFrame(id);
+
+    /*
+     * Hitung ulang SEKALI LAGI setelah font khusus benar-benar terpasang.
+     *
+     * Dulu penantian ini dikerjakan preloader di balik tirainya — ia menunggu
+     * `document.fonts.ready` sebelum melepas halaman. Tanpa preloader, tata
+     * letak sudah tergambar memakai font cadangan, dan begitu Fraunces serta
+     * Inter menggantikannya, tinggi tiap blok teks berubah dan SEMUA titik
+     * pemicu di bawahnya ikut bergeser. Yang tersisa untuk menjaganya tetap
+     * benar adalah menghitung ulang tepat setelah pergantian itu terjadi.
+     */
+    let batal = false;
+    document.fonts?.ready.then(() => {
+      if (!batal) ScrollTrigger.refresh();
+    });
+
+    return () => {
+      batal = true;
+      cancelAnimationFrame(id);
+    };
   }, [ready]);
 
   useEffect(() => {

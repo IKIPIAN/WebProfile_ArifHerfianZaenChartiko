@@ -21,9 +21,42 @@ import { useScroller } from "./scroller-context";
  */
 export function StatusBar() {
   const [index, setIndex] = useState(0);
+  const [onPanel, setOnPanel] = useState(false);
   const wordRef = useRef(null);
   const prevIndex = useRef(0);
   const { scrollTo } = useScroller();
+
+  /*
+   * WARNA BILAH MENGIKUTI PITA DI BELAKANGNYA.
+   *
+   * Bilah ini `fixed`, jadi ia melayang DI LUAR pita nada mana pun — dan
+   * karena itu ia tidak ikut membalik warna saat bagian terang lewat di
+   * belakangnya. Di atas panel putih, teks abu terangnya nyaris hilang.
+   *
+   * AMBANGNYA BUKAN TEPI BAGIAN, MELAINKAN TENGAH GRADIEN PENGHUBUNG. Antara
+   * pita gelap dan pita terang ada jembatan gradien setinggi setengah layar.
+   * Kalau warnanya baru berganti saat tepi bagian lewat, bilahnya sudah lebih
+   * dulu berdiri di atas latar yang nyaris putih sepanjang jembatan itu —
+   * persis keadaan yang mau diperbaiki, cuma bergeser tempatnya.
+   *
+   * Bilah duduk di sekitar 96% tinggi layar. Supaya pergantian jatuh tepat di
+   * tengah gradien pada ketinggian itu: 96% dikurangi 25% (separuh gradien)
+   * = 71%, dan tepi atas panel berada setengah layar di bawahnya = 121%.
+   */
+  useEffect(() => {
+    const panels = gsap.utils.toArray('[data-band="panel"]');
+    if (!panels.length) return;
+
+    const trigger = ScrollTrigger.create({
+      trigger: panels[0],
+      endTrigger: panels[panels.length - 1],
+      start: "top 121%",
+      end: "bottom 71%",
+      onToggle: (self) => setOnPanel(self.isActive),
+    });
+
+    return () => trigger.kill();
+  }, []);
 
   useEffect(() => {
     const triggers = numberedChapters.map((chapter, i) => {
@@ -66,14 +99,18 @@ export function StatusBar() {
   const current = String(index + 1).padStart(2, "0");
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-40 px-6 nav:px-10">
+    <div
+      className={`status-bar pointer-events-none fixed inset-x-0 bottom-5 z-40 px-6 nav:px-10 ${
+        onPanel ? "status-bar--panel" : ""
+      }`}
+    >
       <div className="flex items-end justify-between gap-6">
         <button
           type="button"
           onClick={() => scrollTo(`#${active.id}`)}
           className="pointer-events-auto group flex items-baseline gap-2 text-left"
         >
-          <span className="-caption-small text-text-muted">
+          <span className="-caption-small text-text-muted transition-colors duration-500 ease-brand">
             {current}/{total}
           </span>
           {/* Jendela setinggi satu baris; kata di dalamnya yang bergerak. */}
@@ -91,13 +128,26 @@ export function StatusBar() {
               type="button"
               aria-label={chapter.label}
               onClick={() => scrollTo(`#${chapter.id}`)}
-              className="pointer-events-auto h-6 w-6 flex items-center justify-center"
+              className={`chapter-dot group pointer-events-auto relative flex h-6 w-6 cursor-pointer items-center justify-center ${
+                i === numberedChapters.length - 1 ? "chapter-dot--last" : ""
+              }`}
             >
+              {/* Nama bagiannya muncul tepat di atas garis saat disentuh.
+                  `aria-hidden` karena tombolnya sudah punya aria-label dengan
+                  teks yang sama — tanpa itu pembaca layar menyebutnya dua kali. */}
+              <span aria-hidden="true" className="chapter-tip -caption-small">
+                {chapter.label}
+              </span>
+
               {/* Titik kecil yang memanjang jadi garis saat aktif — perubahan
-                  bentuk terbaca lebih cepat daripada perubahan warna saja. */}
+                  bentuk terbaca lebih cepat daripada perubahan warna saja.
+                  Saat disentuh ia ikut memanjang sedikit, jadi ada tanggapan
+                  bahkan sebelum labelnya sempat muncul. */}
               <span
                 className={`block h-px transition-all duration-500 ease-brand ${
-                  i === index ? "w-6 bg-text" : "w-2 bg-line"
+                  i === index
+                    ? "w-6 bg-text"
+                    : "w-2 bg-line group-hover:w-4 group-hover:bg-text-muted"
                 }`}
               />
             </button>

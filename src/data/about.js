@@ -9,7 +9,7 @@ export const aboutCards = [
     icon: "fa-solid fa-chalkboard-user",
     title: "Pendidik Informatika",
     description:
-      "Lulusan S1 Pendidikan Teknik Informatika Universitas Negeri Malang dengan pengalaman mengajar pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan di SMKN 3 Malang. Terbiasa menjelaskan hal teknis kepada orang yang belum familier — kebiasaan yang sama terpakai saat mempresentasikan rancangan.",
+      "Lulusan S1 Pendidikan Teknik Informatika Universitas Negeri Malang dengan pengalaman mengajar pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan di SMKN 3 Malang. Terbiasa menjelaskan hal teknis kepada orang awam — kebiasaan yang sama terpakai saat mempresentasikan rancangan.",
   },
   {
     icon: "fa-solid fa-folder-open",

@@ -2,7 +2,6 @@ import { site } from "../../data/site";
 import { Container } from "../ui/Container";
 import { ScrubReveal } from "../core/ScrubReveal";
 import { LineMask } from "../core/LineMask";
-import { LetterHover } from "../core/LetterHover";
 import { AmbientLines } from "../core/AmbientLines";
 import { Marquee } from "../core/Marquee";
 
@@ -20,21 +19,29 @@ import { Marquee } from "../core/Marquee";
 export function Footer() {
   return (
     <footer data-component="footer" data-band="void" className="relative overflow-hidden">
-      <AmbientLines density={30} />
-
-      <div className="relative z-2">
-        <Marquee className="border-y border-line py-6" speed={38}>
-          {["Terbuka untuk kolaborasi", "Desain UI/UX", "Pendidikan Informatika"].map((word) => (
-            <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
-              {word}
-              <span aria-hidden="true" className="text-accent">
-                ✦
-              </span>
+      {/* Pita berjalan berdiri SENDIRI di sini, di luar wadah medan garis.
+          Sebelumnya medan garis dipasang `absolute inset-0` sepanjang footer,
+          jadi garis-garisnya melintas tepat di belakang tulisan berjalan — dua
+          gerak berbeda arah bertumpuk di satu bidang setinggi satu baris, dan
+          keduanya jadi sulit dibaca. */}
+      <Marquee className="relative z-2 border-y border-line py-6" speed={38}>
+        {["Terbuka untuk kolaborasi", "Desain UI/UX", "Pendidikan Informatika"].map((word) => (
+          <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
+            {word}
+            <span aria-hidden="true" className="text-accent">
+              ✦
             </span>
-          ))}
-        </Marquee>
+          </span>
+        ))}
+      </Marquee>
 
-        <Container wide className="py-24 nav:py-32">
+      {/* Medan garis dikurung di ruang DI BAWAH pita. Garis batas bawah pita
+          sekaligus jadi tempat medan itu bermula, jadi permulaannya terbaca
+          sebagai keputusan, bukan sebagai potongan. */}
+      <div className="relative">
+        <AmbientLines density={30} />
+
+        <Container wide className="relative z-2 py-24 nav:py-32">
           <ScrubReveal as="p" className="-caption-small mb-8 text-text-muted">
             Mari bekerja sama
           </ScrubReveal>
@@ -47,23 +54,16 @@ export function Footer() {
           />
 
           <div className="grid grid-cols-1 gap-10 border-t border-line pt-10 nav:grid-cols-3">
+            {/* Keterangan, bukan tautan. Satu-satunya jalan menuju WhatsApp dan
+                surel adalah formulir di bagian Kontak — termasuk dari sini. */}
             <ScrubReveal>
               <p className="-caption-small mb-4 text-text-muted">Surel</p>
-              <a href={`mailto:${site.email}`} className="-body-small hover:text-text">
-                <LetterHover text={site.email} />
-              </a>
+              <p className="-body-small">{site.email}</p>
             </ScrubReveal>
 
             <ScrubReveal>
               <p className="-caption-small mb-4 text-text-muted">WhatsApp</p>
-              <a
-                href={`https://wa.me/${site.phone}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="-body-small hover:text-text"
-              >
-                <LetterHover text={site.phoneDisplay} />
-              </a>
+              <p className="-body-small">{site.phoneDisplay}</p>
             </ScrubReveal>
 
             <ScrubReveal>
@@ -76,7 +76,10 @@ export function Footer() {
           </div>
 
           <ScrubReveal className="mt-16 flex flex-wrap items-baseline justify-between gap-4 border-t border-line pt-8">
-            <p className="-caption-small text-text-muted">© 2025 {site.name}</p>
+            {/* Tanpa tahun. Angka tahun di baris hak cipta menua sendiri —
+                begitu berganti tahun ia langsung menandai situs ini sebagai
+                sesuatu yang sudah lama tidak disentuh. */}
+            <p className="-caption-small text-text-muted">© {site.name}</p>
             <p className="-caption-small text-text-muted">{site.location}</p>
           </ScrubReveal>
         </Container>

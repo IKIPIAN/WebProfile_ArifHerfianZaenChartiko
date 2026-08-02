@@ -216,7 +216,13 @@ export function SkillStage({ items, label, title, tagline }) {
         tl.fromTo(
           card,
           { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
-          { x: 0, y: 0, opacity: 1, scale: 1, duration: CARD_DUR },
+          /* Melambat sampai berhenti, bukan berhenti mendadak. Panggung ini
+             punya jeda diam 21% di ujungnya; dengan gerak linear, batas antara
+             kartu yang masih melaju dan kartu yang sudah diam jadi lompatan
+             kecepatan — dan lompatan itu paling terasa saat halaman di-scroll
+             balik ke atas, tepat sebelum kartunya bubar. Sama persis dengan
+             yang dilakukan panggung sertifikat. */
+          { x: 0, y: 0, opacity: 1, scale: 1, duration: CARD_DUR, ease: "power2.out" },
           CARD_START + order * CARD_GAP,
         );
       });
@@ -235,12 +241,16 @@ export function SkillStage({ items, label, title, tagline }) {
     <div ref={rootRef} className="stage relative h-screen w-full overflow-hidden">
       <div aria-hidden="true" className="stage-fog" />
 
-      {/* Monolit. Dibangun dari lapisan gradien dan derau SVG, bukan gambar —
-          jadi tidak ada aset yang perlu diunduh dan ia tetap tajam di layar
-          serapat apa pun. */}
+      {/* Kanvas desain yang melayang. Dibangun dari lapisan gradien, kisi, dan
+          derau SVG — bukan gambar. Jadi tidak ada aset yang perlu diunduh, dan
+          ia tetap tajam di layar serapat apa pun. */}
       <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center">
+        {/* Urutannya menentukan: butiran jadi permukaan paling bawah, kisi
+            tergambar di atasnya, dan sapuan cahaya menimpa keduanya —
+            sebagaimana cahaya jatuh pada kaca, bukan terselip di bawahnya. */}
         <div ref={slabRef} className="slab">
           <span className="slab-grain" />
+          <span className="slab-grid" />
           <span className="slab-sheen" />
         </div>
       </div>
