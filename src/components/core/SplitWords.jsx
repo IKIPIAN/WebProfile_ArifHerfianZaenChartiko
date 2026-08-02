@@ -41,7 +41,7 @@ export function SplitWords({
         scrollTrigger: {
           trigger: el,
           start: "clamp(top 95%)",
-          end: "clamp(center 55%)",
+          end: "clamp(center 72%)",
           scrub: SCRUB,
         },
       });

@@ -34,12 +34,17 @@ export const DURATION = {
  * getaran roda mouse langsung tergambar; sedikit kelambatan membuatnya
  * mengalir tanpa kehilangan sifat pokoknya — berhenti men-scroll berarti
  * animasi ikut berhenti di tengah, dan scroll mundur memutarnya balik.
+ *
+ * Kelambatan ini menumpuk DI ATAS jendela pemicu: animasi baru benar-benar
+ * selesai sekian detik setelah scroll melewati titik akhirnya. Nilai 0,6
+ * terbaca sebagai isi yang masih menyusul saat bagiannya sudah lewat separuh
+ * layar, jadi diturunkan — masih cukup untuk meredam getaran roda mouse.
  */
-export const SCRUB = 0.6;
+export const SCRUB = 0.45;
 
 /* Scrub untuk elemen ter-pin dibuat lebih rapat: saat halaman diam di tempat,
    kelambatan besar terbaca sebagai kendali yang lepas dari jari. */
-export const SCRUB_PIN = 0.35;
+export const SCRUB_PIN = 0.3;
 
 export const STAGGER = 0.07;
 

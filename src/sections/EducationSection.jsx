@@ -86,11 +86,17 @@ export function EducationSection() {
 
             <div className="mb-8">
               <p className="-caption-small mb-2 text-text-muted">{education.ipkLabel}</p>
+              {/* `shrink-0` pada angkanya dan `whitespace-nowrap` pada skalanya
+                  keduanya perlu: sebagai flex item, angka boleh disusutkan di
+                  bawah lebar isinya, dan skalanya patah jadi dua baris ("/"
+                  lalu "4.00") begitu ruang menipis. */}
               <div className="flex items-baseline gap-2">
-                <Odometer value={education.ipkValue} className="-display block leading-none" />
+                <Odometer value={education.ipkValue} className="-display-stat block shrink-0" />
                 {/* Skalanya sengaja tidak ikut digulung: ia keterangan, bukan
                     capaian, dan angka yang berputar menariknya jadi setara. */}
-                <span className="-caption-small text-text-muted">{education.ipkScale}</span>
+                <span className="-caption-small whitespace-nowrap text-text-muted">
+                  {education.ipkScale}
+                </span>
               </div>
             </div>
 

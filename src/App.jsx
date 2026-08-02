@@ -4,7 +4,6 @@ import { Scroller } from "./components/core/Scroller";
 import { Preloader } from "./components/core/Preloader";
 import { StatusBar } from "./components/core/StatusBar";
 import { Marquee } from "./components/core/Marquee";
-import { ThemeToggle } from "./components/layout/ThemeToggle";
 import { Footer } from "./components/layout/Footer";
 import { BackToTopButton } from "./components/layout/BackToTopButton";
 import { HeroSection } from "./sections/HeroSection";
@@ -42,10 +41,6 @@ function App() {
 
   return (
     <ReadyContext.Provider value={ready}>
-      <div className="fixed top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
-
       <Scroller>
         <main>
           <HeroSection />
@@ -54,7 +49,7 @@ function App() {
           {/* Marquee jadi jeda antar bagian: ia memberi napas sebelum rail
               mendatar mengambil alih kendali scroll. */}
           <Marquee className="border-y border-line py-5" speed={30}>
-            {["Perancang Antarmuka", "Pendidik Informatika", "Universitas Negeri Malang"].map(
+            {["UI/UX Designer", "Pendidik Informatika", "Universitas Negeri Malang"].map(
               (word) => (
                 <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
                   {word}

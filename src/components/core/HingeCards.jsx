@@ -67,7 +67,7 @@ export function HingeCards({ children, className = "" }) {
         scrollTrigger: {
           trigger: list,
           start: "clamp(top 82%)",
-          end: "clamp(top 25%)",
+          end: "clamp(top 45%)",
           scrub: SCRUB,
           invalidateOnRefresh: true,
         },
@@ -88,7 +88,7 @@ export function HingeCards({ children, className = "" }) {
           scrollTrigger: {
             trigger: card,
             start: "clamp(top 88%)",
-            end: "clamp(top 45%)",
+            end: "clamp(top 62%)",
             scrub: SCRUB,
             invalidateOnRefresh: true,
           },

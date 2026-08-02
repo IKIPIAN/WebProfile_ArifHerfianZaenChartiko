@@ -52,9 +52,13 @@ export function Scroller({ children }) {
   const api = useMemo(
     () => ({
       lenis,
-      scrollTo(target, { immediate = false } = {}) {
+      /* Sisa opsinya diteruskan apa adanya ke Lenis — `duration` dan `easing`
+         per panggilan dipakai tombol kembali-ke-atas, yang butuh perjalanan
+         jauh lebih lambat daripada lompatan antar bagian. Jalur cadangan tidak
+         bisa meniru keduanya; scroll bawaan browser hanya kenal "smooth". */
+      scrollTo(target, { immediate = false, ...options } = {}) {
         if (lenis) {
-          lenis.scrollTo(target, { immediate });
+          lenis.scrollTo(target, { immediate, ...options });
         } else {
           const top = typeof target === "number" ? target : 0;
           window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" });

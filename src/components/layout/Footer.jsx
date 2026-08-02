@@ -24,7 +24,7 @@ export function Footer() {
 
       <div className="relative z-2">
         <Marquee className="border-y border-line py-6" speed={38}>
-          {["Terbuka untuk kolaborasi", "UI/UX Design", "Pendidikan Informatika"].map((word) => (
+          {["Terbuka untuk kolaborasi", "Desain UI/UX", "Pendidikan Informatika"].map((word) => (
             <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
               {word}
               <span aria-hidden="true" className="text-accent">

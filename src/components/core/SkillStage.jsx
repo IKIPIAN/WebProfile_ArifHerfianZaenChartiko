@@ -100,12 +100,42 @@ export function SkillStage({ items, label, title, tagline }) {
       const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
 
+      /*
+       * KAPAN BABAK 3 SELESAI — dan ini inti dari penyetelan panggung ini.
+       *
+       * ScrollTrigger merentangkan SELURUH timeline sepanjang bentangan pin.
+       * Selama kartu terakhir mendarat tepat di ujung timeline, "kartu lengkap"
+       * dan "pin lepas" jatuh di titik yang sama: kisi keahlian yang utuh hanya
+       * ada sekejap sebelum halaman berjalan lagi. Berapa pun bentangannya
+       * dipanjangkan, rasanya tetap terburu di ujung — karena yang salah bukan
+       * panjangnya, melainkan letak titik selesainya di dalam bentangan itu.
+       *
+       * Jadi titik selesainya yang ditetapkan lebih dulu (SETTLE), lalu panjang
+       * timeline dihitung mundur darinya. Sisa 21% terakhir tidak menggerakkan
+       * kartu sama sekali — itu jatah untuk membacanya dalam keadaan lengkap.
+       *
+       * Dihitung dari `order` yang benar-benar ada di DOM, bukan dari angka
+       * tetap, supaya menambah atau mengurangi bidang keahlian tidak diam-diam
+       * mengembalikan masalah yang sama.
+       */
+      const CARD_START = 0.5;
+      const CARD_GAP = 0.08;
+      const CARD_DUR = 0.26;
+      const SETTLE = 0.79;
+
+      const lastOrder = cards.reduce((max, c) => Math.max(max, Number(c.dataset.order) || 0), 0);
+      const total = (CARD_START + lastOrder * CARD_GAP + CARD_DUR) / SETTLE;
+
       const tl = gsap.timeline({
         defaults: { ease: EASE_SCRUB },
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          end: () => "+=" + Math.round(window.innerHeight * 2.4),
+          /* Dipangkas dari 2,4. Tetap lebih panjang daripada panggung
+             sertifikat karena isinya tiga babak berurutan — monolit berputar,
+             huruf pecah, kartu datang — dan memampatkannya sependek satu layar
+             membuat ketiganya terbaca bertumpuk, bukan berurutan. */
+          end: () => "+=" + Math.round(window.innerHeight * 1.6),
           pin: true,
           scrub: SCRUB_PIN,
           anticipatePin: 1,
@@ -118,11 +148,15 @@ export function SkillStage({ items, label, title, tagline }) {
         },
       });
 
-      /* ── Babak 1: monolit berputar sepanjang seluruh bentangan ───────── */
+      /* ── Babak 1: monolit berputar sepanjang seluruh bentangan ─────────
+         Durasinya sengaja `total`, bukan angka tetap: monolit inilah yang
+         mengisi jeda diam di ujung. Kalau ia ikut berhenti bersama kartu,
+         21% terakhir terbaca sebagai halaman yang membeku, bukan sebagai
+         kesempatan membaca. */
       tl.fromTo(
         slabRef.current,
         { rotate: -14, scale: 0.82 },
-        { rotate: 12, scale: 1.04, duration: 1 },
+        { rotate: 12, scale: 1.04, duration: total },
         0,
       );
 
@@ -163,12 +197,12 @@ export function SkillStage({ items, label, title, tagline }) {
               rotate: (n1 - 0.5) * 240,
               scale: 0.35 + n2 * 0.75,
               opacity: 0,
-              duration: 0.42,
+              duration: 0.36,
               /* Tiap huruf berangkat pada saat sedikit berbeda — serempak
                  terbaca sebagai satu gambar yang memudar, bukan pecahan. */
-              delay: n3 * 0.1,
+              delay: n3 * 0.08,
             },
-            0.26,
+            0.24,
           );
         });
       });
@@ -182,8 +216,8 @@ export function SkillStage({ items, label, title, tagline }) {
         tl.fromTo(
           card,
           { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
-          { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.3 },
-          0.62 + order * 0.1,
+          { x: 0, y: 0, opacity: 1, scale: 1, duration: CARD_DUR },
+          CARD_START + order * CARD_GAP,
         );
       });
 
@@ -226,8 +260,9 @@ export function SkillStage({ items, label, title, tagline }) {
           <span
             key={row.word}
             data-row
-            className="stage-word flex justify-center will-change-transform"
-            style={{ color: r % 2 === 0 ? "var(--text)" : "var(--text-muted)" }}
+            className={`stage-word flex justify-center will-change-transform ${
+              r % 2 === 1 ? "stage-word--hollow" : ""
+            }`}
           >
             {row.chars.map((char, c) => (
               <span key={c} data-letter className="inline-block will-change-transform">

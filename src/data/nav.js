@@ -50,9 +50,10 @@ export const chapters = [
   {
     id: "sertifikat",
     label: "Sertifikat",
-    title: "Sertifikat &",
-    accent: "Prestasi",
-    subtitle: "Klik kartu untuk melihat file sertifikatnya",
+    /* Satu-satunya bab tanpa `accent` dan tanpa `subtitle`, dan keduanya
+       disengaja. Isinya semua sertifikat — tidak ada prestasi di sana — jadi
+       "& Prestasi" menjanjikan sesuatu yang tidak pernah muncul di bawahnya. */
+    title: "Sertifikat",
     tone: "warm",
   },
   {

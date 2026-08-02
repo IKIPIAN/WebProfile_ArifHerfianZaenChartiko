@@ -18,8 +18,14 @@ import { useAppReady } from "./ready-context";
  */
 export function ScrubReveal({
   as: Tag = "div",
-  start = "top 92%",
-  end = "top 58%",
+  /* Jendelanya sengaja pendek dan rendah. Titik akhir `top 58%` berarti isi
+     baru utuh setelah tepi atasnya melewati tengah layar — dan pada bagian
+     yang tinggi itu terbaca sebagai halaman yang sudah terpotong separuh
+     sementara isinya masih menyusul. `top 72%` menyelesaikannya selagi bagian
+     itu masih di sepertiga bawah, jadi sisa scroll-nya membaca isi yang sudah
+     lengkap, bukan isi yang sedang dirakit. */
+  start = "top 95%",
+  end = "top 72%",
   rise = 40,
   delay = 0,
   className = "",

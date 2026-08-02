@@ -46,7 +46,7 @@ const CORNERS = [
   { x: -1, y: 1 },
 ];
 
-export function SheetArrival({ children, className = "" }) {
+export function SheetArrival({ children, header = null, className = "" }) {
   const rootRef = useRef(null);
   const gridRef = useRef(null);
   const fitRef = useRef(null);
@@ -115,14 +115,27 @@ export function SheetArrival({ children, className = "" }) {
           ? {
               trigger: root,
               start: "clamp(top 88%)",
-              end: "clamp(bottom 65%)",
+              /* `bottom 65%` menuntut panggung nyaris habis dilewati sebelum
+                 lembaran terakhir mendarat — kisinya baru utuh justru ketika
+                 sudah keluar layar. */
+              end: "clamp(bottom 92%)",
               scrub: SCRUB_PIN,
               invalidateOnRefresh: true,
             }
           : {
               trigger: root,
               start: "top top",
-              end: () => "+=" + Math.round(window.innerHeight * 1.6),
+              /*
+               * Jarak pin dipangkas dari 1,6 layar.
+               *
+               * Selama di-pin halaman diam, jadi angka ini adalah "berapa jauh
+               * harus men-scroll sebelum boleh melanjutkan". 1,6 layar penuh
+               * untuk merakit satu kisi terbaca sebagai tertahan, bukan sebagai
+               * pertunjukan — apalagi karena timeline-nya baru habis persis di
+               * ujung rentang, sehingga sertifikat tidak pernah sempat terlihat
+               * lengkap dan diam sebelum pin dilepas.
+               */
+              end: () => "+=" + Math.round(window.innerHeight * 1.0),
               pin: true,
               scrub: SCRUB_PIN,
               anticipatePin: 1,
@@ -170,13 +183,13 @@ export function SheetArrival({ children, className = "" }) {
             rotate: 0,
             scale: 1,
             opacity: 1,
-            duration: 0.7 + ragam * 0.25,
+            duration: 0.5 + ragam * 0.18,
           },
           /* Jeda antar lembaran sengaja lebih rapat daripada durasinya, jadi
              selalu ada beberapa lembaran melayang bersamaan. Kalau jedanya
              selebar durasi, mereka masuk satu-satu dan layar terasa sepi di
              antara kedatangan. */
-          0.1 + i * 0.045,
+          0.06 + i * 0.03,
         );
       });
 
@@ -234,9 +247,22 @@ export function SheetArrival({ children, className = "" }) {
       };
       gsap.ticker.add(tick);
 
-      /* Diletakkan di ujung timeline, sedikit tumpang tindih dengan kedatangan
-         lembaran terakhir, jadi goyangannya melandai persis saat kisi rapi. */
-      tl.to(wave, { amp: 0, duration: 0.16 }, 0.86);
+      /* Sedikit tumpang tindih dengan kedatangan lembaran terakhir, jadi
+         goyangannya melandai persis saat kisi rapi. */
+      tl.to(wave, { amp: 0, duration: 0.14 }, 0.7);
+
+      /*
+       * JEDA DIAM DI UJUNG — dan ini yang sebenarnya menjawab "kisinya baru
+       * lengkap setelah halaman terpotong separuh".
+       *
+       * ScrollTrigger merentangkan SELURUH timeline sepanjang jarak scrub.
+       * Selama timeline habis tepat di lembaran terakhir, "selesai" dan "boleh
+       * lanjut" jatuh di titik yang sama — kisi utuh hanya ada satu frame
+       * sebelum pin lepas. Tween kosong ini memakan seperlima terakhir rentang
+       * tanpa menggerakkan apa pun, jadi lembaran mendarat di sekitar 80%
+       * perjalanan dan sisanya dipakai untuk melihatnya lengkap.
+       */
+      tl.to({}, { duration: 0.2 }, 0.8);
 
       return () => {
         clearTimeout(settleTimer);
@@ -251,6 +277,12 @@ export function SheetArrival({ children, className = "" }) {
 
   return (
     <div ref={rootRef} className={`arrival-stage ${className}`}>
+      {/* Judul bab tinggal DI DALAM panggung, bukan di atasnya. Panggung ini
+          di-pin setinggi satu layar penuh; kalau judulnya berada di luar, ia
+          sudah tergulung ke luar layar tepat sebelum pin dimulai — dan yang
+          tersisa selama lembaran berdatangan cuma layar kosong tanpa
+          keterangan apa pun. Di dalam, ia ikut terkunci dan jadi jangkar. */}
+      {header && <div className="arrival-head">{header}</div>}
       <div ref={fitRef} className="arrival-fit">
         <div ref={gridRef} className="arrival-grid">
           {children}

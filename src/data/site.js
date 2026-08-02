@@ -7,7 +7,25 @@ export const site = {
 
   greeting: "Halo, perkenalkan saya",
   roleLead: "Saya seorang",
-  typewriterRoles: ["UI/UX Designer", "Perancang Antarmuka", "Pendidik Informatika"],
+  /*
+   * Tiga peran ini adalah tiga sasaran lamaran yang sebenarnya, dan sengaja
+   * sama persis dengan tiga kartu di bagian Tentang — hero dan Tentang harus
+   * menceritakan hal yang sama, bukan dua daftar yang berbeda.
+   *
+   * BAHASANYA IKUT NAMA ASLI TIAP PERAN, bukan diseragamkan. Jabatan industri
+   * teknologi memang beredar dalam bahasa Inggris — lowongan dan pencarian
+   * recruiter mengetik "UI/UX Designer", dan penyaring lamaran mencocokkan
+   * teks secara harfiah, jadi terjemahan Indonesia justru berisiko tidak
+   * tercocokkan. Sebaliknya "Staf Administrasi" memang begitu diiklankan di
+   * PT/CV maupun bimbel, dan itu pula jabatan aslinya di Dinas Pendidikan.
+   *
+   * "Web Developer" SENGAJA TIDAK DI SINI. Kemampuan web-nya sebatas dasar dan
+   * fungsinya menopang desain, jadi tempatnya di daftar keahlian
+   * (src/data/skills.js), bukan di sebutan diri. Sebagai jabatan ia mengundang
+   * perbandingan dengan web developer sungguhan; sebagai keahlian pendukung ia
+   * justru jadi pembeda diantara sesama pelamar UI/UX.
+   */
+  typewriterRoles: ["UI/UX Designer", "Pendidik Informatika", "Staf Administrasi"],
 
   location: "Kab. Blitar, Jawa Timur",
   email: "arif.herfian@gmail.com",
