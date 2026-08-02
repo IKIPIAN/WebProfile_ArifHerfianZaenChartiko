@@ -42,8 +42,15 @@ function App() {
         {/* Marquee jadi jeda antar bagian: ia memberi napas sebelum rail
             mendatar mengambil alih kendali scroll. */}
         <Marquee className="border-y border-line py-5" speed={30}>
-          {["UI/UX Designer", "Pendidik Informatika", "Universitas Negeri Malang"].map((word) => (
-            <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
+          {[
+            "UI/UX Designer",
+            "Pendidik Informatika",
+            "Universitas Negeri Malang",
+          ].map((word) => (
+            <span
+              key={word}
+              className="-caption flex items-center gap-8 pr-8 text-text-muted"
+            >
               {word}
               <span aria-hidden="true" className="text-accent">
                 ✦
@@ -55,10 +62,16 @@ function App() {
         <ExperienceSection />
         <SkillsSection />
 
-        <div aria-hidden="true" className="band-fade-to-panel h-[28vh] sm:h-[40vh] nav:h-[50vh]" />
+        <div
+          aria-hidden="true"
+          className="band-fade-to-panel h-[28vh] sm:h-[40vh] nav:h-[50vh]"
+        />
         <EducationSection />
         <CertificatesSection />
-        <div aria-hidden="true" className="band-fade-to-dark h-[28vh] sm:h-[40vh] nav:h-[50vh]" />
+        <div
+          aria-hidden="true"
+          className="band-fade-to-dark h-[28vh] sm:h-[40vh] nav:h-[50vh]"
+        />
 
         <ContactSection />
       </main>

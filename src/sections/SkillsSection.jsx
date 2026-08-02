@@ -22,7 +22,11 @@ export function SkillsSection() {
   const number = chapterNumber("keahlian");
 
   return (
-    <section id="keahlian" data-component="chapter" className="relative scroll-mt-24">
+    <section
+      id="keahlian"
+      data-component="chapter"
+      className="relative scroll-mt-24"
+    >
       <SkillStage
         items={technicalSkills}
         label={`${String(number).padStart(2, "0")} — ${chapter.label}`}
@@ -68,8 +72,12 @@ export function SkillsSection() {
                     dijatah 3 baris = 65px (min-h-17).
                 */}
                 <div className="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-                  <span className="-body-small block min-h-12 font-medium">{skill.label}</span>
-                  <p className="-body-smaller mt-2 min-h-17 text-text-muted">{skill.note}</p>
+                  <span className="-body-small block min-h-12 font-medium">
+                    {skill.label}
+                  </span>
+                  <p className="-body-smaller mt-2 min-h-17 text-text-muted">
+                    {skill.note}
+                  </p>
                 </div>
               </ScrubReveal>
             ))}

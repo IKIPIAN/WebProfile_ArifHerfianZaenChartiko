@@ -15,12 +15,23 @@ import { Container } from "../ui/Container";
  * penulisan ulang variabel warna, jadi tidak ada satu pun komponen anak yang
  * perlu tahu ia sedang berdiri di atas latar terang atau gelap.
  */
-export function Chapter({ id, band, children, wide = false, headerExtra = null }) {
+export function Chapter({
+  id,
+  band,
+  children,
+  wide = false,
+  headerExtra = null,
+}) {
   const chapter = getChapter(id);
   const number = chapterNumber(id);
 
   return (
-    <section id={id} data-component="chapter" data-band={band} className="relative scroll-mt-24">
+    <section
+      id={id}
+      data-component="chapter"
+      data-band={band}
+      className="relative scroll-mt-24"
+    >
       <Container
         wide={wide}
         className="grid grid-cols-1 gap-x-8 gap-y-10 py-24 sm:py-28 nav:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] nav:gap-x-16 nav:gap-y-12 nav:py-40"
@@ -38,7 +49,9 @@ export function Chapter({ id, band, children, wide = false, headerExtra = null }
                 {String(number).padStart(2, "0")}
               </span>
               <span className="h-px w-12 bg-line" />
-              <span className="-caption-small text-text-muted">{chapter.label}</span>
+              <span className="-caption-small text-text-muted">
+                {chapter.label}
+              </span>
             </ScrubReveal>
 
             <LineMask
@@ -49,7 +62,10 @@ export function Chapter({ id, band, children, wide = false, headerExtra = null }
             />
 
             {chapter.subtitle && (
-              <ScrubReveal as="p" className="-body-small text-text-muted mt-7 max-w-[17rem]">
+              <ScrubReveal
+                as="p"
+                className="-body-small text-text-muted mt-7 max-w-[17rem]"
+              >
                 {chapter.subtitle}
               </ScrubReveal>
             )}
