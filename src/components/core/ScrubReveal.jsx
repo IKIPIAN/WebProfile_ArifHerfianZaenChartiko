@@ -18,14 +18,22 @@ import { useAppReady } from "./ready-context";
  */
 export function ScrubReveal({
   as: Tag = "div",
-  /* Jendelanya sengaja pendek dan rendah. Titik akhir `top 58%` berarti isi
-     baru utuh setelah tepi atasnya melewati tengah layar — dan pada bagian
-     yang tinggi itu terbaca sebagai halaman yang sudah terpotong separuh
-     sementara isinya masih menyusul. `top 72%` menyelesaikannya selagi bagian
-     itu masih di sepertiga bawah, jadi sisa scroll-nya membaca isi yang sudah
-     lengkap, bukan isi yang sedang dirakit. */
+  /*
+   * Jendelanya sengaja PENDEK dan RENDAH: penyingkapan selesai tak lama
+   * setelah elemennya masuk dari tepi bawah layar.
+   *
+   * Dua nilai sebelumnya sama-sama terlalu sabar. `top 58%` menuntut tepi atas
+   * elemen melewati tengah layar, dan `top 72%` masih menyisakan hampir
+   * seperempat layar perjalanan. Pada bagian yang isinya bertumpuk — Pendidikan
+   * punya empat blok berurutan di satu kolom — tiap blok menunggu gilirannya
+   * sendiri, jadi keterlambatan kecil di satu elemen berlipat jadi bagian yang
+   * tak pernah terlihat utuh meski sudah di-scroll jauh.
+   *
+   * Jendela 15% layar cukup untuk membuat gerakannya terbaca sebagai
+   * penyingkapan, tanpa menahan isinya tetap terpotong.
+   */
   start = "top 95%",
-  end = "top 72%",
+  end = "top 80%",
   rise = 40,
   delay = 0,
   className = "",

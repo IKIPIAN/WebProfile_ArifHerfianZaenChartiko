@@ -51,10 +51,26 @@ export function SkillsSection() {
               >
                 <i className={`${skill.icon} text-text-muted`} />
                 {/* Naik sedikit saat disentuh, jadi sel yang aktif terangkat
-                    dari kisinya alih-alih hanya berubah warna. */}
-                <span className="-body-small font-medium transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-                  {skill.label}
-                </span>
+                    dari kisinya alih-alih hanya berubah warna. Label dan
+                    keterangannya bergerak sebagai satu blok — kalau hanya
+                    labelnya yang naik, keduanya terbaca sebagai dua benda
+                    terpisah yang kebetulan berdekatan. */}
+                {/*
+                    TINGGI JUDUL DAN KETERANGAN DIJATAH TETAP.
+                    Blok ini ditambatkan ke BAWAH oleh `justify-between`, jadi
+                    selama tingginya ikut panjang teks, puncaknya jatuh di
+                    tempat berbeda-beda di tiap kartu — "Analisis & Pemecahan
+                    Masalah" yang dua baris mendorong judulnya naik sendirian,
+                    dan deretan itu terbaca acak.
+                    Angkanya diturunkan dari tinggi baris yang sebenarnya:
+                    judul `-body-small` 15px x 1,6 = 24px, dijatah 2 baris = 48px
+                    (min-h-12); keterangan `-body-smaller` 14px x 1,55 = 21,7px,
+                    dijatah 3 baris = 65px (min-h-17).
+                */}
+                <div className="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
+                  <span className="-body-small block min-h-12 font-medium">{skill.label}</span>
+                  <p className="-body-smaller mt-2 min-h-17 text-text-muted">{skill.note}</p>
+                </div>
               </ScrubReveal>
             ))}
           </div>

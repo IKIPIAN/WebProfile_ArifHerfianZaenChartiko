@@ -1,7 +1,4 @@
-import { useCallback, useState } from "react";
-import { ReadyContext } from "./components/core/ready-context";
 import { Scroller } from "./components/core/Scroller";
-import { Preloader } from "./components/core/Preloader";
 import { StatusBar } from "./components/core/StatusBar";
 import { Marquee } from "./components/core/Marquee";
 import { Footer } from "./components/layout/Footer";
@@ -36,49 +33,40 @@ import { ContactSection } from "./sections/ContactSection";
  * seolah ada bagian yang gagal memuat warnanya.
  */
 function App() {
-  const [ready, setReady] = useState(false);
-  const handleReady = useCallback(() => setReady(true), []);
-
   return (
-    <ReadyContext.Provider value={ready}>
-      <Scroller>
-        <main>
-          <HeroSection />
-          <AboutSection />
+    <Scroller>
+      <main>
+        <HeroSection />
+        <AboutSection />
 
-          {/* Marquee jadi jeda antar bagian: ia memberi napas sebelum rail
-              mendatar mengambil alih kendali scroll. */}
-          <Marquee className="border-y border-line py-5" speed={30}>
-            {["UI/UX Designer", "Pendidik Informatika", "Universitas Negeri Malang"].map(
-              (word) => (
-                <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
-                  {word}
-                  <span aria-hidden="true" className="text-accent">
-                    ✦
-                  </span>
-                </span>
-              ),
-            )}
-          </Marquee>
+        {/* Marquee jadi jeda antar bagian: ia memberi napas sebelum rail
+            mendatar mengambil alih kendali scroll. */}
+        <Marquee className="border-y border-line py-5" speed={30}>
+          {["UI/UX Designer", "Pendidik Informatika", "Universitas Negeri Malang"].map((word) => (
+            <span key={word} className="-caption flex items-center gap-8 pr-8 text-text-muted">
+              {word}
+              <span aria-hidden="true" className="text-accent">
+                ✦
+              </span>
+            </span>
+          ))}
+        </Marquee>
 
-          <ExperienceSection />
-          <SkillsSection />
+        <ExperienceSection />
+        <SkillsSection />
 
-          <div aria-hidden="true" className="band-fade-to-panel h-[50vh]" />
-          <EducationSection />
-          <CertificatesSection />
-          <div aria-hidden="true" className="band-fade-to-dark h-[50vh]" />
+        <div aria-hidden="true" className="band-fade-to-panel h-[50vh]" />
+        <EducationSection />
+        <CertificatesSection />
+        <div aria-hidden="true" className="band-fade-to-dark h-[50vh]" />
 
-          <ContactSection />
-        </main>
+        <ContactSection />
+      </main>
 
-        <Footer />
-        <StatusBar />
-        <BackToTopButton />
-      </Scroller>
-
-      {!ready && <Preloader onComplete={handleReady} />}
-    </ReadyContext.Provider>
+      <Footer />
+      <StatusBar />
+      <BackToTopButton />
+    </Scroller>
   );
 }
 

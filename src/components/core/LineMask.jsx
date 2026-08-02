@@ -63,7 +63,10 @@ export function LineMask({
     const ctx = gsap.context(() => {
       gsap.fromTo(
         inner,
-        { yPercent: 105, y: 0 },
+        /* Harus sama dengan nilai di CSS (`translateY(125%)`) — keadaan awal
+           ditulis dua kali supaya tidak ada kedipan sebelum GSAP mengambil
+           alih, jadi keduanya wajib bergerak bersama. */
+        { yPercent: 125, y: 0 },
         onLoad
           ? {
               yPercent: 0,

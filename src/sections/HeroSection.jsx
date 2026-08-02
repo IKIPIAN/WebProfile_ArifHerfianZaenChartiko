@@ -83,10 +83,6 @@ export function HeroSection() {
               className="h-[330px] w-full nav:h-[400px]"
               imgClassName="object-top"
             />
-            <div className="flex items-baseline justify-between px-1 pt-3">
-              <span className="-caption-small text-text-muted">Potret</span>
-              <span className="-caption-small text-text-muted">2025</span>
-            </div>
           </div>
         </div>
       </Container>

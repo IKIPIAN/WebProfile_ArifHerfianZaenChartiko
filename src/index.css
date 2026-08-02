@@ -69,6 +69,10 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-quick: 300ms;
   --duration-slow: 500ms;
+
+  /* Derau halus, dipakai bersama oleh kanvas panggung dan semua bidang
+     bergradien. Disimpan sekali di sini supaya data URI-nya tidak diulang. */
+  --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
 }
 
 body {
@@ -110,9 +114,13 @@ body {
   font-weight: 500;
 }
 
+/* `line-height` dilonggarkan dari 0,92. Serapat itu, ekor huruf baris atas
+   berhenti hanya beberapa piksel dari puncak huruf baris di bawahnya — dan
+   pada nama dua baris seperti "Arif Herfian / Zaen Chartiko" keduanya terbaca
+   saling menempel. */
 .-display {
   font-size: 52px;
-  line-height: 0.92;
+  line-height: 0.96;
   letter-spacing: -0.045em;
 }
 
@@ -131,9 +139,12 @@ body {
   letter-spacing: -0.04em;
 }
 
+/* Dilonggarkan dari 0,95 karena alasan yang sama seperti `-display`: judul bab
+   di sini semuanya dua baris ("Tentang / Saya", "Pengalaman / Kerja"), dan
+   ekor huruf baris pertama jatuh tepat di pundak baris kedua. */
 .-h1 {
   font-size: 40px;
-  line-height: 0.95;
+  line-height: 1;
   letter-spacing: -0.04em;
 }
 
@@ -287,8 +298,12 @@ html.lenis body {
   --color-surface: var(--panel-surface);
 }
 
+/* Hitam pekat penutup halaman. Turun BERTAHAP dari warna latar, bukan langsung
+   — selisih #040508 ke #000000 memang kecil, tapi batas lurus selebar layar
+   tetap terbaca sebagai garis. Peralihan setinggi 24vh membuatnya terbaca
+   sebagai ruang yang menggelap. */
 [data-band="void"] {
-  background: #000000;
+  background: linear-gradient(to bottom, var(--background) 0, #000000 24vh);
 }
 
 [data-band="surface"] {
@@ -297,6 +312,11 @@ html.lenis body {
 
 /* Peralihan gelap↔terang diberi gradien setinggi 1 layar supaya pergantian
    pita tidak muncul sebagai garis potong yang keras. */
+.band-fade-to-panel,
+.band-fade-to-dark {
+  /* Dibutuhkan agar lapis dither di bawah punya patokan. */
+  position: relative;
+}
 .band-fade-to-panel {
   background: linear-gradient(180deg, var(--background) 0%, var(--panel) 100%);
 }
@@ -304,18 +324,173 @@ html.lenis body {
   background: linear-gradient(180deg, var(--panel) 0%, var(--background) 100%);
 }
 
+/*
+ * DITHER — dan inilah yang menjawab "gradasinya masih patah-patah".
+ *
+ * Masalahnya bukan lagi batas antar bagian; batas itu sudah dilunakkan. Yang
+ * tersisa adalah keterbatasan layar 8-bit. Gradien gelap di situs ini hanya
+ * melewati SEDIKIT SEKALI tingkat warna sepanjang jarak yang panjang:
+ *
+ *   tepi panggung Keahlian  #040508 -> #080a0e  = 6 tingkat / 144px
+ *   footer menuju hitam     #040508 -> #000000  = 8 tingkat / 216px
+ *
+ * Layar tidak bisa menampilkan warna di antara dua tingkat, jadi peralihan itu
+ * tergambar sebagai balok-balok rata setebal ~25px — dan deretan balok rata
+ * persis terbaca sebagai "patah", bukan sebagai gradasi.
+ *
+ * Menambah jarak gradiennya justru MEMPERPARAH: tingkat warnanya tetap sama
+ * banyak, hanya balok-baloknya yang jadi lebih lebar. Yang menyelesaikannya
+ * adalah butiran halus — ia mengacak piksel di sekitar batas antar tingkat,
+ * sehingga mata membaca campuran keduanya, bukan garis di antaranya. Ini
+ * teknik yang sama dipakai gambar 8-bit sejak dulu, dan alasannya belum
+ * berubah.
+ *
+ * Jembatan menuju panel putih tidak butuh ini — rentangnya 238 tingkat
+ * sepanjang 450px, jadi baloknya cuma 2px dan sudah halus dengan sendirinya.
+ * Tetap diberi supaya seluruh bidang bergradien berperilaku sama.
+ */
+.stage::after,
+.band-fade-to-panel::after,
+.band-fade-to-dark::after,
+[data-band="void"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Di belakang seluruh isi — yang perlu diacak latarnya, bukan teksnya. */
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  /* `soft-light` membiarkan abu-abu tengah tidak mengubah apa pun dan hanya
+     menggeser sedikit ke terang atau gelap — persis yang dibutuhkan dither.
+     `overlay` tidak bisa dipakai: pada bidang segelap ini ia melipatgandakan
+     nilai yang sudah mendekati nol, jadi efeknya hilang sama sekali. */
+  mix-blend-mode: soft-light;
+  background-image: var(--noise-fine);
+  background-size: 180px 180px;
+}
+
+/*
+ * Bilah penanda melayang di atas halaman dengan `position: fixed`, jadi ia
+ * berada DI LUAR pita nada mana pun dan tidak pernah ikut membalik warna
+ * sendiri. Kelas penanda dari StatusBar.jsx yang memberitahunya.
+ *
+ * Daftar tokennya sengaja sama persis dengan `[data-band="panel"]` di atas —
+ * TERMASUK pasangan `--color-*`-nya. Menimpa token dasarnya saja tidak cukup:
+ * `--color-text: var(--text)` sudah dihitung nilainya di `:root`, jadi utilitas
+ * Tailwind seperti `bg-text` tetap memakai warna lama kalau pasangannya tidak
+ * ikut ditimpa.
+ */
+.status-bar {
+  color: var(--text);
+  transition: color var(--duration-slow) var(--ease);
+}
+
+.status-bar--panel {
+  --text: var(--panel-text);
+  --text-muted: var(--panel-muted);
+  --line: var(--panel-line);
+  /* Ikut dibalik demi label bagian: keping itu berlatar `--background`, dan
+     tanpa baris ini ia tetap gelap sementara tulisannya sudah berubah gelap
+     juga — gelap di atas gelap, tidak terbaca sama sekali. */
+  --background: var(--panel);
+  --color-text: var(--panel-text);
+  --color-text-muted: var(--panel-muted);
+  --color-line: var(--panel-line);
+}
+
+/*
+ * LABEL BAGIAN DI ATAS GARIS PENANDA.
+ *
+ * Garis-garis di sudut kanan bawah bisa ditekan untuk melompat ke bagiannya,
+ * tapi tidak ada satu pun tanda yang mengatakan begitu — `<button>` bawaan
+ * tidak mengubah kursor, dan garis setinggi satu piksel tidak terbaca sebagai
+ * kontrol. Nama bagian yang muncul saat disentuh menyelesaikan keduanya
+ * sekaligus: ia menjelaskan garis itu untuk apa, sekaligus ke mana ia menuju.
+ *
+ * Seluruhnya CSS. Tooltip yang digerakkan JS berarti satu state React berubah
+ * pada tiap gerakan kursor menyapu enam tombol berdempetan.
+ */
+.chapter-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  /* Nama bagian tidak pernah boleh patah jadi dua baris — keping setinggi dua
+     baris di atas garis setipis ini terbaca sebagai panel yang salah tempat. */
+  white-space: nowrap;
+  opacity: 0;
+  /* Kepingnya melayang tepat di jalur kursor menuju garis; tanpa ini ia
+     menangkap hover-nya sendiri dan labelnya berkedip. */
+  pointer-events: none;
+  transition:
+    opacity var(--duration-quick) var(--ease),
+    transform var(--duration-quick) var(--ease);
+}
+
+/*
+ * Yang terakhir berdiri paling dekat tepi kanan layar. Label yang dipusatkan
+ * di atasnya menjorok sekitar 50px melewati batas jendela, dan karena `body`
+ * memakai `overflow-x: hidden`, yang terjadi bukan geser melainkan TERPOTONG.
+ * Karena itu label miliknya dirapatkan ke kanan, bukan dipusatkan.
+ */
+.chapter-dot--last .chapter-tip {
+  left: auto;
+  right: 0;
+  transform: translate(0, 4px);
+}
+
+.chapter-dot:hover .chapter-tip,
+.chapter-dot:focus-visible .chapter-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.chapter-dot--last:hover .chapter-tip,
+.chapter-dot--last:focus-visible .chapter-tip {
+  transform: translate(0, 0);
+}
+
 /* ── 1. Mask naik (garis teks) ────────────────────────────────────────────
    Tiap baris dibungkus kotak overflow-hidden, isinya digeser dari bawah.
    Ini yang dipakai untuk judul — bukan clip-path, karena gerak transform
    jauh lebih murah dan mendarat lebih tajam. */
+/*
+ * RUANG UNTUK EKOR HURUF.
+ *
+ * Topeng ini memotong apa pun di luar kotak barisnya — itu memang tugasnya.
+ * Tapi judul di situs ini memakai `line-height` di bawah 1 (`-display` 0,96;
+ * `-h1` 1,0), sedangkan huruf sesungguhnya menjulur lebih tinggi DAN lebih
+ * rendah daripada kotak itu. Akibatnya ekor "g", "y", dan "j" terpotong rata —
+ * bukan tersembunyi di balik topeng, melainkan hilang permanen.
+ *
+ * Padding menambah tinggi kotak potongnya; margin negatif seukuran yang sama
+ * menariknya kembali, jadi tata letak di sekitarnya tidak bergeser sedikit pun.
+ * Yang bertambah hanya ruang yang boleh terlihat.
+ */
 [data-anim="line-mask"] {
   overflow: hidden;
   display: block;
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
+/*
+ * Jarak berangkatnya ikut dinaikkan dari 105%.
+ *
+ * Baris harus mulai DI LUAR kotak potong. Karena kotaknya kini lebih tinggi
+ * 0,2em, 105% tidak lagi cukup — sebagian puncak huruf mengintip di bawah
+ * topeng sebelum animasinya jalan. 125% menutupi seluruh tinggi baru itu pada
+ * semua ukuran judul yang dipakai di sini.
+ */
 [data-anim="line-mask"] > span {
   display: block;
   will-change: transform;
-  transform: translateY(105%);
+  transform: translateY(125%);
 }
 
 /* ── 2. Reveal ter-scrub ──────────────────────────────────────────────────*/
@@ -412,8 +587,25 @@ html.lenis body {
    gradien dan derau SVG — tidak ada satu pun berkas gambar yang diunduh,
    jadi bagian ini tetap tajam di layar serapat apa pun dan tidak menambah
    berat halaman sedikit pun. */
+/*
+ * Tepi atas dan bawah panggung WAJIB persis `--background`.
+ *
+ * Radial di bawah memuncak di tengah lalu melandai — tapi pada tepi atas ia
+ * belum sepenuhnya sampai ke warna latar halaman, jadi tersisa selisih tipis
+ * yang terbaca sebagai garis. Lapis linear di atasnya mengunci kedua ujungnya
+ * ke warna latar, sehingga panggung ini menyambung ke bagian sebelum dan
+ * sesudahnya tanpa batas yang bisa ditunjuk.
+ */
 .stage {
-  background: radial-gradient(120% 80% at 50% 45%, #0b0d12 0%, var(--background) 68%);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--background) 0%,
+      transparent 16%,
+      transparent 84%,
+      var(--background) 100%
+    ),
+    radial-gradient(120% 80% at 50% 45%, #0b0d12 0%, var(--background) 68%);
 }
 
 /* Dua gumpalan besar yang saling silang, diburamkan berat. Bidang gelap
@@ -429,6 +621,30 @@ html.lenis body {
     radial-gradient(30% 24% at 55% 22%, rgb(255 255 255 / 0.05), transparent 68%);
   filter: blur(46px);
   animation: fog-drift 26s ease-in-out infinite alternate;
+  /*
+   * INI YANG MENGHILANGKAN GARIS DI PERBATASAN BAGIAN.
+   *
+   * Elemen ini sengaja dibuat lebih besar dari panggungnya (`inset: -20%`),
+   * tapi panggungnya memakai `overflow: hidden` — jadi bagian kabut yang
+   * menjorok keluar dipotong LURUS. Ketiga gumpalannya memang menjorok:
+   * masing-masing 8,8% dan 22,8% di atas tepi, serta 14,4% di bawahnya. Yang
+   * terlihat karenanya bukan kabut yang memudar, melainkan bidang terang yang
+   * berhenti mendadak di garis lurus — persis di tempat satu bagian berganti
+   * ke bagian berikutnya.
+   *
+   * Topeng ini membuatnya habis dengan sendirinya sebelum tepi itu tercapai,
+   * jadi tidak ada lagi yang tersisa untuk dipotong. Angka 14% dan 86% bukan
+   * kira-kira: tepi panggung jatuh di 14,3% dan 85,7% tinggi elemen ini.
+   */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 14%,
+    #000 30%,
+    #000 70%,
+    transparent 86%,
+    transparent 100%
+  );
 }
 
 @keyframes fog-drift {
@@ -440,33 +656,56 @@ html.lenis body {
   }
 }
 
+/*
+ * KANVAS DESAIN — dulunya bongkahan batu.
+ *
+ * Tiga hal yang mengubah bacaannya, dan semuanya bekerja bersama:
+ *
+ * 1. SUDUT SERAGAM. Versi batu memakai empat radius berbeda justru supaya
+ *    TIDAK terbaca sebagai kartu UI. Di sini keputusan itu dibalik: radius
+ *    tunggal 14px, sama dengan kartu keahlian di depannya.
+ * 2. PROPORSI LAYAR, bukan persegi. Persegi adalah bentuk bongkahan; 16:10
+ *    adalah bentuk benda buatan yang dipakai untuk melihat sesuatu.
+ * 3. WARNA GRAFIT KEBIRUAN, bukan cokelat tanah. Cokelat membawa asosiasi
+ *    batu dan kayu; nada dingin membawa asosiasi kaca dan layar.
+ *
+ * Susunan gelap-terangnya sengaja dipertahankan persis seperti versi batu —
+ * terang di sudut atas kiri, paling gelap di tengah bawah, sedikit terangkat
+ * lagi di ujung. Itu yang membuat rotasinya terbaca sebagai benda padat yang
+ * berputar. Yang diganti bahannya, bukan pencahayaannya.
+ */
 .slab {
   position: relative;
-  width: min(38vw, 460px);
-  aspect-ratio: 1;
-  /* Empat radius berbeda memecah bentuk persegi sempurna. Sudut yang seragam
-     terbaca sebagai kartu UI; yang tidak seragam terbaca sebagai bongkahan. */
-  border-radius: 10px 22px 12px 18px;
+  width: min(48vw, 580px);
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
   overflow: hidden;
   background: linear-gradient(
     152deg,
-    #9c9082 0%,
-    #554d44 15%,
-    #2a2724 42%,
-    #131211 70%,
-    #3a342c 100%
+    #3f4759 0%,
+    #262d3b 16%,
+    #151a24 44%,
+    #0a0d13 74%,
+    #1d2432 100%
   );
+  /* Tepi tipis yang menangkap cahaya — batas antara kaca dan ruang gelap di
+     belakangnya. Tanpa ini bidangnya melebur ke latar dan berhenti terbaca
+     sebagai benda yang punya permukaan. */
+  border: 1px solid rgb(255 255 255 / 0.07);
   box-shadow:
     0 46px 130px -40px rgb(0 0 0 / 0.95),
-    inset 0 0 60px 10px rgb(0 0 0 / 0.55);
+    inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+    inset 0 0 60px 10px rgb(0 0 0 / 0.5);
 }
 
 /*
- * Dua lapis derau, dan keduanya perlu.
+ * Butiran halus — satu-satunya sisa dari versi batu, dan lapis kasarnya sudah
+ * dibuang karena itu yang dulu membentuk "pecahan".
  *
- * Lapis kasar memberi bidang-bidang besar seperti pecahan batu; lapis halus
- * memberi butiran permukaannya. Satu lapis saja menghasilkan tekstur yang
- * terbaca sebagai noise video, bukan sebagai benda.
+ * Dipertahankan bukan demi tekstur, melainkan demi GRADIENNYA. Bidang selebar
+ * ini dengan peralihan warna sehalus itu memunculkan pita-pita mendatar di
+ * layar 8-bit; butiran sehalus derau memecah pita tersebut. Sesuatu yang
+ * tampak "bersih sempurna" di editor justru bergaris-garis di layar biasa.
  *
  * `soft-light` dipilih, bukan `overlay`: pada bidang segelap ini overlay
  * nyaris tidak berefek karena ia melipatgandakan nilai yang sudah mendekati
@@ -475,14 +714,31 @@ html.lenis body {
 .slab-grain {
   position: absolute;
   inset: 0;
-  opacity: 0.75;
+  opacity: 0.35;
   mix-blend-mode: soft-light;
+  background-image: var(--noise-fine);
+  background-size: 180px 180px;
+}
+
+/*
+ * KISI KANVAS — inilah yang benar-benar mengubah bendanya.
+ *
+ * Warna dan proporsi hanya menyiapkan panggung; garis sejajar berjarak tetap
+ * yang menyelesaikannya, karena pola seperti itu tidak pernah muncul di alam.
+ * Begitu kisi terlihat, bidangnya berhenti jadi permukaan dan mulai jadi
+ * BIDANG KERJA.
+ *
+ * Sengaja dibuat nyaris tak terlihat (alfa 0,055). Ia harus terbaca ketika
+ * diperhatikan, bukan menuntut untuk dilihat — di belakangnya ada huruf
+ * setinggi 8,5rem yang sedang pecah, dan kisi yang tegas akan berebut
+ * perhatian dengan mereka.
+ */
+.slab-grid {
+  position: absolute;
+  inset: 0;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23c)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
-  background-size:
-    100% 100%,
-    180px 180px;
+    repeating-linear-gradient(to right, rgb(255 255 255 / 0.055) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.055) 0 1px, transparent 1px 44px);
 }
 
 /* Sapuan cahaya sempit di satu sudut — menandai dari mana cahaya datang,
@@ -537,14 +793,29 @@ html.lenis body {
 /* Panel kaca: latar nyaris gelap dengan blur di belakangnya, jadi kabut dan
    monolit tetap terasa menembus alih-alih tertutup kotak pekat. */
 .stage-card {
-  padding: 2rem;
+  /* Dirapatkan dari 2rem. Empat kartu harus muat di antara label dan tagline
+     dalam satu layar; 0,25rem di tiap sisi mengembalikan sekitar 32px per
+     kolom tanpa membuat isinya terasa sesak. */
+  padding: 1.75rem;
   border: 1px solid var(--divider);
   border-radius: 14px;
   background: linear-gradient(150deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.02));
   backdrop-filter: blur(14px);
 }
 
-/* Dua kolom menempel di tepi, menyisakan lorong tengah untuk monolit. */
+/*
+ * Dua kolom menempel di tepi, menyisakan lorong tengah untuk kanvas.
+ *
+ * PADDING ATAS DAN BAWAHNYA MENJAGA PITA LABEL. Wadah ini `inset: 0`, jadi
+ * tanpa padding kolomnya dipusatkan terhadap SELURUH tinggi layar — termasuk
+ * ruang yang sudah ditempati label bab di atas dan tagline di bawah. Akibatnya
+ * kartu naik melewati label dan turun menutupi tagline, sehingga keduanya
+ * terbaca mengambang di sela-sela kartu alih-alih membingkainya.
+ *
+ * Angkanya mengikuti posisi kedua teks itu: label di `top-24` (6rem) dan
+ * tagline di `bottom-16` (4rem), masing-masing ditambah tinggi barisnya dan
+ * sedikit jarak napas.
+ */
 .stage-cards {
   position: absolute;
   inset: 0;
@@ -553,18 +824,30 @@ html.lenis body {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  padding: 0 clamp(1.5rem, 4vw, 4rem);
+  padding: 8rem clamp(1.5rem, 4vw, 4rem) 7rem;
 }
 
 .stage-col {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  /* Dirapatkan dari 1,75rem: pita yang tersedia kini lebih pendek karena label
+     dan tagline sudah dijatah ruangnya sendiri. */
+  gap: 1.5rem;
   width: min(30vw, 25rem);
 }
 
+/*
+ * Geseran turun kolom kanan — dan angkanya dipangkas separuh dari 5rem.
+ *
+ * Maksudnya memang membuat kedua kolom tidak sejajar rata, supaya lorong
+ * tengahnya terbaca sebagai benda dan bukan kolom kosong. Tapi 5rem menggeser
+ * kolom kanan begitu jauh sehingga puncaknya menyembul di atas label bab,
+ * sementara dasarnya berhenti jauh sebelum kolom kiri — seluruh susunannya
+ * jadi terbaca miring, bukan berselang. 2,5rem cukup untuk memecah kesejajaran
+ * tanpa memiringkan komposisinya.
+ */
 .stage-col-offset {
-  margin-top: -5rem;
+  margin-top: -2.5rem;
 }
 
 @media (max-width: 899px) {
@@ -626,19 +909,39 @@ html.lenis body {
    yang membuat baris terakhir yang tidak penuh tetap duduk di tengah, berapa
    pun jumlah kartunya. Kisi berkolom tetap akan meninggalkan lubang di kanan
    bawah begitu jumlahnya ganjil. */
+/*
+ * `justify-content: flex-start`, BUKAN `center`.
+ *
+ * Selama isinya muat, keduanya terlihat sama persis — `.arrival-fit` memakai
+ * flex:1 dan menyerap seluruh sisa ruang, jadi tidak ada celah yang perlu
+ * dibagi. Bedanya baru muncul saat isinya melebihi tinggi panggung: yang
+ * di-center memotong KEDUA ujung sama rata, dan yang berada di ujung atas
+ * adalah label bab. Dengan flex-start, kalau memang ada yang harus terpotong,
+ * yang terpotong adalah bagian bawah — bukan judul yang memberi tahu
+ * pengunjung ia sedang melihat apa.
+ */
 .arrival-stage {
   position: relative;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
 }
 
-/* Kepala panggung: tinggi seperlunya, tidak ikut dibagi ruang sisa. */
+/*
+ * Kepala panggung: tinggi seperlunya, tidak ikut dibagi ruang sisa.
+ *
+ * Jarak atasnya dinaikkan dari 6vh. Bagian lain di situs ini bernapas sekitar
+ * 7rem (`pt-28`) sebelum isinya mulai, sementara 6vh hanya sekitar 50px di
+ * layar laptop — label babnya jadi menempel di tepi atas dan terbaca seperti
+ * terpotong, bukan seperti diberi ruang. Ini satu-satunya bagian yang tepi
+ * atasnya benar-benar menyentuh tepi layar karena ia di-pin, jadi justru di
+ * sini jarak itu paling terasa kalau kurang.
+ */
 .arrival-head {
   flex: none;
-  padding: 6vh 0 2vh;
+  padding: 10vh 0 3vh;
 }
 
 /*
@@ -800,50 +1103,6 @@ html.lenis body {
 .letter-hover:hover > span,
 .group:hover .letter-hover > span {
   transform: translateY(-100%);
-}
-
-/* ── Preloader ────────────────────────────────────────────────────────────*/
-[data-component="preloader"] {
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--background);
-}
-
-[data-component="preloader"] .progress-track {
-  position: relative;
-  width: min(280px, 62vw);
-  height: 1px;
-  background: var(--divider);
-  overflow: hidden;
-}
-
-[data-component="preloader"] .progress-bar {
-  position: absolute;
-  inset: 0;
-  background: var(--text);
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-
-/* Tirai penutup preloader: dua bilah yang membuka ke atas dan ke bawah. */
-[data-component="preloader"] .shutter {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 50.5%;
-  background: var(--background);
-  z-index: 2;
-}
-[data-component="preloader"] .shutter.top {
-  top: 0;
-}
-[data-component="preloader"] .shutter.bottom {
-  bottom: 0;
 }
 
 @keyframes kedip {

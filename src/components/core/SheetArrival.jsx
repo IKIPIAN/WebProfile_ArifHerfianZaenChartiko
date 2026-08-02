@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { gsap } from "../../animation/gsap";
+import { gsap, ScrollTrigger } from "../../animation/gsap";
 import { EASE_SCRUB, SCRUB_PIN, prefersReducedMotion } from "../../animation/motion-tokens";
 
 /*
@@ -109,6 +109,42 @@ export function SheetArrival({ children, header = null, className = "" }) {
       ro.observe(fit);
       ro.observe(grid);
 
+      /*
+       * DUA BENTANGAN, BUKAN SATU — dan pemisahan inilah kuncinya.
+       *
+       * Panggung ini setinggi satu layar dan dikunci saat tepi atasnya
+       * menyentuh tepi atas layar. Kalau pin dan animasi memakai pemicu yang
+       * sama, keduanya terpaksa mulai di titik yang sama juga — artinya SATU
+       * LAYAR PENUH scroll dihabiskan hanya untuk mendekat, dengan judul di
+       * atas dan kisi yang masih kosong di bawahnya. Itu yang terbaca sebagai
+       * "halaman putih dulu, baru sertifikatnya datang".
+       *
+       * Dengan pin berdiri sendiri, animasinya bebas mulai LEAD layar lebih
+       * awal — saat panggung baru separuh masuk — sehingga lembaran sudah
+       * berdatangan selagi halaman masih mendekat, dan tidak ada lagi jeda
+       * kosong sebelum pertunjukannya dimulai.
+       *
+       * Bentangan animasi = LEAD + PIN, karena ia harus menempuh ancang-ancang
+       * DAN seluruh masa terkunci.
+       */
+      const LEAD = 0.55; // layar, sebelum panggung terkunci
+      const PIN = 1; // layar, selama panggung terkunci
+
+      if (!flow) {
+        ScrollTrigger.create({
+          trigger: root,
+          start: "top top",
+          end: () => "+=" + Math.round(window.innerHeight * PIN),
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          /* Pin menyisipkan spacer setinggi jarak pin dan mendorong turun semua
+             isi di bawahnya, jadi ia harus dihitung lebih dulu daripada pemicu
+             mana pun yang posisinya bergantung pada tata letak itu. */
+          refreshPriority: 1,
+        });
+      }
+
       const tl = gsap.timeline({
         defaults: { ease: EASE_SCRUB },
         scrollTrigger: flow
@@ -124,23 +160,10 @@ export function SheetArrival({ children, header = null, className = "" }) {
             }
           : {
               trigger: root,
-              start: "top top",
-              /*
-               * Jarak pin dipangkas dari 1,6 layar.
-               *
-               * Selama di-pin halaman diam, jadi angka ini adalah "berapa jauh
-               * harus men-scroll sebelum boleh melanjutkan". 1,6 layar penuh
-               * untuk merakit satu kisi terbaca sebagai tertahan, bukan sebagai
-               * pertunjukan — apalagi karena timeline-nya baru habis persis di
-               * ujung rentang, sehingga sertifikat tidak pernah sempat terlihat
-               * lengkap dan diam sebelum pin dilepas.
-               */
-              end: () => "+=" + Math.round(window.innerHeight * 1.0),
-              pin: true,
+              start: `top ${LEAD * 100}%`,
+              end: () => "+=" + Math.round(window.innerHeight * (LEAD + PIN)),
               scrub: SCRUB_PIN,
-              anticipatePin: 1,
               invalidateOnRefresh: true,
-              refreshPriority: 1,
             },
       });
 
@@ -184,6 +207,23 @@ export function SheetArrival({ children, header = null, className = "" }) {
             scale: 1,
             opacity: 1,
             duration: 0.5 + ragam * 0.18,
+            /*
+             * SATU-SATUNYA TEMPAT ATURAN "easing harus none" DILANGGAR, dan
+             * pelanggarannya disengaja.
+             *
+             * Aturan itu berlaku untuk pemetaan scroll secara keseluruhan, dan
+             * itu tetap dipatuhi — timeline ini masih 1:1 dengan jarak scroll.
+             * Yang diubah cuma bentuk gerak DI DALAM satu kedatangan.
+             *
+             * Alasannya ada di zona diam seperlima terakhir. Dengan `none`,
+             * lembaran melaju pada kecepatan penuh lalu berhenti mendadak
+             * begitu tweennya habis — nol ke penuh dalam satu titik. Saat
+             * halaman di-scroll balik ke atas, lompatan kecepatan itulah yang
+             * terasa: diam sama sekali, lalu tiba-tiba bergerak penuh.
+             * `power2.out` membuatnya melambat sampai nol, jadi batas antara
+             * "bergerak" dan "diam" tidak lagi punya sudut tajam.
+             */
+            ease: "power2.out",
           },
           /* Jeda antar lembaran sengaja lebih rapat daripada durasinya, jadi
              selalu ada beberapa lembaran melayang bersamaan. Kalau jedanya
@@ -248,8 +288,11 @@ export function SheetArrival({ children, header = null, className = "" }) {
       gsap.ticker.add(tick);
 
       /* Sedikit tumpang tindih dengan kedatangan lembaran terakhir, jadi
-         goyangannya melandai persis saat kisi rapi. */
-      tl.to(wave, { amp: 0, duration: 0.14 }, 0.7);
+         goyangannya melandai persis saat kisi rapi. Diberi kurva karena alasan
+         yang sama seperti kedatangan lembaran: peredaman linear berhenti
+         mendadak di nol, dan saat di-scroll balik goyangannya menyala kembali
+         pada amplitudo penuh dalam sekejap. */
+      tl.to(wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
 
       /*
        * JEDA DIAM DI UJUNG — dan ini yang sebenarnya menjawab "kisinya baru
