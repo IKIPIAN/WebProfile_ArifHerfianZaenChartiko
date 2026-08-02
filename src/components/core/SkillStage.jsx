@@ -249,9 +249,7 @@ export function SkillStage({ items, label, title, tagline }) {
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
       if (!letters.length || !cards.length || !rowEls.length) return;
 
-      gsap.set(slabRef.current, { autoAlpha: 0 });
-
-      const CARD_START = 0.45;
+      const CARD_START = 0.5;
       const CARD_GAP = 0.08;
       const CARD_DUR = 0.26;
       const SETTLE = 0.79;
@@ -275,6 +273,13 @@ export function SkillStage({ items, label, title, tagline }) {
           refreshPriority: 1,
         },
       });
+
+      tl.fromTo(
+        slabRef.current,
+        { rotate: -14, scale: 0.82 },
+        { rotate: 12, scale: 1.04, duration: total },
+        0,
+      );
 
       tl.fromTo(
         rowEls,
