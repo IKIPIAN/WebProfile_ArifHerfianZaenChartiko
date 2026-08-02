@@ -5,6 +5,7 @@ import {
   SCRUB_PIN,
   prefersReducedMotion,
 } from "../../animation/motion-tokens";
+import { DEVICE } from "../../animation/device-queries";
 
 /*
  * PANGGUNG KEAHLIAN — tiga babak dalam satu bentangan scroll yang di-pin.
@@ -108,7 +109,7 @@ export function SkillStage({ items, label, title, tagline }) {
 
     const mm = gsap.matchMedia(root);
 
-    mm.add("(min-width: 900px)", () => {
+    mm.add(DEVICE.desktop, () => {
       const letters = gsap.utils.toArray(
         root.querySelectorAll("[data-letter]"),
       );
@@ -212,7 +213,7 @@ export function SkillStage({ items, label, title, tagline }) {
       };
     });
 
-    mm.add("(max-width: 899px)", () => {
+    mm.add(DEVICE.tablet, () => {
       const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
       if (!cards.length) return;
 

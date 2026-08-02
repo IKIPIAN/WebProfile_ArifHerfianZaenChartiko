@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "../../animation/gsap";
-import { EASE_SCRUB, SCRUB, prefersReducedMotion } from "../../animation/motion-tokens";
+import {
+  EASE_SCRUB,
+  SCRUB,
+  prefersReducedMotion,
+} from "../../animation/motion-tokens";
+import { DEVICE } from "../../animation/device-queries";
 
 /*
  * TRANSISI 5 — BALOK MENDATAR YANG BERPUTAR TURUN.
@@ -45,7 +50,12 @@ const LIPAT = -92;
 const JEDA = 0.2264;
 
 const dariLipat = () => ({ rotateX: LIPAT, autoAlpha: 0 });
-const keTegak = () => ({ rotateX: 0, autoAlpha: 1, duration: 1, ease: EASE_SCRUB });
+const keTegak = () => ({
+  rotateX: 0,
+  autoAlpha: 1,
+  duration: 1,
+  ease: EASE_SCRUB,
+});
 
 export function HingeCards({ children, className = "" }) {
   const ref = useRef(null);
@@ -62,7 +72,7 @@ export function HingeCards({ children, className = "" }) {
 
     /* Sebaris: SATU pemicu untuk semua kartu, karena posisi vertikalnya sama
        dan yang membedakan hanyalah gilirannya. */
-    mm.add("(min-width: 900px)", () => {
+    mm.add(DEVICE.desktop, () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: list,
@@ -73,7 +83,9 @@ export function HingeCards({ children, className = "" }) {
         },
       });
 
-      cards.forEach((card, i) => tl.fromTo(card, dariLipat(), keTegak(), i * JEDA));
+      cards.forEach((card, i) =>
+        tl.fromTo(card, dariLipat(), keTegak(), i * JEDA),
+      );
 
       return () => gsap.set(cards, { clearProps: "all" });
     });
@@ -81,14 +93,14 @@ export function HingeCards({ children, className = "" }) {
     /* Bertumpuk: tiap kartu dapat pemicunya SENDIRI. Satu pemicu bersama akan
        memutar kartu bawah selagi ia masih jauh di luar layar, dan pembaca tiba
        di sana setelah geraknya selesai — tidak ada yang tersisa untuk dilihat. */
-    mm.add("(max-width: 899px)", () => {
+    const stackedCards = (triggerStart, triggerEnd) => {
       cards.forEach((card) => {
         gsap.fromTo(card, dariLipat(), {
           ...keTegak(),
           scrollTrigger: {
             trigger: card,
-            start: "clamp(top 88%)",
-            end: "clamp(top 62%)",
+            start: triggerStart,
+            end: triggerEnd,
             scrub: SCRUB,
             invalidateOnRefresh: true,
           },
@@ -96,7 +108,14 @@ export function HingeCards({ children, className = "" }) {
       });
 
       return () => gsap.set(cards, { clearProps: "all" });
-    });
+    };
+
+    mm.add(DEVICE.tablet, () =>
+      stackedCards("clamp(top 88%)", "clamp(top 62%)"),
+    );
+    mm.add(DEVICE.mobile, () =>
+      stackedCards("clamp(top 90%)", "clamp(top 66%)"),
+    );
 
     return () => mm.revert();
   }, [children]);
