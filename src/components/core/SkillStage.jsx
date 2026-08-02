@@ -109,7 +109,7 @@ export function SkillStage({ items, label, title, tagline }) {
 
     const mm = gsap.matchMedia(root);
 
-    mm.add(DEVICE.desktop, () => {
+    const createDesktopAnimation = () => {
       const letters = gsap.utils.toArray(
         root.querySelectorAll("[data-letter]"),
       );
@@ -211,35 +211,10 @@ export function SkillStage({ items, label, title, tagline }) {
           clearProps: "all",
         });
       };
-    });
+    };
 
-    mm.add(DEVICE.tablet, () => {
-      const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
-      if (!cards.length) return;
-
-      cards.forEach((card) => {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 36, rotateX: 3 },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            duration: 0.75,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 92%",
-              end: "top 74%",
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
-          },
-        );
-      });
-
-      return () => gsap.set(cards, { clearProps: "all" });
-    });
+    mm.add(DEVICE.desktop, createDesktopAnimation);
+    mm.add(DEVICE.tablet, createDesktopAnimation);
 
     mm.add(DEVICE.mobile, () => {
       const letters = gsap.utils.toArray(
