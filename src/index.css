@@ -726,7 +726,7 @@ html.lenis body {
  */
 .slab {
   position: relative;
-  width: min(48vw, 580px);
+  width: min(68vw, 960px);
   aspect-ratio: 16 / 10;
   border-radius: 14px;
   overflow: hidden;
@@ -827,9 +827,9 @@ html.lenis body {
 .stage-word {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(2.6rem, 8.2vw, 8.5rem);
-  line-height: 0.94;
-  letter-spacing: -0.05em;
+  font-size: clamp(4.5rem, 10vw, 13.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
   text-transform: uppercase;
   color: var(--text);
 }
@@ -886,16 +886,14 @@ html.lenis body {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  padding: 8rem clamp(1.5rem, 4vw, 4rem) 7rem;
+  padding: 6rem clamp(2rem, 4vw, 5rem) 5rem;
 }
 
 .stage-col {
   display: flex;
   flex-direction: column;
-  /* Dirapatkan dari 1,75rem: pita yang tersedia kini lebih pendek karena label
-     dan tagline sudah dijatah ruangnya sendiri. */
-  gap: 1.5rem;
-  width: min(30vw, 25rem);
+  gap: 1.25rem;
+  width: min(28vw, 28rem);
 }
 
 /*
@@ -932,9 +930,9 @@ html.lenis body {
   }
 
   .slab {
-    width: 75vw;
-    max-width: 340px;
-    margin-top: -4rem;
+    width: 85vw;
+    max-width: 520px;
+    margin-top: -3rem;
   }
 
   .stage-cards {

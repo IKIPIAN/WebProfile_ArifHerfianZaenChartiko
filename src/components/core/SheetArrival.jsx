@@ -65,7 +65,7 @@ export function SheetArrival({ children, header = null, className = "" }) {
 
     const mm = gsap.matchMedia();
 
-    mm.add(DEVICE.desktop, () => {
+    const createArrival = () => {
       const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
       const floats = gsap.utils.toArray(grid.querySelectorAll("[data-float]"));
       if (!cards.length) return;
@@ -324,35 +324,10 @@ export function SheetArrival({ children, header = null, className = "" }) {
         gsap.ticker.remove(tick);
         gsap.set([...cards, ...floats, grid], { clearProps: "all" });
       };
-    });
+    };
 
-    mm.add(DEVICE.tablet, () => {
-      const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
-      if (!cards.length) return;
-
-      cards.forEach((card, index) => {
-        gsap.fromTo(
-          card,
-          { y: 55, opacity: 0, rotate: index % 2 === 0 ? -2 : 2 },
-          {
-            y: 0,
-            opacity: 1,
-            rotate: 0,
-            duration: 0.7,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 92%",
-              end: "top 78%",
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
-          },
-        );
-      });
-
-      return () => gsap.set(cards, { clearProps: "all" });
-    });
+    mm.add(DEVICE.desktop, createArrival);
+    mm.add(DEVICE.tablet, createArrival);
 
     mm.add(DEVICE.mobile, () => {
       const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
