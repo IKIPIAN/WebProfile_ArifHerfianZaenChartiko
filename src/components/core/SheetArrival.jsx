@@ -5,6 +5,7 @@ import {
   SCRUB_PIN,
   prefersReducedMotion,
 } from "../../animation/motion-tokens";
+import { DEVICE } from "../../animation/device-queries";
 
 /*
  * LEMBARAN YANG MELAYANG MASUK.
@@ -64,7 +65,7 @@ export function SheetArrival({ children, header = null, className = "" }) {
 
     const mm = gsap.matchMedia();
 
-    mm.add("(min-width: 900px)", () => {
+    mm.add(DEVICE.desktop, () => {
       const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
       const floats = gsap.utils.toArray(grid.querySelectorAll("[data-float]"));
       if (!cards.length) return;
@@ -325,7 +326,7 @@ export function SheetArrival({ children, header = null, className = "" }) {
       };
     });
 
-    mm.add("(max-width: 899px)", () => {
+    mm.add(DEVICE.tablet, () => {
       const cards = gsap.utils.toArray(grid.querySelectorAll("[data-arrive]"));
       if (!cards.length) return;
 

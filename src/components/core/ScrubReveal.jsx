@@ -1,6 +1,13 @@
 import { useLayoutEffect, useRef } from "react";
 import { gsap } from "../../animation/gsap";
-import { CLIP, DURATION, EASE, SCRUB, prefersReducedMotion } from "../../animation/motion-tokens";
+import {
+  CLIP,
+  DURATION,
+  EASE,
+  SCRUB,
+  prefersReducedMotion,
+} from "../../animation/motion-tokens";
+import { DEVICE } from "../../animation/device-queries";
 import { useAppReady } from "./ready-context";
 
 /*
@@ -61,7 +68,8 @@ export function ScrubReveal({
      * progresnya mentok di nol dan isinya tidak pernah terbuka sama sekali.
      * Untuk elemen begini satu-satunya penggerak yang masuk akal adalah waktu.
      */
-    const visibleOnLoad = el.getBoundingClientRect().top < window.innerHeight * 0.92;
+    const visibleOnLoad =
+      el.getBoundingClientRect().top < window.innerHeight * 0.92;
 
     const ctx = gsap.context(() => {
       if (visibleOnLoad) {
@@ -79,6 +87,10 @@ export function ScrubReveal({
         return;
       }
 
+      const isDesktop = window.matchMedia(DEVICE.desktop).matches;
+      const triggerStart = isDesktop ? `clamp(${start})` : "clamp(top 100%)";
+      const triggerEnd = isDesktop ? `clamp(${end})` : "clamp(top 76%)";
+
       gsap.fromTo(
         el,
         { clipPath: CLIP.collapsedTop, y: rise },
@@ -93,8 +105,8 @@ export function ScrubReveal({
              selamanya. */
           scrollTrigger: {
             trigger: el,
-            start: `clamp(${start})`,
-            end: `clamp(${end})`,
+            start: triggerStart,
+            end: triggerEnd,
             scrub: SCRUB,
           },
         },
@@ -105,7 +117,12 @@ export function ScrubReveal({
   }, [ready, start, end, rise, delay]);
 
   return (
-    <Tag ref={ref} data-component="scrub-reveal" className={className} {...rest}>
+    <Tag
+      ref={ref}
+      data-component="scrub-reveal"
+      className={className}
+      {...rest}
+    >
       {children}
     </Tag>
   );
