@@ -288,33 +288,16 @@ export function SkillStage({ items, label, title, tagline }) {
         0,
       );
 
-      let seed = 0;
-      rowEls.forEach((row, r) => {
-        const len = row.querySelectorAll("[data-letter]").length;
-        const vy = rows.length > 1 ? (r / (rows.length - 1)) * 2 - 1 : 0;
-
-        row.querySelectorAll("[data-letter]").forEach((el, c) => {
-          const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
-          const n1 = noise(seed + 1);
-          const n2 = noise(seed + 97);
-          const n3 = noise(seed + 613);
-          seed += 1;
-
-          tl.to(
-            el,
-            {
-              x: hx * (260 + n1 * 460),
-              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
-              rotate: (n1 - 0.5) * 240,
-              scale: 0.35 + n2 * 0.75,
-              opacity: 0,
-              duration: 0.36,
-              delay: n3 * 0.08,
-            },
-            0.24,
-          );
-        });
-      });
+      tl.to(
+        rowEls,
+        {
+          opacity: 0,
+          y: -18,
+          duration: 0.36,
+          ease: "power2.in",
+        },
+        0.24,
+      );
 
       cards.forEach((card) => {
         const fromLeft = card.dataset.side === "left";
