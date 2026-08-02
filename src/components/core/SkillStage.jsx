@@ -249,6 +249,8 @@ export function SkillStage({ items, label, title, tagline }) {
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
       if (!letters.length || !cards.length || !rowEls.length) return;
 
+      gsap.set(slabRef.current, { autoAlpha: 0 });
+
       const CARD_START = 0.45;
       const CARD_GAP = 0.08;
       const CARD_DUR = 0.26;
@@ -275,29 +277,44 @@ export function SkillStage({ items, label, title, tagline }) {
       });
 
       tl.fromTo(
-        slabRef.current,
-        { rotate: -14, scale: 0.82 },
-        { rotate: 12, scale: 1.04, duration: total },
-        0,
-      );
-
-      tl.fromTo(
         rowEls,
         { scale: 0.94, opacity: 0.75 },
         { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
         0,
       );
 
-      tl.to(
-        rowEls,
-        {
-          opacity: 0,
-          y: -18,
-          duration: 0.36,
-          ease: "power2.in",
-        },
-        0.24,
-      );
+      const rowCount = rows.length;
+      let seed = 0;
+
+      rows.forEach((row, r) => {
+        const len = row.chars.length;
+        const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
+
+        row.chars.forEach((_, c) => {
+          const el = letters[seed];
+          if (!el) return;
+          const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
+
+          const n1 = noise(seed + 1);
+          const n2 = noise(seed + 97);
+          const n3 = noise(seed + 613);
+          seed += 1;
+
+          tl.to(
+            el,
+            {
+              x: hx * (260 + n1 * 460),
+              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
+              rotate: (n1 - 0.5) * 240,
+              scale: 0.35 + n2 * 0.75,
+              opacity: 0,
+              duration: 0.36,
+              delay: n3 * 0.08,
+            },
+            0.24,
+          );
+        });
+      });
 
       cards.forEach((card) => {
         const fromLeft = card.dataset.side === "left";
