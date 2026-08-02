@@ -29,12 +29,12 @@ export function HeroSection() {
     <section
       id="home"
       data-component="chapter"
-      className="relative flex min-h-screen items-center overflow-hidden pt-32 pb-36"
+      className="relative flex min-h-screen items-center overflow-hidden pt-24 pb-24 sm:pt-28 sm:pb-28 nav:pt-32 nav:pb-36"
     >
       <AmbientLines density={52} />
 
       <Container wide className="relative z-2 w-full">
-        <div className="grid grid-cols-1 items-end gap-16 nav:grid-cols-[1.35fr_0.65fr]">
+        <div className="grid grid-cols-1 items-end gap-12 sm:gap-14 nav:grid-cols-[1.35fr_0.65fr] nav:gap-16">
           <div>
             <ScrubReveal delay={STAGGER} className="mb-10 flex items-center gap-3">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -63,11 +63,11 @@ export function HeroSection() {
               <p className="-caption-small text-text-muted">{site.location}</p>
             </ScrubReveal>
 
-            <ScrubReveal delay={STAGGER * 6} className="mt-12 flex flex-wrap gap-4">
-              <Button href="#kontak" variant="primary">
+            <ScrubReveal delay={STAGGER * 6} className="mt-10 flex flex-col gap-3 sm:mt-12 sm:flex-row sm:flex-wrap sm:gap-4">
+              <Button href="#kontak" variant="primary" className="w-full sm:w-auto">
                 Hubungi Saya
               </Button>
-              <Button href="#tentang" variant="outline">
+              <Button href="#tentang" variant="outline" className="w-full sm:w-auto">
                 Lihat Profil
               </Button>
             </ScrubReveal>
@@ -80,7 +80,7 @@ export function HeroSection() {
               src={foto}
               alt={`Foto ${site.name}`}
               delay={STAGGER * 3}
-              className="h-[330px] w-full nav:h-[400px]"
+              className="h-[280px] w-full sm:h-[330px] nav:h-[400px]"
               imgClassName="object-top"
             />
           </div>

@@ -221,6 +221,44 @@ body {
   font-weight: 400;
 }
 
+@media (max-width: 899px) {
+  .-display {
+    font-size: clamp(2.6rem, 8.2vw, 3.45rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  .-h1 {
+    font-size: clamp(2rem, 6.2vw, 2.6rem);
+  }
+  .-h2 {
+    font-size: clamp(1.45rem, 4.4vw, 1.75rem);
+  }
+  .-title-3 {
+    font-size: 18px;
+  }
+  .-title-4 {
+    font-size: 16px;
+  }
+  .-body {
+    font-size: 15px;
+  }
+  .-body-small {
+    font-size: 14px;
+  }
+  .-body-smaller {
+    font-size: 13px;
+  }
+  .-caption {
+    font-size: 12px;
+  }
+  .-caption-small {
+    font-size: 11px;
+  }
+  .-mono {
+    font-size: 13px;
+  }
+}
+
 @media (min-width: 900px) {
   .-display {
     font-size: 108px;

@@ -28,8 +28,8 @@ export function ExperienceSection() {
 
   return (
     <section id="pengalaman" data-component="chapter" className="relative scroll-mt-24">
-      <Container wide className="py-28 nav:py-40">
-        <ScrubReveal className="mb-7 flex items-center gap-4">
+      <Container wide className="py-24 sm:py-28 nav:py-40">
+        <ScrubReveal className="mb-6 flex items-center gap-4 sm:mb-7">
           <span className="-mono tabular-nums text-text-muted">
             {String(number).padStart(2, "0")}
           </span>
@@ -44,7 +44,7 @@ export function ExperienceSection() {
           lineClassName="last:text-text-muted"
         />
 
-        <ScrubReveal as="p" className="-body-small mb-20 max-w-md text-text-muted">
+        <ScrubReveal as="p" className="-body-small mb-12 max-w-md text-text-muted sm:mb-20">
           {chapter.subtitle}
         </ScrubReveal>
 
@@ -52,12 +52,12 @@ export function ExperienceSection() {
             `justify-content: center`, baris terakhir menengahkan dirinya
             sendiri berapa pun jumlah kartunya — jadi menambah pekerjaan
             ketiga nanti tidak menuntut penyesuaian tata letak apa pun. */}
-        <HingeCards className="gap-6 nav:gap-8">
+        <HingeCards className="gap-4 sm:gap-6 nav:gap-8">
           {experienceList.map((entry, i) => (
             <article
               key={entry.company}
               data-hinge
-              className="flex w-[min(30rem,100%)] shrink-0 flex-col rounded-lg bg-surface p-8 nav:p-10"
+              className="flex w-full max-w-[30rem] shrink-0 flex-col rounded-lg bg-surface p-6 sm:p-8 nav:p-10"
             >
               <div className="mb-8 flex items-baseline justify-between gap-4 border-b border-line pb-5">
                 <span className="-mono tabular-nums text-text-muted">

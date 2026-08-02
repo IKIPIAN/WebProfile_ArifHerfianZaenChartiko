@@ -55,10 +55,10 @@ function App() {
         <ExperienceSection />
         <SkillsSection />
 
-        <div aria-hidden="true" className="band-fade-to-panel h-[50vh]" />
+        <div aria-hidden="true" className="band-fade-to-panel h-[28vh] sm:h-[40vh] nav:h-[50vh]" />
         <EducationSection />
         <CertificatesSection />
-        <div aria-hidden="true" className="band-fade-to-dark h-[50vh]" />
+        <div aria-hidden="true" className="band-fade-to-dark h-[28vh] sm:h-[40vh] nav:h-[50vh]" />
 
         <ContactSection />
       </main>
