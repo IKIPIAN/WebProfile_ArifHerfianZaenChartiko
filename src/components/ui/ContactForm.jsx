@@ -7,7 +7,7 @@ import { Button } from "./Button";
    Pada latar segelap ini, kotak bergaris penuh menambah banyak bingkai yang
    bersaing dengan garis pemisah bagian. */
 const inputClass =
-  "w-full border-b border-line bg-transparent py-3 -body-small text-text outline-none transition-colors duration-300 ease-power placeholder:text-text-muted/50 focus:border-text";
+  "w-full border-b border-line bg-transparent py-2.5 -body-small text-text outline-none transition-colors duration-300 ease-power placeholder:text-text-muted/50 focus:border-text sm:py-3";
 
 export function ContactForm() {
   const [nama, setNama] = useState("");
@@ -49,11 +49,11 @@ export function ContactForm() {
   }
 
   return (
-    <div className="corner-marks border border-line p-7 nav:p-10">
+    <div className="corner-marks border border-line p-5 sm:p-7 nav:p-10">
       <h3 className="-caption-small mb-8 text-text-muted">Kirim Pesan</h3>
 
-      <form onSubmit={kirimWA} className="flex flex-col gap-7">
-        <div className="grid grid-cols-1 gap-7 nav:grid-cols-2">
+      <form onSubmit={kirimWA} className="flex flex-col gap-6 sm:gap-7">
+        <div className="grid grid-cols-1 gap-6 sm:gap-7 nav:grid-cols-2">
           <div>
             <label htmlFor="namaPengirim" className="-caption-small mb-1 block text-text-muted">
               Nama
@@ -100,11 +100,11 @@ export function ContactForm() {
         {/* Dua jalur, satu isian. Keduanya mengirim pesan yang bentuknya sama —
             yang berbeda hanya aplikasi yang membukanya, jadi pengunjung memilih
             berdasarkan kebiasaannya sendiri, bukan dipaksa satu jalan. */}
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button type="submit" className="w-full sm:w-auto">
             <i className="fa-brands fa-whatsapp" /> Kirim via WhatsApp
           </Button>
-          <Button type="button" variant="outline" onClick={kirimEmail}>
+          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={kirimEmail}>
             <i className="fa-solid fa-envelope" /> Kirim via Email
           </Button>
         </div>

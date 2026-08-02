@@ -30,7 +30,7 @@ export function SkillsSection() {
         tagline="Empat bidang. Satu cara kerja."
       />
 
-      <Container className="flex flex-col gap-24 py-28 nav:py-36">
+      <Container className="flex flex-col gap-16 py-24 sm:gap-20 sm:py-28 nav:gap-24 nav:py-36">
         <div>
           <ScrubReveal as="h3" className="-caption-small mb-8 text-text-muted">
             Kemampuan Profesional
@@ -47,7 +47,7 @@ export function SkillsSection() {
               <ScrubReveal
                 key={skill.label}
                 delay={i * 0.04}
-                className="group flex min-h-36 min-w-52 flex-1 flex-col justify-between border-r border-b border-line p-5 transition-colors duration-500 ease-brand hover:bg-text/4"
+                className="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5"
               >
                 <i className={`${skill.icon} text-text-muted`} />
                 {/* Naik sedikit saat disentuh, jadi sel yang aktif terangkat
@@ -84,7 +84,7 @@ export function SkillsSection() {
             {languages.map((lang) => (
               <ScrubReveal
                 key={lang.code}
-                className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-b border-line py-6"
+                className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-line py-5 sm:gap-x-5 sm:py-6"
               >
                 <span className="-mono text-text-muted">{lang.code}</span>
                 <span className="h-px w-8 self-center bg-line" />

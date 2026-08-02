@@ -23,7 +23,7 @@ export function Chapter({ id, band, children, wide = false, headerExtra = null }
     <section id={id} data-component="chapter" data-band={band} className="relative scroll-mt-24">
       <Container
         wide={wide}
-        className="grid grid-cols-1 nav:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] gap-x-16 gap-y-12 py-28 nav:py-40"
+        className="grid grid-cols-1 gap-x-8 gap-y-10 py-24 sm:py-28 nav:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] nav:gap-x-16 nav:gap-y-12 nav:py-40"
       >
         {/* Pembungkus sengaja dibiarkan polos. Elemen sticky butuh RUANG untuk
             bergerak, yaitu tinggi induknya. Grid item sudah meregang setinggi
