@@ -106,7 +106,7 @@ export function SkillStage({ items, label, title, tagline }) {
     if (!root) return;
     if (prefersReducedMotion()) return;
 
-    const mm = gsap.matchMedia();
+    const mm = gsap.matchMedia(root);
 
     mm.add("(min-width: 900px)", () => {
       const letters = gsap.utils.toArray(
@@ -115,24 +115,6 @@ export function SkillStage({ items, label, title, tagline }) {
       const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
 
-      /*
-       * KAPAN BABAK 3 SELESAI — dan ini inti dari penyetelan panggung ini.
-       *
-       * ScrollTrigger merentangkan SELURUH timeline sepanjang bentangan pin.
-       * Selama kartu terakhir mendarat tepat di ujung timeline, "kartu lengkap"
-       * dan "pin lepas" jatuh di titik yang sama: kisi keahlian yang utuh hanya
-       * ada sekejap sebelum halaman berjalan lagi. Berapa pun bentangannya
-       * dipanjangkan, rasanya tetap terburu di ujung — karena yang salah bukan
-       * panjangnya, melainkan letak titik selesainya di dalam bentangan itu.
-       *
-       * Jadi titik selesainya yang ditetapkan lebih dulu (SETTLE), lalu panjang
-       * timeline dihitung mundur darinya. Sisa 21% terakhir tidak menggerakkan
-       * kartu sama sekali — itu jatah untuk membacanya dalam keadaan lengkap.
-       *
-       * Dihitung dari `order` yang benar-benar ada di DOM, bukan dari angka
-       * tetap, supaya menambah atau mengurangi bidang keahlian tidak diam-diam
-       * mengembalikan masalah yang sama.
-       */
       const CARD_START = 0.5;
       const CARD_GAP = 0.08;
       const CARD_DUR = 0.26;
@@ -149,28 +131,15 @@ export function SkillStage({ items, label, title, tagline }) {
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          /* Dipangkas dari 2,4. Tetap lebih panjang daripada panggung
-             sertifikat karena isinya tiga babak berurutan — monolit berputar,
-             huruf pecah, kartu datang — dan memampatkannya sependek satu layar
-             membuat ketiganya terbaca bertumpuk, bukan berurutan. */
           end: () => "+=" + Math.round(window.innerHeight * 1.6),
           pin: true,
           scrub: SCRUB_PIN,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          /* Pin menyisipkan spacer setinggi jarak pin dan mendorong turun
-             semua isi di bawahnya. Tanpa prioritas ini, pemicu bagian-bagian
-             berikutnya menghitung posisinya memakai tata letak sebelum spacer
-             ada, lalu meleset persis sejauh jarak pin. */
           refreshPriority: 1,
         },
       });
 
-      /* ── Babak 1: monolit berputar sepanjang seluruh bentangan ─────────
-         Durasinya sengaja `total`, bukan angka tetap: monolit inilah yang
-         mengisi jeda diam di ujung. Kalau ia ikut berhenti bersama kartu,
-         21% terakhir terbaca sebagai halaman yang membeku, bukan sebagai
-         kesempatan membaca. */
       tl.fromTo(
         slabRef.current,
         { rotate: -14, scale: 0.82 },
@@ -178,8 +147,6 @@ export function SkillStage({ items, label, title, tagline }) {
         0,
       );
 
-      /* Sedikit renggang sebelum pecah, supaya tumpukan katanya sempat
-         terbaca sebagai satu kesatuan lebih dulu. */
       tl.fromTo(
         rowEls,
         { scale: 0.94, opacity: 0.75 },
@@ -187,19 +154,16 @@ export function SkillStage({ items, label, title, tagline }) {
         0,
       );
 
-      /* ── Babak 2: pecah ──────────────────────────────────────────────── */
       const rowCount = rows.length;
       let seed = 0;
 
       rows.forEach((row, r) => {
         const len = row.chars.length;
-        /* −1 di baris teratas, +1 di baris terbawah. */
         const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
 
         row.chars.forEach((_, c) => {
           const el = letters[seed];
           if (!el) return;
-          /* −1 di huruf paling kiri, +1 di huruf paling kanan. */
           const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
 
           const n1 = noise(seed + 1);
@@ -216,8 +180,6 @@ export function SkillStage({ items, label, title, tagline }) {
               scale: 0.35 + n2 * 0.75,
               opacity: 0,
               duration: 0.36,
-              /* Tiap huruf berangkat pada saat sedikit berbeda — serempak
-                 terbaca sebagai satu gambar yang memudar, bukan pecahan. */
               delay: n3 * 0.08,
             },
             0.24,
@@ -225,21 +187,12 @@ export function SkillStage({ items, label, title, tagline }) {
         });
       });
 
-      /* ── Babak 3: kartu masuk ────────────────────────────────────────── */
       cards.forEach((card) => {
-        /* Arah masuk dibaca dari sisi tempat kartu itu berdiri, bukan dari
-           urutannya di DOM — kartu di kiri harus datang dari kiri. */
         const fromLeft = card.dataset.side === "left";
         const order = Number(card.dataset.order) || 0;
         tl.fromTo(
           card,
           { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
-          /* Melambat sampai berhenti, bukan berhenti mendadak. Panggung ini
-             punya jeda diam 21% di ujungnya; dengan gerak linear, batas antara
-             kartu yang masih melaju dan kartu yang sudah diam jadi lompatan
-             kecepatan — dan lompatan itu paling terasa saat halaman di-scroll
-             balik ke atas, tepat sebelum kartunya bubar. Sama persis dengan
-             yang dilakukan panggung sertifikat. */
           {
             x: 0,
             y: 0,
@@ -257,6 +210,34 @@ export function SkillStage({ items, label, title, tagline }) {
           clearProps: "all",
         });
       };
+    });
+
+    mm.add("(max-width: 899px)", () => {
+      const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
+      if (!cards.length) return;
+
+      cards.forEach((card) => {
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 36, rotateX: 3 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.75,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 92%",
+              end: "top 74%",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      });
+
+      return () => gsap.set(cards, { clearProps: "all" });
     });
 
     return () => mm.revert();

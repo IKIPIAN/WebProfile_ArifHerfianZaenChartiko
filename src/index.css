@@ -923,7 +923,7 @@ html.lenis body {
   }
 
   .stage-cards {
-    position: static;
+    position: relative;
     flex-direction: column;
     padding: 2rem 1rem 0;
     gap: 1rem;

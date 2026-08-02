@@ -34,7 +34,7 @@ export function HeroSection() {
       <AmbientLines density={52} />
 
       <Container wide className="relative z-2 w-full">
-        <div className="grid grid-cols-1 items-end gap-12 sm:gap-14 nav:grid-cols-[1.35fr_0.65fr] nav:gap-16">
+        <div className="grid grid-cols-1 gap-12 sm:gap-14 nav:grid-cols-[1.35fr_0.65fr] nav:gap-16 nav:items-start">
           <div>
             <ScrubReveal
               delay={STAGGER}
@@ -44,8 +44,6 @@ export function HeroSection() {
               <p className="-caption-small text-text-muted">{site.greeting}</p>
             </ScrubReveal>
 
-            {/* Nama dipecah jadi dua baris bertopeng. Dibiarkan mengalir, teks
-                sepanjang ini patah di tempat yang salah untuk sebuah nama. */}
             <LineMask
               as="h1"
               className="-display mb-10"
@@ -54,10 +52,22 @@ export function HeroSection() {
               delay={STAGGER * 2}
               stagger={0.09}
             />
+          </div>
 
+          <div className="corner-marks relative border border-line p-2.5 nav:col-start-2 nav:row-start-1 nav:row-span-2">
+            <RevealImage
+              src={foto}
+              alt={`Foto ${site.name}`}
+              delay={STAGGER * 3}
+              className="w-full aspect-[4/5] sm:aspect-[3/4] nav:aspect-[4/5]"
+              imgClassName="object-contain"
+            />
+          </div>
+
+          <div className="flex flex-col gap-6 border-t border-line pt-7 sm:border-t-0 sm:pt-0 nav:row-start-2">
             <ScrubReveal
               delay={STAGGER * 5}
-              className="flex flex-col gap-6 border-t border-line pt-7 nav:flex-row nav:items-center nav:justify-between"
+              className="flex flex-col gap-6 border-t border-line pt-7 sm:border-t-0 sm:pt-0 nav:flex-row nav:items-center nav:justify-between"
             >
               <p className="-body text-text-muted">
                 {site.roleLead}{" "}
@@ -86,18 +96,6 @@ export function HeroSection() {
                 Lihat Profil
               </Button>
             </ScrubReveal>
-          </div>
-
-          {/* Foto diberi bingkai bertanda sudut supaya terbaca sebagai satu
-              lempeng di dalam ruang gelap, bukan gambar yang mengambang. */}
-          <div className="corner-marks relative border border-line p-2.5">
-            <RevealImage
-              src={foto}
-              alt={`Foto ${site.name}`}
-              delay={STAGGER * 3}
-              className="h-[280px] w-full sm:h-[330px] nav:h-[400px]"
-              imgClassName="object-top"
-            />
           </div>
         </div>
       </Container>
