@@ -16,7 +16,11 @@ export function LetterHover({ text, className = "" }) {
   const chars = [...text];
 
   return (
-    <span className={`inline-flex ${className}`}>
+    /* `flex-wrap` sebagai jaring pengaman: huruf-huruf ini item flex, dan tanpa
+       izin membungkus, label sepanjang apa pun memaksa satu baris yang menjulur
+       keluar dari wadahnya. Dalam keadaan normal ia tidak pernah terpakai —
+       ukuran labelnya sudah dirapatkan di layar tersempit (lihat .link-mono). */
+    <span className={`inline-flex flex-wrap ${className}`}>
       {/* Teks sebenarnya, hanya untuk pembaca layar.
           Huruf-huruf di bawah dipecah dan digandakan demi efek hover, jadi
           semuanya ditandai aria-hidden. Tanpa salinan utuh ini, pembaca layar

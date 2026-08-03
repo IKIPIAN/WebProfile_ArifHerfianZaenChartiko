@@ -15,7 +15,8 @@ import { DEVICE } from "../../animation/device-queries";
  *   Babak 2  Kata-katanya PECAH. Tiap huruf terlempar keluar dari pusat
  *            sambil berputar dan mengecil, lalu hilang.
  *   Babak 3  Dari ruang yang ditinggalkan huruf-huruf itu, kartu keahlian
- *            masuk dari sisi kiri dan kanan.
+ *            masuk dan menyusun diri menjadi gugus 2×2 yang berpusat di
+ *            tengah layar.
  *
  * Kenapa urutannya begitu: babak 1 memberi kesan tunggal ("inilah bidangnya"),
  * babak 2 membongkarnya, babak 3 menyusunnya kembali sebagai keterangan yang
@@ -38,6 +39,24 @@ function noise(seed) {
   return x - Math.floor(x);
 }
 
+/*
+ * Titik berangkat kartu, dinyatakan sebagai ARAH (-1/1), bukan piksel.
+ *
+ * Dulu kartu menempel di luar keempat sudut monolit, jadi offset-nya dihitung
+ * dari posisi sudut itu. Kini kartu duduk sebagai gugus 2×2 yang berpusat,
+ * jadi keempat kartu berangkat dari arah luarnya sendiri menuju selnya di
+ * gugus — kiri-atas mendekat dari kiri atas, dan seterusnya.
+ */
+const CORNER_OFFSET = {
+  "top-left": { x: -1, y: -1 },
+  "top-right": { x: 1, y: -1 },
+  "bottom-left": { x: -1, y: 1 },
+  "bottom-right": { x: 1, y: 1 },
+};
+
+const EXPLODE_AT = 0.24;
+const SLAB_PEAK = 1.38;
+
 function Glyph({ index }) {
   const rings = 4 + (index % 3);
   return (
@@ -58,13 +77,13 @@ function Glyph({ index }) {
   );
 }
 
-function Card({ item, side, order }) {
+function Card({ item, position, order }) {
   return (
     <article
       data-card
-      data-side={side}
+      data-position={position}
       data-order={order}
-      className="stage-card"
+      className={`stage-card stage-card--${position}`}
     >
       <div className="mb-6 flex items-start justify-between gap-6">
         <h3 className="-h2 max-w-[9em]">{item.title}</h3>
@@ -81,14 +100,17 @@ export function SkillStage({ items, label, title, tagline }) {
   const wordsRef = useRef(null);
   const cardsRef = useRef(null);
 
-  /* Selang-seling kiri/kanan, dengan urutan aslinya dibawa serta supaya jeda
-     masuknya tetap mengikuti urutan keahlian, bukan urutan kolom. */
-  const leftItems = items
-    .filter((_, i) => i % 2 === 0)
-    .map((it, i) => ({ ...it, _order: i }));
-  const rightItems = items
-    .filter((_, i) => i % 2 === 1)
-    .map((it, i) => ({ ...it, _order: i }));
+  const positionedItems = useMemo(
+    () =>
+      items.map((item, idx) => ({
+        ...item,
+        _order: idx,
+        _position:
+          ["top-left", "top-right", "bottom-left", "bottom-right"][idx] ||
+          (idx % 2 === 0 ? "top-left" : "top-right"),
+      })),
+    [items],
+  );
 
   /* Huruf dipecah sekali saja lewat useMemo. Memecahnya di dalam render
      membuat React membuang dan membuat ulang setiap <span> pada tiap render,
@@ -109,114 +131,22 @@ export function SkillStage({ items, label, title, tagline }) {
 
     const mm = gsap.matchMedia(root);
 
-    const createDesktopAnimation = () => {
-      const letters = gsap.utils.toArray(
-        root.querySelectorAll("[data-letter]"),
-      );
-      const cards = gsap.utils.toArray(root.querySelectorAll("[data-card]"));
-      const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
-
-      const CARD_START = 0.5;
-      const CARD_GAP = 0.08;
-      const CARD_DUR = 0.26;
-      const SETTLE = 0.79;
-
-      const lastOrder = cards.reduce(
-        (max, c) => Math.max(max, Number(c.dataset.order) || 0),
-        0,
-      );
-      const total = (CARD_START + lastOrder * CARD_GAP + CARD_DUR) / SETTLE;
-
-      const tl = gsap.timeline({
-        defaults: { ease: EASE_SCRUB },
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: () => "+=" + Math.round(window.innerHeight * 1.6),
-          pin: true,
-          scrub: SCRUB_PIN,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          refreshPriority: 1,
-        },
-      });
-
-      tl.fromTo(
-        slabRef.current,
-        { rotate: -14, scale: 0.82 },
-        { rotate: 12, scale: 1.04, duration: total },
-        0,
-      );
-
-      tl.fromTo(
-        rowEls,
-        { scale: 0.94, opacity: 0.75 },
-        { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
-        0,
-      );
-
-      const rowCount = rows.length;
-      let seed = 0;
-
-      rows.forEach((row, r) => {
-        const len = row.chars.length;
-        const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
-
-        row.chars.forEach((_, c) => {
-          const el = letters[seed];
-          if (!el) return;
-          const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
-
-          const n1 = noise(seed + 1);
-          const n2 = noise(seed + 97);
-          const n3 = noise(seed + 613);
-          seed += 1;
-
-          tl.to(
-            el,
-            {
-              x: hx * (260 + n1 * 460),
-              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
-              rotate: (n1 - 0.5) * 240,
-              scale: 0.35 + n2 * 0.75,
-              opacity: 0,
-              duration: 0.36,
-              delay: n3 * 0.08,
-            },
-            0.24,
-          );
-        });
-      });
-
-      cards.forEach((card) => {
-        const fromLeft = card.dataset.side === "left";
-        const order = Number(card.dataset.order) || 0;
-        tl.fromTo(
-          card,
-          { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
-          {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: CARD_DUR,
-            ease: "power2.out",
-          },
-          CARD_START + order * CARD_GAP,
-        );
-      });
-
-      return () => {
-        gsap.set([...letters, ...cards, ...rowEls, slabRef.current], {
-          clearProps: "all",
-        });
-      };
-    };
-
-    mm.add(DEVICE.desktop, createDesktopAnimation);
-    mm.add(DEVICE.tablet, createDesktopAnimation);
-
-    mm.add(DEVICE.mobile, () => {
+    /*
+     * Satu fungsi animasi untuk ketiga breakpoint, dan koreografinya SAMA
+     * PERSIS di mana pun: panggung dikunci, kata pecah, kartu menyusun diri.
+     *
+     * Panggung ini pernah dilepas kuncinya di ponsel supaya tumpukan kartu
+     * yang memanjang tetap terjangkau — dan itu keliru. Tanpa kunci, keempat
+     * kartu memakai satu pemicu bersama sementara letaknya berjauhan secara
+     * vertikal, jadi kartu bawah selesai bergerak jauh sebelum pembaca sampai
+     * ke sana. Persis kegagalan yang sudah dicatat di HingeCards.jsx: tidak
+     * ada yang tersisa untuk dilihat. Jawabannya bukan melepas kunci,
+     * melainkan meringkas kartunya supaya keempatnya muat satu layar.
+     *
+     * Yang tersisa berbeda hanya `distFactor` — seberapa jauh kartu berangkat,
+     * dan itu pun sebanding dengan ukuran kartunya sendiri.
+     */
+    const createAnimation = (distFactor) => {
       const letters = gsap.utils.toArray(
         root.querySelectorAll("[data-letter]"),
       );
@@ -224,6 +154,64 @@ export function SkillStage({ items, label, title, tagline }) {
       const rowEls = gsap.utils.toArray(root.querySelectorAll("[data-row]"));
       if (!letters.length || !cards.length || !rowEls.length) return;
 
+      /*
+       * MEMPERKECIL AGAR MUAT — panggung ini terkunci setinggi satu layar dan
+       * `overflow: hidden`, jadi apa pun yang melebihi tingginya tidak sekadar
+       * meluber: ia hilang, dan tidak ada cara untuk menggulungnya.
+       *
+       * Pada ponsel pendek gugus 2x2 memang melebihi ruang yang tersisa —
+       * kurang 15px di layar 667px, 100px di 568px. Bukan karena tata letaknya
+       * salah, melainkan karena empat keterangan sepanjang ±130 karakter
+       * memang menuntut ruang segitu. Ambangnya tidak bisa ditulis sebagai
+       * media query: ia bergantung pada berapa baris yang diambil keterangan
+       * pada lebar kolom saat itu, jadi menambah kartu atau memperpanjang satu
+       * kalimat akan menggesernya diam-diam. Maka diukur, bukan ditebak.
+       *
+       * Lantainya 0,7: di bawah itu kartunya berhenti terbaca, dan memaksa
+       * muat berhenti jadi keputusan desain.
+       */
+      const orbit = root.querySelector(".stage-orbit");
+      const cardsBox = cardsRef.current;
+
+      const fitOrbit = () => {
+        if (!orbit || !cardsBox) return;
+        gsap.set(orbit, { scale: 1 });
+        const cs = getComputedStyle(cardsBox);
+        const available =
+          cardsBox.clientHeight -
+          parseFloat(cs.paddingTop) -
+          parseFloat(cs.paddingBottom);
+        /* offsetHeight, BUKAN getBoundingClientRect: yang terakhir ikut
+           menghitung skala yang baru saja dipasang, jadi tiap pengukuran
+           ulang akan mengecil menumpuk. */
+        const needed = orbit.offsetHeight;
+        if (!available || !needed) return;
+        const scale = needed > available ? Math.max(available / needed, 0.7) : 1;
+        gsap.set(orbit, { scale, transformOrigin: "center center" });
+      };
+
+      fitOrbit();
+
+      /*
+       * Tinggi kartu berubah setiap teks mengalir ulang — putar layar, atau
+       * bilah alamat ponsel yang menyusut saat digulung.
+       *
+       * DITUNDA sampai ukurannya BERHENTI berubah. Memasang pin menyisipkan
+       * spacer dan mengubah tata letak beberapa kali dalam satu rentetan;
+       * menghitung pada tiap perubahan berarti nilai yang tersimpan adalah
+       * panggilan terakhir — yang bisa saja menangkap ukuran sesaat, dan
+       * gugusnya berhenti pada skala yang meleset. Alasan yang sama seperti
+       * `applyFitSettled` di SheetArrival.jsx.
+       */
+      let fitTimer = 0;
+      const fitSettled = () => {
+        clearTimeout(fitTimer);
+        fitTimer = setTimeout(fitOrbit, 180);
+      };
+
+      const ro = new ResizeObserver(fitSettled);
+      ro.observe(cardsBox);
+
       const CARD_START = 0.5;
       const CARD_GAP = 0.08;
       const CARD_DUR = 0.26;
@@ -252,8 +240,24 @@ export function SkillStage({ items, label, title, tagline }) {
       tl.fromTo(
         slabRef.current,
         { rotate: -14, scale: 0.82 },
-        { rotate: 12, scale: 1.04, duration: total },
+        { rotate: -8, scale: 0.9, duration: EXPLODE_AT },
         0,
+      );
+
+      tl.to(
+        slabRef.current,
+        { rotate: 6, scale: SLAB_PEAK, duration: 0.32, ease: "power2.out" },
+        EXPLODE_AT,
+      );
+
+      tl.to(
+        slabRef.current,
+        {
+          rotate: 12,
+          scale: SLAB_PEAK + 0.04,
+          duration: Math.max(total - EXPLODE_AT - 0.32, 0.1),
+        },
+        EXPLODE_AT + 0.32,
       );
 
       tl.fromTo(
@@ -291,17 +295,30 @@ export function SkillStage({ items, label, title, tagline }) {
               duration: 0.36,
               delay: n3 * 0.08,
             },
-            0.24,
+            EXPLODE_AT,
           );
         });
       });
 
       cards.forEach((card) => {
-        const fromLeft = card.dataset.side === "left";
+        const offset = CORNER_OFFSET[card.dataset.position] || { x: 0, y: 0 };
         const order = Number(card.dataset.order) || 0;
+        /*
+         * Jarak berangkat kartu. Dulu piksel tetap; sekarang dinyatakan dalam
+         * arah (-1/1) dan diubah menjadi jarak yang proporsional terhadap
+         * ukuran kartu — cukup jauh untuk terasa masuk dari luar gugus, tanpa
+         * sampai keluar dari panggung (yang terpotong oleh overflow hidden).
+         */
+        const distX = card.offsetWidth * distFactor;
+        const distY = card.offsetHeight * distFactor;
         tl.fromTo(
           card,
-          { x: fromLeft ? -190 : 190, y: 44, opacity: 0, scale: 0.94 },
+          {
+            x: offset.x * distX,
+            y: offset.y * distY,
+            opacity: 0,
+            scale: 0.88,
+          },
           {
             x: 0,
             y: 0,
@@ -315,11 +332,20 @@ export function SkillStage({ items, label, title, tagline }) {
       });
 
       return () => {
-        gsap.set([...letters, ...cards, ...rowEls, slabRef.current], {
+        clearTimeout(fitTimer);
+        ro.disconnect();
+        gsap.set([...letters, ...cards, ...rowEls, slabRef.current, orbit], {
           clearProps: "all",
         });
       };
-    });
+    };
+
+    /* Jarak berangkat kartu proporsional terhadap ukurannya sendiri (bukan
+       piksel tetap) — layar sempit dapat faktor lebih kecil supaya kartu
+       tidak sampai keluar dari panggung yang overflow-nya disembunyikan. */
+    mm.add(DEVICE.desktop, () => createAnimation(0.9));
+    mm.add(DEVICE.tablet, () => createAnimation(0.9));
+    mm.add(DEVICE.mobile, () => createAnimation(0.8));
 
     return () => mm.revert();
   }, [rows]);
@@ -382,27 +408,14 @@ export function SkillStage({ items, label, title, tagline }) {
           yang bisa dibaca berurutan. */}
       <h2 className="sr-only">{title}</h2>
 
-      {/* Dua kolom yang menempel di tepi kiri dan kanan, menyisakan lorong di
-          tengah untuk monolit. Kartu ganjil digeser turun supaya kedua kolom
-          tidak sejajar rata — deretan yang sejajar sempurna membuat lorong
-          tengahnya terbaca sebagai kolom kosong, bukan sebagai benda. */}
+      {/* Gugus kartu 2×2 yang berpusat di tengah layar. */}
       <div ref={cardsRef} className="stage-cards">
-        <div className="stage-col">
-          {leftItems.map((item) => (
+        <div className="stage-orbit">
+          {positionedItems.map((item) => (
             <Card
               key={item.title}
               item={item}
-              side="left"
-              order={item._order}
-            />
-          ))}
-        </div>
-        <div className="stage-col stage-col-offset">
-          {rightItems.map((item) => (
-            <Card
-              key={item.title}
-              item={item}
-              side="right"
+              position={item._position}
               order={item._order}
             />
           ))}
