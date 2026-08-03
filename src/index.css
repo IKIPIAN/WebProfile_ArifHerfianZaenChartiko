@@ -827,7 +827,18 @@ html.lenis body {
 .stage-word {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(4.5rem, 10vw, 13.5rem);
+  /*
+   * Batas BAWAH diturunkan dari 4,5rem; 10vw dan batas atasnya tidak diubah.
+   *
+   * 4,5rem (72px) baru terlampaui 10vw pada layar 720px ke atas, jadi di
+   * seluruh rentang ponsel justru batas bawah itulah yang berlaku — dan pada
+   * 72px kata terpanjang ("PENGEMBANGAN") selebar 567px di layar 390px.
+   * Hasilnya kata terpotong di KEDUA tepi, sementara di tablet dan desktop
+   * keempatnya utuh di dalam bingkai. Dengan batas bawah 2rem, 10vw yang
+   * memegang kendali di layar sempit dan kata selalu utuh — persis seperti
+   * yang sudah terjadi di layar lebar.
+   */
+  font-size: clamp(2rem, 10vw, 13.5rem);
   line-height: 0.9;
   letter-spacing: -0.06em;
   text-transform: uppercase;
@@ -854,6 +865,24 @@ html.lenis body {
   /* Dirapatkan dari 2rem. Empat kartu harus muat di antara label dan tagline
      dalam satu layar; 0,25rem di tiap sisi mengembalikan sekitar 32px per
      kolom tanpa membuat isinya terasa sesak. */
+  position: relative;
+  /*
+   * Lebarnya DITENTUKAN KOLOM KISI, bukan dipatok sendiri.
+   *
+   * Sebelumnya `min(22vw, 19rem)`, dan itulah sumber tebing di 900px: pada
+   * 899px kartu memakai lebar kolom penuh (432px), lalu tepat di 900px aturan
+   * ini mengambil alih dan menjatuhkannya ke 198px — sementara ukuran judul
+   * justru melompat naik ke tingkatan desktop. Akibatnya lambang cincin
+   * terdorong keluar dari kartunya, dan kartu yang menyempit jadi menjulang
+   * tinggi sampai menabrak tagline.
+   *
+   * `min-width: 0` wajib menyertainya: bawaan item kisi adalah `auto`, yang
+   * menolak menyusut di bawah kata terpanjangnya — itu yang dulu membuat
+   * kedua kolom berakhir dengan lebar berbeda (233px vs 281px) dan meluber
+   * keluar layar.
+   */
+  width: 100%;
+  min-width: 0;
   padding: 1.75rem;
   border: 1px solid var(--divider);
   border-radius: 14px;
@@ -863,20 +892,16 @@ html.lenis body {
     rgb(255 255 255 / 0.02)
   );
   backdrop-filter: blur(14px);
+  pointer-events: auto;
 }
 
 /*
- * Dua kolom menempel di tepi, menyisakan lorong tengah untuk kanvas.
+ * Orbit selebar monolit — kartu menempati empat kuadran DI DALAM bingkainya.
  *
- * PADDING ATAS DAN BAWAHNYA MENJAGA PITA LABEL. Wadah ini `inset: 0`, jadi
- * tanpa padding kolomnya dipusatkan terhadap SELURUH tinggi layar — termasuk
- * ruang yang sudah ditempati label bab di atas dan tagline di bawah. Akibatnya
- * kartu naik melewati label dan turun menutupi tagline, sehingga keduanya
- * terbaca mengambang di sela-sela kartu alih-alih membingkainya.
- *
- * Angkanya mengikuti posisi kedua teks itu: label di `top-24` (6rem) dan
- * tagline di `bottom-16` (4rem), masing-masing ditambah tinggi barisnya dan
- * sedikit jarak napas.
+ * Wadah ini memakai lebar dan rasio yang sama dengan `.slab`, sehingga posisi
+ * kartu selalu mengikuti bingkai objek 3D, bukan tepi layar. Kartu sengaja di
+ * dalam, bukan di luar sudut: versi luar membuat kartu atas terpotong oleh
+ * `overflow: hidden` panggung pada layar yang tingginya terbatas.
  */
 .stage-cards {
   position: absolute;
@@ -884,30 +909,81 @@ html.lenis body {
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 6rem clamp(2rem, 4vw, 5rem) 5rem;
+  justify-content: center;
+  /* Pagar terhadap label bab (top-24) dan tagline (bottom-16). Gugus kartu
+     dipusatkan di RUANG YANG TERSISA, bukan di seluruh tinggi panggung, jadi
+     ia tidak pernah bisa memanjat ke atas label atau turun menabrak tagline —
+     tabrakan yang dulu terjadi di layar desktop pendek (1024x800). */
+  padding: 8rem 0 6rem;
+  pointer-events: none;
 }
 
-.stage-col {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  width: min(28vw, 28rem);
+.stage-orbit {
+  position: relative;
+  /*
+   * Tetap lebih ramping dari monolit (min(68vw,960px)) supaya gugus 2×2 duduk
+   * DI DALAM bingkainya — tapi dinaikkan dari min(46vw,640px).
+   *
+   * 640px berarti tiap kolom cuma 312px, dan pada judul setinggi tingkatan
+   * desktop kata "Pengembangan" saja sudah menghabiskan seluruhnya — lambang
+   * cincin di sebelahnya tidak kebagian tempat dan terlempar ke luar kartu.
+   * 66vw menjaga jarak ke tepi monolit tetap ada di seluruh rentang desktop
+   * (900px: 594 dari 612; 1440px: 900 dari 960).
+   */
+  width: min(66vw, 900px);
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  /* `stretch`, bukan `center`. Dipusatkan, dua kartu sebaris berhenti di
+     ketinggian berbeda karena panjang keterangannya berbeda — dan dasar yang
+     bertingkat terbaca sebagai kisi yang meleset, bukan sebagai gugus. */
+  align-items: stretch;
+  justify-items: center;
+  pointer-events: none;
 }
 
 /*
- * Geseran turun kolom kanan — dan angkanya dipangkas separuh dari 5rem.
- *
- * Maksudnya memang membuat kedua kolom tidak sejajar rata, supaya lorong
- * tengahnya terbaca sebagai benda dan bukan kolom kosong. Tapi 5rem menggeser
- * kolom kanan begitu jauh sehingga puncaknya menyembul di atas label bab,
- * sementara dasarnya berhenti jauh sebelum kolom kiri — seluruh susunannya
- * jadi terbaca miring, bukan berselang. 2,5rem cukup untuk memecah kesejajaran
- * tanpa memiringkan komposisinya.
+ * Kartu keahlian kini menjadi item kisi biasa: urutan DOM (top-left, top-right,
+ * bottom-left, bottom-right) otomatis menempatkannya ke empat sel kisi. Kelas
+ * `--top-left` dan kawan-kawannya tetap dipakai sebagai `data-position` oleh
+ * animasi kedatangan kartu di SkillStage.jsx, bukan untuk mengatur posisi.
  */
-.stage-col-offset {
-  margin-top: -2.5rem;
+.stage-card--top-left,
+.stage-card--top-right,
+.stage-card--bottom-left,
+.stage-card--bottom-right {
+  margin: 0;
+}
+
+/*
+ * JUDUL KARTU PUNYA SKALANYA SENDIRI, tidak menumpang tingkatan `-h2`.
+ *
+ * `-h2` melompat ke 38px begitu melewati 900px, dan itu ukuran yang dihitung
+ * untuk judul yang berdiri di lebar halaman — bukan untuk judul yang berbagi
+ * satu baris dengan lambang cincin selebar 48px di dalam kartu. Kata terpanjang
+ * di sini ("Pengembangan") selebar ±7,2x ukuran hurufnya, jadi pada 38px ia
+ * menuntut 274px sementara kolomnya hanya menyisakan 174px — sisanya mendorong
+ * lambang keluar melewati tepi kartu.
+ *
+ * Ukurannya kini mengalir mengikuti lebar layar dan berhenti di 38px hanya
+ * setelah kolomnya benar-benar cukup lebar (±1280px ke atas). `min-width: 0`
+ * melengkapinya: sebagai item flex, judul menolak menyusut di bawah kata
+ * terpanjangnya kalau tidak disebut.
+ */
+.stage-card h3 {
+  min-width: 0;
+  /* Mengalir dari 14px di 320px sampai 25,6px di 640px. Patokannya kata
+     terpanjang ("Pengembangan") yang selebar ±7,2x ukuran hurufnya: pada
+     kolom tersempit (±111px) ia hanya muat sampai 15px, dan ukuran tetap
+     berapa pun akan meleset di salah satu ujung rentang ponsel. */
+  font-size: clamp(0.875rem, 3.625vw + 0.15rem, 1.6rem);
+}
+
+@media (min-width: 900px) {
+  .stage-card h3 {
+    font-size: clamp(1.3rem, 4.2vw - 1rem, 2.375rem);
+  }
 }
 
 @media (max-width: 899px) {
@@ -929,42 +1005,199 @@ html.lenis body {
     text-align: center;
   }
 
-  .slab {
-    width: 85vw;
-    max-width: 520px;
-    margin-top: -3rem;
-  }
-
   .stage-cards {
     position: relative;
-    flex-direction: column;
-    padding: 1rem 1rem 0;
-    gap: 1rem;
+    display: block;
+    padding: 0.5rem 0.75rem 0;
   }
 
-  .stage-col,
-  .stage-col-offset {
+  .stage-orbit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
     width: 100%;
-    margin-top: 0;
-  }
-
-  .stage-col {
-    gap: 1rem;
+    aspect-ratio: auto;
   }
 
   .stage-card {
+    position: relative;
+    right: auto;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    margin: 0;
     padding: 1.3rem;
   }
 
   .slab {
     width: 75vw;
     max-width: 340px;
+    margin-top: -3rem;
   }
 
-  .stage > .-caption-small {
-    bottom: 0.75rem;
+  /*
+   * HANYA tagline — yaitu anak terakhir panggung.
+   *
+   * Tanpa `:last-child`, aturan ini ikut mengenai label bab di atas, yang
+   * sudah dipatok dengan `top`; memberinya `bottom` sekaligus meregangkan
+   * kotaknya setinggi seluruh panggung.
+   *
+   * Jaraknya dinaikkan dari 0,75rem supaya lolos dari bilah penanda yang
+   * melayang tetap di `bottom-5` — pada 0,75rem keduanya duduk di ketinggian
+   * yang sama dan tulisannya saling menimpa.
+   */
+  .stage > .-caption-small:last-child {
+    bottom: 3.25rem;
   }
 }
+
+/*
+ * TABLET: gugus kartu dipusatkan menimpa panggung, sama seperti desktop.
+ *
+ * Sebelumnya rentang ini ikut aturan ponsel — kartu mengalir dari tepi ATAS
+ * panggung, sehingga kartu pertama duduk tepat di atas label bab dan
+ * menutupinya, sementara separuh bawah layar tertinggal kosong. Panggungnya
+ * di-pin setinggi satu layar di sini, jadi memusatkan gugusnya adalah
+ * perlakuan yang benar — dan itu pula yang membuat tablet terbaca sebagai
+ * versi yang sama dengan desktop, bukan versi ponsel yang melar.
+ */
+@media (min-width: 640px) and (max-width: 899px) {
+  .stage-cards {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Pagar terhadap label bab di atas dan tagline di bawah. */
+    padding: 7rem 1.25rem 5rem;
+  }
+
+  .stage-orbit {
+    width: min(94vw, 720px);
+  }
+}
+
+/*
+ * SATU KOLOM DI PONSEL.
+ *
+ * Dua kolom baru masuk akal begitu tiap kolomnya sanggup memuat kata
+ * terpanjang beserta lambangnya. Di bawah 640px kolomnya tinggal ±177px,
+ * sedangkan "Pengembangan" saja sudah 152px — kartu kanan berakhir terpotong
+ * tepi layar dan kedua kolom berakhir dengan lebar yang berbeda. Satu kolom
+ * mengembalikan lebar baca yang wajar, dan itu pula susunan yang sudah dipakai
+ * jalur `prefers-reduced-motion` di bawah.
+ */
+/*
+ * PONSEL: komposisi yang SAMA dengan tablet dan desktop — gugus 2×2
+ * dipusatkan menimpa panggung yang terkunci.
+ *
+ * Syaratnya keempat kartu harus muat satu layar, dan pada kolom selebar
+ * ±177px itu hanya tercapai kalau kartunya diringkas. Tiga hal yang
+ * mengerjakannya, dan semuanya soal ruang, bukan gaya:
+ *
+ * 1. LAMBANG PINDAH KE ATAS JUDUL. Berdampingan, ia merampas 72px dari
+ *    kolom yang isinya cuma 135px — judul kebagian 63px dan kata
+ *    "Pengembangan" tidak akan pernah muat. Ditumpuk, judul dapat lebar penuh.
+ * 2. Keterangan turun ke 13px. Pada 14px kartu terpanjang butuh 7 baris;
+ *    13px memangkasnya jadi 6 dan itulah selisih antara muat dan tidak.
+ * 3. Jarak dalam kartu dirapatkan ke 1rem.
+ */
+@media (max-width: 639px) {
+  .stage-cards {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*
+     * Diukur dalam rem, BUKAN vh — dan ini bukan selera.
+     *
+     * Yang harus dihindari adalah label bab dan tagline, dan keduanya dipatok
+     * dalam rem (`top-24`, `bottom: 3.25rem`). Padding dalam vh berarti kedua
+     * sisi memakai satuan yang berbeda: di layar 667px, 9vh hanya 60px
+     * sementara dasar label ada di 68px — kotak kartu mulai DI ATAS label yang
+     * seharusnya ia hindari.
+     */
+    padding: 8rem 0.75rem 5rem;
+  }
+
+  .stage-orbit {
+    gap: 0.625rem;
+  }
+
+  .stage-card {
+    padding: 1rem;
+  }
+
+  /* Baris kepala kartu: `column-reverse` menaikkan lambang ke atas judul —
+     lambang adalah anak kedua di DOM, dan urutan terbalik menempatkannya
+     lebih dulu tanpa perlu mengubah susunan penanda di JSX. */
+  .stage-card > div:first-child {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stage-card svg {
+    height: 2rem;
+    width: 2rem;
+  }
+
+  .stage-card p {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+}
+
+/*
+ * LAYAR PENDEK — dan tingginya, bukan lebarnya, yang jadi pengikat.
+ *
+ * Zona cadangan untuk label dan tagline diukur dalam vh, jadi di layar 667px
+ * ia menyisakan 527px untuk gugus setinggi 546px — meleset 19px, dan kartu
+ * memanjat ke atas label. Merapatkan zonanya mengembalikan selisih itu tanpa
+ * menyentuh ukuran isi kartunya.
+ */
+@media (max-width: 639px) and (max-height: 760px) {
+  /* Label bab dinaikkan lebih dulu; barulah zona cadangannya boleh dirapatkan
+     — urutan itu penting, karena paddingnya justru dihitung dari sini. */
+  .stage > p.-caption-small:first-of-type {
+    top: 3.25rem;
+  }
+
+  .stage-cards {
+    padding: 5.5rem 0.75rem 5rem;
+  }
+}
+
+/* Ponsel tersempit: keterangan dan jarak dalam kartu ikut dirapatkan supaya
+   gugusnya tidak perlu diperkecil melewati batas keterbacaan. */
+@media (max-width: 360px) {
+  .stage-card {
+    padding: 0.75rem;
+  }
+
+  .stage-card p {
+    font-size: 12px;
+  }
+
+  .stage-card svg {
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+}
+
+/*
+ * Gugus yang tidak muat DIPERKECIL, bukan dipotong — dan perhitungannya ada
+ * di SkillStage.jsx, bukan di sini.
+ *
+ * Ambang tingginya tidak bisa ditebak lewat media query: yang menentukan
+ * bukan tinggi layar semata, melainkan berapa baris yang diambil keterangan
+ * kartu pada lebar kolom saat itu. Menambah sertifikat atau memperpanjang satu
+ * keterangan akan menggeser ambang itu diam-diam. Karena itu dihitung dengan
+ * mengukur, persis seperti `neededScale()` di SheetArrival.jsx.
+ */
 
 /* Alasan yang sama seperti layar sempit: tanpa gerak, ledakan huruf tidak
    pernah terjadi, jadi tumpukannya hanya akan menutupi kartu. */
@@ -979,13 +1212,20 @@ html.lenis body {
   }
   .stage-cards {
     position: static;
-    flex-direction: column;
     padding: 3rem 1.5rem 0;
   }
-  .stage-col,
-  .stage-col-offset {
+
+  .stage-orbit {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
     width: 100%;
-    margin-top: 0;
+    aspect-ratio: auto;
+  }
+
+  .stage-card {
+    position: relative;
+    margin: 0;
   }
 }
 
@@ -1171,6 +1411,26 @@ html.lenis body {
 }
 .link-mono:hover .arrow {
   transform: translateX(6px);
+}
+
+/*
+ * Ukurannya dirapatkan HANYA di layar tersempit.
+ *
+ * Label ini tidak ikut tingkatan `-caption`, jadi ia tetap 13px dengan spasi
+ * huruf 0,14em berapa pun lebar layarnya. Nama instansi terpanjang di situs
+ * ini ("Dinas Pendidikan Kota Malang", 28 karakter) karenanya menuntut ±276px,
+ * sementara kartu pengalaman di layar 320px hanya menyisakan 240px — sisanya
+ * menjulur keluar melewati tepi kartu.
+ *
+ * Yang dirapatkan spasi hurufnya lebih dulu, bukan kata yang dipecah: label
+ * mono huruf besar yang patah di tengah kata terbaca sebagai kerusakan, bukan
+ * sebagai baris kedua.
+ */
+@media (max-width: 380px) {
+  .link-mono {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
 }
 
 /* ── 11. Stagger per huruf saat hover ─────────────────────────────────────

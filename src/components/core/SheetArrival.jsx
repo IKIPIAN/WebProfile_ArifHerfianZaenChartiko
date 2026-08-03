@@ -51,6 +51,62 @@ const CORNERS = [
   { x: -1, y: 1 },
 ];
 
+/*
+ * GOYANGAN KERTAS — dipakai sama persis oleh versi desktop/tablet dan mobile,
+ * cuma diberi daftar lembaran (`floats`) yang berbeda. Digerakkan ticker
+ * dengan gelombang sinus, bukan tween berulang, karena harus bisa DIMATIKAN:
+ * tween yoyo tak berhingga hanya bisa dihentikan mendadak di posisi mana pun
+ * ia kebetulan berada, dan itu terlihat sebagai kartu yang tersentak. Dengan
+ * sinus dikali satu nilai peredam (`wave.amp`), mematikannya berarti
+ * menyusutkan amplitudonya ke nol — kartu melandai sendiri ke posisi rata.
+ *
+ * Tiap sumbu punya FREKUENSI SENDIRI yang tidak habis membagi satu sama lain.
+ * Kalau naik-turun, miring, dan condongnya seirama, ketiganya kembali ke
+ * titik awal bersamaan dan terbaca sebagai bandul mekanis — kesan kaku yang
+ * mau dihindari.
+ */
+function createPaperWave(floats) {
+  const wave = { amp: 1 };
+
+  const sheets = floats.map((el, i) => {
+    const ragam = ((i * 29) % 13) / 12;
+    const arah = i % 2 === 0 ? 1 : -1;
+    gsap.set(el, { transformPerspective: 900, transformOrigin: "50% 50%" });
+    return {
+      el,
+      arah,
+      fase: ragam * Math.PI * 2,
+      ay: 11 + ragam * 6,
+      ar: 0.9 + ragam * 0.8,
+      at: 3.5 + ragam * 3,
+      ax: 2 + ragam * 2.4,
+      /* Frekuensi dalam putaran per detik. */
+      fy: 0.19 + ragam * 0.05,
+      fr: 0.13 + ragam * 0.04,
+      ft: 0.1 + ragam * 0.03,
+    };
+  });
+
+  const TAU = Math.PI * 2;
+  const tick = (waktu) => {
+    const a = wave.amp;
+    for (const s of sheets) {
+      gsap.set(s.el, {
+        y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
+        rotate:
+          Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
+        rotateY:
+          Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
+        rotateX:
+          Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
+      });
+    }
+  };
+  gsap.ticker.add(tick);
+
+  return { wave, stop: () => gsap.ticker.remove(tick) };
+}
+
 export function SheetArrival({ children, header = null, className = "" }) {
   const rootRef = useRef(null);
   const gridRef = useRef(null);
@@ -241,62 +297,9 @@ export function SheetArrival({ children, header = null, className = "" }) {
         );
       });
 
-      /*
-       * GOYANGAN KERTAS — HANYA SELAMA MASIH MENYATU.
-       *
-       * Digerakkan ticker dengan gelombang sinus, bukan tween berulang, justru
-       * karena harus bisa DIMATIKAN. Tween yoyo tak berhingga hanya bisa
-       * dihentikan mendadak di posisi mana pun ia kebetulan berada, dan itu
-       * terlihat sebagai kartu yang tersentak. Dengan sinus dikali satu nilai
-       * peredam, mematikannya berarti menyusutkan amplitudonya ke nol — kartu
-       * melandai sendiri ke posisi rata.
-       *
-       * Peredamnya ikut scroll: bernilai penuh saat lembaran masih berdatangan,
-       * dan habis tepat ketika semuanya sudah di tempat. Scroll mundur
-       * menghidupkannya lagi.
-       *
-       * Tiap sumbu punya FREKUENSI SENDIRI yang tidak habis membagi satu sama
-       * lain. Kalau naik-turun, miring, dan condongnya seirama, ketiganya
-       * kembali ke titik awal bersamaan dan terbaca sebagai bandul mekanis —
-       * persis kesan kaku yang mau dihindari.
-       */
-      const wave = { amp: 1 };
-
-      const sheets = floats.map((el, i) => {
-        const ragam = ((i * 29) % 13) / 12;
-        const arah = i % 2 === 0 ? 1 : -1;
-        gsap.set(el, { transformPerspective: 900, transformOrigin: "50% 50%" });
-        return {
-          el,
-          arah,
-          fase: ragam * Math.PI * 2,
-          ay: 11 + ragam * 6,
-          ar: 0.9 + ragam * 0.8,
-          at: 3.5 + ragam * 3,
-          ax: 2 + ragam * 2.4,
-          /* Frekuensi dalam putaran per detik. */
-          fy: 0.19 + ragam * 0.05,
-          fr: 0.13 + ragam * 0.04,
-          ft: 0.1 + ragam * 0.03,
-        };
-      });
-
-      const TAU = Math.PI * 2;
-      const tick = (waktu) => {
-        const a = wave.amp;
-        for (const s of sheets) {
-          gsap.set(s.el, {
-            y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
-            rotate:
-              Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
-            rotateY:
-              Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
-            rotateX:
-              Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
-          });
-        }
-      };
-      gsap.ticker.add(tick);
+      /* Goyangan kertas berjalan hanya selama lembaran masih berdatangan;
+         peredamnya ikut scroll lewat tween `wave.amp` di bawah. */
+      const { wave, stop } = createPaperWave(floats);
 
       /* Sedikit tumpang tindih dengan kedatangan lembaran terakhir, jadi
          goyangannya melandai persis saat kisi rapi. Diberi kurva karena alasan
@@ -321,7 +324,7 @@ export function SheetArrival({ children, header = null, className = "" }) {
       return () => {
         clearTimeout(settleTimer);
         ro.disconnect();
-        gsap.ticker.remove(tick);
+        stop();
         gsap.set([...cards, ...floats, grid], { clearProps: "all" });
       };
     };
@@ -376,47 +379,13 @@ export function SheetArrival({ children, header = null, className = "" }) {
         );
       });
 
-      const wave = { amp: 1 };
-      const sheets = animatedFloats.map((el, i) => {
-        const ragam = ((i * 29) % 13) / 12;
-        const arah = i % 2 === 0 ? 1 : -1;
-        gsap.set(el, { transformPerspective: 900, transformOrigin: "50% 50%" });
-        return {
-          el,
-          arah,
-          fase: ragam * Math.PI * 2,
-          ay: 11 + ragam * 6,
-          ar: 0.9 + ragam * 0.8,
-          at: 3.5 + ragam * 3,
-          ax: 2 + ragam * 2.4,
-          fy: 0.19 + ragam * 0.05,
-          fr: 0.13 + ragam * 0.04,
-          ft: 0.1 + ragam * 0.03,
-        };
-      });
-
-      const TAU = Math.PI * 2;
-      const tick = (waktu) => {
-        const a = wave.amp;
-        for (const s of sheets) {
-          gsap.set(s.el, {
-            y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
-            rotate:
-              Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
-            rotateY:
-              Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
-            rotateX:
-              Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
-          });
-        }
-      };
-      gsap.ticker.add(tick);
+      const { wave, stop } = createPaperWave(animatedFloats);
 
       tl.to(wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
       tl.to({}, { duration: 0.2 }, 0.8);
 
       return () => {
-        gsap.ticker.remove(tick);
+        stop();
         gsap.set([...cards, ...animatedFloats, grid], { clearProps: "all" });
       };
     });
