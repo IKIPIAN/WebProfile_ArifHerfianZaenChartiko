@@ -1,25 +1,17 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Situs ini tidak punya langkah build dan tidak memakai npm, jadi tidak ada
+# node_modules atau folder dist yang perlu diabaikan. Semua yang ada di sini
+# memang berkas yang dikirim ke pengunjung.
 
-node_modules
-dist
-dist-ssr
-*.local
+# Catatan pribadi — bukan bagian situs
+docs/
 
-# Editor directories and files
+# Editor
 .claude/
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?
+
+# Sistem
+.DS_Store
+Thumbs.db
