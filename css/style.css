@@ -8,28 +8,71 @@
    aman ditambah tanpa menyentuh baris hasil kompilasi.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* KISI PERKAKAS — susunan 4-2-2-3 dikunci di SEMUA lebar layar.
+/* KISI PERKAKAS — empat kelompok berlabel, jumlah kartu per baris dikunci.
 
-   Kisi ini dulu satu wadah `flex-wrap`: jumlah kartu per baris ditentukan
-   lebar layar (3, lalu 5, lalu 7). Sekarang tiap baris jadi wadahnya
-   sendiri, jadi baris berisi empat kartu selamanya berisi empat --
-   tidak ada satu pun titik henti (breakpoint) yang terlibat, dan susunannya
-   tidak bisa berubah karena lebar layar.
+   Susunannya 4-2-2-3 dan tidak berubah di lebar layar mana pun, karena tiap
+   kelompok adalah wadahnya sendiri: baris berisi empat kartu selamanya
+   berisi empat. Tidak ada satu pun titik henti (breakpoint) yang menentukan
+   pengelompokannya.
 
-   Semua kartu selebar 25%, TERMASUK yang di baris berisi dua dan tiga.
-   Itu yang membuat kolomnya lurus dari baris ke baris: baris pendek
-   memusat di bawah baris panjang, bukan melar mengisi ruang kosong. */
-.tool-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
+   Kenapa berlabel dan rata kiri, bukan dipusatkan: baris yang panjangnya
+   berbeda-beda kalau dipusatkan tidak punya tepi lurus untuk dipegang mata,
+   jadi terbaca sebagai zigzag alih-alih sebagai empat kelompok. Rata kiri
+   memberi tepi itu, dan namanya menjelaskan kenapa satu baris cuma berisi
+   dua — itu memang kelompoknya, bukan sisa yang tidak muat.
 
+   Polanya sengaja sama dengan bagian Bahasa di bawahnya: label, garis
+   rambut, lalu isinya. */
 .tool-row {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 1.25rem;
+  padding: 1.75rem 0;
 }
 
-.tool-row > * {
+.tool-items {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 1.5rem;
+  width: 100%;
+}
+
+/* Di layar sempit label berdiri sendiri di atas, dan kartu berbagi lebar
+   layar berempat. Seperempat itulah yang menjaga baris berisi empat tetap
+   muat tanpa membungkus. */
+.tool-items > * {
   width: 25%;
+}
+
+/* Ambangnya 1024px, bukan 640px, dan itu hasil ukur bukan tebak: dengan
+   label duduk di samping, area kartu di tablet 768px hanya tersisa 512px --
+   tidak cukup untuk empat kartu selebar 9,5rem, jadi baris Desain membungkus
+   diam-diam jadi 3+1. Di bawah 1024px label naik ke atas, kartu memakai
+   lebar penuh, dan empat kartu kembali muat. */
+@media (min-width: 1024px) {
+  /* Lebar tetap, bukan mengikuti panjang tulisan: inilah yang membuat garis
+     rambut keempat kelompok lurus sejajar. "PENGEMBANGAN" adalah yang
+     terpanjang dan jadi patokannya. */
+  .tool-label {
+    width: 9rem;
+  }
+
+  .tool-items {
+    flex: 1 1 0;
+    width: auto;
+  }
+
+  /* Lebar tetap juga di sini, supaya kolom kartu lurus dari kelompok satu
+     ke kelompok berikutnya meski jumlahnya berbeda.
+
+     9,5rem bukan angka selera. "Google Workspace" pada 14px selebar 127px;
+     dikurangi padding kiri-kanan kartu 2x8px, 9,5rem menyisakan 136px --
+     lebar terkecil yang masih memuatnya dalam satu baris. Nama yang pecah
+     dua baris membuat tinggi tiap kelompok berbeda-beda, dan tepi bawah
+     bergerigi itulah yang tadi terbaca sebagai tidak rapi. */
+  .tool-items > * {
+    width: 9.5rem;
+  }
 }
