@@ -100,10 +100,22 @@ angka yang terlihat aneh, baca komentar di atasnya — sebagian besar angka di
 situs ini hasil pengukuran, bukan selera, dan komentarnya menyebutkan apa yang
 rusak kalau diubah.
 
-**Mode ringan.** Perangkat lemah (prosesor ≤4 inti, RAM ≤4 GB, atau layar
-≤899px) otomatis mendapat kelas `is-lite` di elemen `<html>`, yang mematikan dua
-efek termahal dan memecah huruf raksasa per kata alih-alih per huruf. Aturannya
-ada di `<head>` `index.html`; efeknya di bagian "MODE RINGAN" `css/style.css`.
+**Satu tampilan untuk semua perangkat.** Situs ini pernah punya "mode ringan":
+di layar ≤899px, ledakan 40 huruf di bagian Keahlian diganti 4 baris kata dan
+dua efek buram dimatikan. Semuanya sudah dibuang, dan alasannya perlu diketahui
+sebelum ada yang tergoda membuatnya lagi:
+
+- **Memotong jumlah elemen tidak menolong.** Diukur tiga kali, per huruf 20,6
+  fps dan per kata 21,6 fps — selisihnya di dalam derau alat ukur.
+- **Ambangnya salah kaprah.** Lebar layar bukan ukuran kekuatan perangkat.
+  Laptop lemah 1920px justru mendapat jalur terberat, sementara tablet kuat
+  mendapat jalur ringan.
+- **Yang benar-benar mahal adalah efek buram**, karena dihitung per piksel
+  layar, bukan per elemen. Keduanya sudah dibuang untuk semua perangkat, dan
+  frame yang tersendat turun lebih dari separuh.
+
+Angka lengkapnya ada di bagian "PANGGUNG KEAHLIAN" paling bawah
+`css/style.css`.
 
 ## Riwayat
 
