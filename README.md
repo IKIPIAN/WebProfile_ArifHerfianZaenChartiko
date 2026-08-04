@@ -56,8 +56,16 @@ jumlah kartu, bukan ditulis manual.
 
 ### Menambah perkakas
 
-Salin satu blok di kisi Perkakas, ganti gambar dan namanya. Kisinya menata
-ulang sendiri berapa pun jumlahnya; baris terakhir selalu terpusat.
+Kisi Perkakas tersusun **4-2-2-3** dan susunan itu dikunci — sama persis di
+ponsel, tablet, maupun desktop. Tiap baris adalah satu blok `<div
+class="tool-row">` tersendiri, jadi **jumlah kartu per baris ditentukan oleh
+Anda, bukan oleh lebar layar.**
+
+Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam baris yang
+Anda mau, lalu ganti gambar dan namanya. Kalau baris itu jadi berisi lima
+kartu, ia akan berisi lima di semua perangkat — termasuk ponsel, yang berarti
+tiap kartu cuma kebagian seperlima lebar layar. Aturan lebarnya ada di bagian
+"KISI PERKAKAS" paling bawah `css/style.css`.
 
 ### Mengubah warna
 
