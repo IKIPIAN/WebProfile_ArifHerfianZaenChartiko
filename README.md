@@ -7,14 +7,16 @@ jalan.
 ## Isi proyek
 
 ```
-index.html          seluruh isi halaman — teks, gambar, susunan
-css/style.css       seluruh tampilan
-js/main.js          seluruh gerak
-js/vendor/          tiga pustaka, disimpan sendiri (bukan dari CDN)
-assets/             foto, ikon, PDF sertifikat, gambar pratinjaunya
+index.html            seluruh isi halaman — teks, gambar, susunan
+css/style.css         seluruh tampilan
+js/main.js            seluruh gerak
+js/vendor/            tiga pustaka, disimpan sendiri (bukan dari CDN)
+assets/photo/         foto diri
+assets/certificate/   sertifikat — PDF asli dan gambar pratinjaunya
+assets/icons/         logo perkakas
 ```
 
-Hanya 34 berkas. Yang perlu Anda sunting hampir selalu cuma `index.html`.
+Hanya 28 berkas. Yang perlu Anda sunting hampir selalu cuma `index.html`.
 
 ## Cara menjalankan
 
@@ -42,9 +44,11 @@ Cari kalimatnya di `index.html` dan ketik ulang. Selesai.
 
 ### Menambah sertifikat
 
-1. Taruh berkas PDF-nya di `assets/`.
-2. Taruh gambar pratinjaunya (JPG, lebar sekitar 900px) di `assets/cert/`.
-3. Salin satu blok `<div data-arrive>` di bagian Sertifikat, tempel di bawahnya,
+1. Taruh PDF-nya **dan** gambar pratinjaunya (JPG, lebar sekitar 900px) di
+   `assets/certificate/`. **Beri nama dasar yang sama**, misalnya
+   `sertifikat-baru.pdf` dan `sertifikat-baru.jpg` — keduanya memang sepasang:
+   yang JPG tampil di kartu, yang PDF terbuka saat kartunya diklik.
+2. Salin satu blok `<div data-arrive>` di bagian Sertifikat, tempel di bawahnya,
    lalu ganti nama berkas, judul, keterangan, dan ikonnya.
 
 Angka jumlah sertifikat di bagian Pendidikan **ikut sendiri** — ia dihitung dari
