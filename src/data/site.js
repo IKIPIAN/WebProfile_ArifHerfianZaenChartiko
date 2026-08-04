@@ -1,3 +1,5 @@
+import { certificates } from "./certificates";
+
 export const site = {
   name: "Arif Herfian Zaen Chartiko",
   /* Dipecah karena judul hero menampilkannya sebagai dua baris bertopeng yang
@@ -42,6 +44,22 @@ export const site = {
    */
   stats: [
     { value: "3.62", label: "IPK" },
-    { value: "6", label: "Sertifikat" },
+    /*
+     * DIHITUNG DARI DAFTARNYA, BUKAN DITULIS SEBAGAI ANGKA.
+     *
+     * Sebelumnya "6" — kebetulan benar, dan kebetulan itu persis masalahnya.
+     * Angka ini tidak menyimpan informasi apa pun yang belum ada di
+     * certificates.js; ia cuma salinan yang harus diingat untuk ikut diubah.
+     * Menambah satu sertifikat berarti kartu ketujuh muncul di bagian
+     * Sertifikat sementara odometer di bagian Pendidikan tetap menyebut enam —
+     * dua bagian yang saling bersebelahan menghitung hal yang sama dengan
+     * hasil berbeda, dan yang salah adalah yang lebih dipercaya karena
+     * berbentuk angka besar.
+     *
+     * Kegagalannya juga tidak menimbulkan error apa pun: tidak ada yang
+     * memberi tahu, halaman tetap terbit, dan yang terbaca cuma angka yang
+     * meleset. Karena itu ia diturunkan dari sumbernya.
+     */
+    { value: String(certificates.length), label: "Sertifikat" },
   ],
 };

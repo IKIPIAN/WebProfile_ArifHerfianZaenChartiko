@@ -5,7 +5,7 @@ import {
   SCRUB_PIN,
   prefersReducedMotion,
 } from "../../animation/motion-tokens";
-import { DEVICE } from "../../animation/device-queries";
+import { DEVICE, isLite } from "../../animation/device-queries";
 
 /*
  * PANGGUNG KEAHLIAN — tiga babak dalam satu bentangan scroll yang di-pin.
@@ -260,45 +260,101 @@ export function SkillStage({ items, label, title, tagline }) {
         EXPLODE_AT + 0.32,
       );
 
+      const rowCount = rows.length;
+
+      /*
+       * ────────────────────────────────────────────────────────────────────
+       * DUA CARA MELEDAK, DAN YANG DIPILIH DITENTUKAN KEKUATAN PERANGKAT.
+       *
+       * Per huruf: 40 elemen, masing-masing digerakkan pada x, y, rotate,
+       * scale, dan opacity — 200 nilai baru di setiap frame, dan 40 lapisan
+       * komposit tersendiri karena tiap huruf ber-`will-change`. Di perangkat
+       * lemah itulah yang terasa sebagai tersendat.
+       *
+       * Per kata: 4 elemen, 20 nilai. Sepersepuluhnya.
+       *
+       * YANG HILANG SEDIKIT, YANG DIDAPAT BANYAK. Pada layar ponsel, huruf
+       * setinggi 10vw yang terlempar ke segala arah terbaca sebagai gumpalan
+       * yang bergetar, bukan sebagai ledakan — kerapatannya terlalu tinggi
+       * untuk ukuran layarnya. Barisnya yang terbang berpencar justru lebih
+       * terbaca di sana, dan maksud babak ini tetap sama: layar dikosongkan
+       * supaya kartu punya tempat untuk datang.
+       *
+       * INTRO-nya ikut berpindah sasaran, dan itu wajib. Di jalur penuh,
+       * `rowEls` yang diberi tween pembuka pada scale/opacity; kalau jalur
+       * ringan memakai elemen yang sama untuk meledak, kedua tween berebut
+       * properti yang sama di rentang 0,24-0,31 dan yang kalah tersendat.
+       * Maka di jalur ringan pembukanya dipasang pada WADAH kata — satu
+       * elemen, dan barisnya tinggal bebas untuk babak kedua.
+       * ────────────────────────────────────────────────────────────────────
+       */
+      const lite = isLite();
+
       tl.fromTo(
-        rowEls,
+        lite ? wordsRef.current : rowEls,
         { scale: 0.94, opacity: 0.75 },
-        { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
+        lite
+          ? { scale: 1, opacity: 1, duration: 0.22 }
+          : { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
         0,
       );
 
-      const rowCount = rows.length;
-      let seed = 0;
-
-      rows.forEach((row, r) => {
-        const len = row.chars.length;
-        const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
-
-        row.chars.forEach((_, c) => {
-          const el = letters[seed];
-          if (!el) return;
-          const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
-
-          const n1 = noise(seed + 1);
-          const n2 = noise(seed + 97);
-          const n3 = noise(seed + 613);
-          seed += 1;
+      if (lite) {
+        rowEls.forEach((el, r) => {
+          const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
+          const n1 = noise(r + 1);
+          const n2 = noise(r + 97);
 
           tl.to(
             el,
             {
-              x: hx * (260 + n1 * 460),
-              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
-              rotate: (n1 - 0.5) * 240,
-              scale: 0.35 + n2 * 0.75,
+              /* Dorongan mendatarnya kecil saja: yang memisahkan baris di sini
+                 arah tegaknya, dan geseran samping yang besar hanya membuat
+                 keempatnya saling menyeberang. */
+              x: (n1 - 0.5) * 180,
+              y: vy * (220 + n2 * 200),
+              rotate: (n1 - 0.5) * 24,
+              scale: 0.55 + n2 * 0.3,
               opacity: 0,
               duration: 0.36,
-              delay: n3 * 0.08,
+              delay: n2 * 0.06,
             },
             EXPLODE_AT,
           );
         });
-      });
+      } else {
+        let seed = 0;
+
+        rows.forEach((row, r) => {
+          const len = row.chars.length;
+          const vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
+
+          row.chars.forEach((_, c) => {
+            const el = letters[seed];
+            if (!el) return;
+            const hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
+
+            const n1 = noise(seed + 1);
+            const n2 = noise(seed + 97);
+            const n3 = noise(seed + 613);
+            seed += 1;
+
+            tl.to(
+              el,
+              {
+                x: hx * (260 + n1 * 460),
+                y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
+                rotate: (n1 - 0.5) * 240,
+                scale: 0.35 + n2 * 0.75,
+                opacity: 0,
+                duration: 0.36,
+                delay: n3 * 0.08,
+              },
+              EXPLODE_AT,
+            );
+          });
+        });
+      }
 
       cards.forEach((card) => {
         const offset = CORNER_OFFSET[card.dataset.position] || { x: 0, y: 0 };
@@ -334,9 +390,10 @@ export function SkillStage({ items, label, title, tagline }) {
       return () => {
         clearTimeout(fitTimer);
         ro.disconnect();
-        gsap.set([...letters, ...cards, ...rowEls, slabRef.current, orbit], {
-          clearProps: "all",
-        });
+        gsap.set(
+          [...letters, ...cards, ...rowEls, wordsRef.current, slabRef.current, orbit],
+          { clearProps: "all" },
+        );
       };
     };
 

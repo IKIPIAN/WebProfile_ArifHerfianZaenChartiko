@@ -2,6 +2,63 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * `wide` — CUKUP LEBAR *DAN* MENDATAR. Dipakai hero untuk memilih antara dua
+ * kolom dan bertumpuk.
+ *
+ * Lebar saja tidak cukup, dan buktinya terukur. Tablet potret berlebar 900px ke
+ * atas — iPad Pro 12,9" potret itu 1024x1366 — lolos dari ambang `min-width`
+ * dan mendapat susunan dua kolom, lalu isinya cuma mengisi 40% tinggi layar:
+ * 337px kosong di atas dan 385px di bawah. Persis keluhan yang sama dengan
+ * tablet 768px, cuma di sisi seberang ambangnya.
+ *
+ * Sebabnya bukan lebarnya, melainkan bentuk layarnya. Dua kolom mengisi layar
+ * mendatar karena tingginya memang pendek; di layar jangkung ia menyisakan
+ * ruang yang tidak bisa diisi apa pun tanpa membuat foto melebar sampai
+ * mengusir nama dari sebelahnya.
+ *
+ * `orientation`, BUKAN `aspect-ratio`. Keduanya bisa dipakai, tapi `portrait`
+ * dan `landscape` adalah pasangan yang saling melengkapi dengan tepat — tidak
+ * ada satu pun ukuran layar yang lolos dari keduanya atau kena keduanya
+ * sekaligus, sesuatu yang harus dijaga sendiri kalau memakai ambang rasio.
+ *
+ * AMBANG LEBARNYA 640px, BUKAN 900px, dan itu ambang yang sudah ada
+ * sebelumnya: 640px adalah lebar terendah yang kolom namanya masih sanggup
+ * memuat "Zaen Chartiko" dalam satu baris (378px tersedia, +-340px dibutuhkan).
+ * Yang di bawah 900px dan mendatar bukan tablet potret melainkan jendela
+ * desktop yang dikecilkan atau ponsel yang diputar — dan di layar sependek itu
+ * justru susunan bertumpuk yang gagal. Terukur di 800x600: bertumpuk hanya
+ * menyisakan 66px untuk foto, sampai fotonya menyusut jadi 51px dan berhenti
+ * ada gunanya.
+ *
+ * URUTAN EMISINYA SUDAH DIPERIKSA, bukan diandaikan. Varian ini bertabrakan
+ * dengan `min-[640px]:` pada properti yang sama (jarak kisi, padding, perataan
+ * tombol), jadi ia HARUS diemit belakangan — persoalan yang sama persis dengan
+ * `nav:` yang kalah dari `sm:` di build ini. Diukur di 1920x1080 sesudah
+ * penggantian: hasilnya identik sampai ke piksel dengan versi `min-[900px]:`
+ * sebelumnya, jadi varian ini memang menang. Kalau Tailwind suatu saat
+ * mengubah urutannya, yang pertama terlihat adalah desktop diam-diam memakai
+ * jarak dan padding tablet.
+ */
+@custom-variant wide (@media (min-width: 640px) and (orientation: landscape));
+
+/*
+ * `roomy` — JARAK TEGAK LAPANG. Sengaja DIPISAH dari `wide`, dan pemisahan itu
+ * yang menyelamatkan ponsel yang diputar.
+ *
+ * `wide` menjawab "berapa kolom", `roomy` menjawab "seberapa lega jaraknya".
+ * Sempat keduanya jadi satu varian, dan akibatnya terukur: di 844x390 — ponsel
+ * lanskap — susunan dua kolomnya benar, tapi ia ikut membawa padding tegak
+ * desktop. 176px padding di layar setinggi 390px berarti 45% tinggi layar habis
+ * sebelum ada satu huruf pun digambar, dan isinya meluber 211px ke bawah tepi.
+ *
+ * Syarat tingginya (600px) itulah bedanya. Di bawah itu jaraknya turun sendiri
+ * ke tingkat tablet — pt-10/pb-24, gap-6 — tanpa mengubah jumlah kolomnya.
+ * Ambang lebar 900px dipertahankan apa adanya dari sebelumnya, jadi di layar
+ * yang memang lapang tidak ada satu piksel pun yang bergeser.
+ */
+@custom-variant roomy (@media (min-width: 900px) and (orientation: landscape) and (min-height: 600px));
+
 @theme {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -259,9 +316,49 @@ body {
   }
 }
 
-@media (min-width: 900px) {
+/*
+ * TINGKATAN TABLET — DAN SEBELUM INI TIDAK ADA SAMA SEKALI.
+ *
+ * Rentang 640-899px dulu ikut memakai skala ponsel di atas, jadi nama di hero
+ * berhenti di 3,45rem (55px) bahkan di layar selebar 899px. Ukuran itu dihitung
+ * untuk kolom selebar +-288px di ponsel; dibiarkan berlaku di tablet, ia
+ * menyisakan lebih dari separuh lebar kolom kosong — dan itu salah satu dari
+ * dua sebab isi hero berkumpul jadi gumpalan kecil di tengah layar tablet.
+ *
+ * IKUT LEBAR DAN TINGGI SEKALIGUS lewat `min()`, dan suku tingginya bukan
+ * hiasan. Yang lebih sempit di antara keduanya yang menang: di layar potret
+ * 11vw yang bekerja, sementara di jendela pendek — 800x600, misalnya — 9svh
+ * menahannya turun sampai ke lantai clamp. Tanpa suku itu, nama sebesar 88px di
+ * jendela setinggi 600px akan mendorong tombolnya keluar dari tepi bawah.
+ *
+ * Lantainya 3,45rem, yaitu ukuran lamanya sendiri. Jadi tingkatan ini hanya
+ * bisa MENAMBAH pada layar yang memang punya ruang, dan tidak pernah
+ * mengecilkan apa pun yang sudah benar sebelumnya.
+ */
+@media (min-width: 640px) and (max-width: 899px) {
   .-display {
-    font-size: 108px;
+    font-size: clamp(3.45rem, min(11vw, 9svh), 6rem);
+  }
+}
+
+@media (min-width: 900px) {
+  /*
+   * MENGALIR, BUKAN MELOMPAT KE 108px — dan pemicunya kasus nyata, bukan
+   * kerapian.
+   *
+   * Ukuran tetap 108px dihitung untuk layar selebar 1440px ke atas. Di hero,
+   * judulnya duduk di kolom 1,35fr dari dua kolom, jadi di layar 1024px kolom
+   * itu tinggal 616px — sementara "Zaen Chartiko" pada 108px menuntut sekitar
+   * 700px. Barisnya pecah jadi dua, judulnya jadi tiga baris, dan tinggi h1
+   * melonjak dari 229px ke 333px. Selisih 104px itulah yang mendorong isi hero
+   * melewati tepi bawah layar di laptop pendek.
+   *
+   * Batas bawah 4,8rem (76,8px) adalah ukuran di 1024px, tepat di bawah lebar
+   * yang membuatnya pecah; batas atasnya tetap 108px supaya layar lebar tidak
+   * berubah sedikit pun dari sebelumnya.
+   */
+  .-display {
+    font-size: clamp(4.8rem, 7.5vw, 108px);
     letter-spacing: -0.05em;
   }
   .-h1 {
@@ -285,6 +382,30 @@ body {
   }
   .-mono {
     font-size: 15px;
+  }
+}
+
+/*
+ * LAYAR LEBAR TAPI POTRET — dan tanpa aturan ini ukurannya justru MENGECIL
+ * saat layarnya melebar.
+ *
+ * Terukur: di 899px nama hero tampil 96px, di 900px turun jadi 76,8px. Layarnya
+ * bertambah lebar satu piksel dan hurufnya menyusut seperlima. Sebabnya bukan
+ * salah hitung melainkan salah asumsi — `7,5vw` di blok atas dihitung untuk
+ * nama yang duduk di kolom 1,35fr dari dua kolom, sementara di layar potret
+ * nama itu memakai lebar penuh (lihat varian `wide`). Ukuran yang pas untuk
+ * sepertiga halaman jadi kekecilan begitu dipakai untuk selebar halaman.
+ *
+ * `11vw` sama persis dengan koefisien tingkatan tablet di atas, jadi 899px dan
+ * 900px kini bersambung mulus. Batas atas 9rem menjaga tablet potret terbesar
+ * tidak melewati lebar bacanya.
+ *
+ * HARUS BERADA SESUDAH blok `min-width: 900px`: kekhususannya sama persis
+ * (`.-display`), jadi yang belakangan yang menang.
+ */
+@media (min-width: 900px) and (orientation: portrait) {
+  .-display {
+    font-size: clamp(4.8rem, 11vw, 9rem);
   }
 }
 
@@ -1171,6 +1292,29 @@ html.lenis body {
   }
 }
 
+/*
+ * LAYAR SANGAT PENDEK — ponsel yang diputar, dan jendela desktop yang dipipihkan.
+ *
+ * Panggung ini terkunci setinggi satu layar, dan pada tinggi 390px isinya tidak
+ * mungkin muat bertiga. Terukur di 844x390: gugus kartu pada skala terkecilnya
+ * (lantai 0,7 di SkillStage.jsx) masih setinggi 300px, sementara label menuntut
+ * 96px di atas dan tagline 64px di bawah — 460px di layar 390px. Yang terjadi
+ * bukan berdesakan melainkan BERTINDIH: label menembus kartu 51px, tagline 38px,
+ * dan keduanya tidak terbaca lagi. Di 667x375 bahkan 67px dan 56px.
+ *
+ * YANG DILEPAS KETERANGANNYA, BUKAN KARTUNYA. Label "03 — KEAHLIAN" sudah
+ * diulang bilah status di dasar layar selama bagian ini dibaca, jadi tidak ada
+ * penunjuk yang benar-benar hilang; taglinenya sendiri memang hiasan.
+ * Menurunkan lantai skala kartu akan menyelesaikan tabrakannya juga, tapi
+ * dengan membuang isinya — dan keterangan keahlian yang tidak terbaca lebih
+ * merugikan daripada satu baris hiasan yang absen.
+ */
+@media (max-height: 520px) {
+  .stage > p {
+    display: none;
+  }
+}
+
 /* Ponsel tersempit: keterangan dan jarak dalam kartu ikut dirapatkan supaya
    gugusnya tidak perlu diperkecil melewati batas keterbacaan. */
 @media (max-width: 360px) {
@@ -1201,6 +1345,60 @@ html.lenis body {
 
 /* Alasan yang sama seperti layar sempit: tanpa gerak, ledakan huruf tidak
    pernah terjadi, jadi tumpukannya hanya akan menutupi kartu. */
+/*
+ * ── MODE RINGAN ──────────────────────────────────────────────────────────
+ *
+ * Bukan mematikan animasinya — koreografinya tetap utuh. Yang dilepas hanya
+ * tiga efek yang harganya tidak sebanding dengan yang terlihat di perangkat
+ * lemah. Ambangnya ditentukan `isLite()` di device-queries.js.
+ *
+ * Terukur dengan CPU dilambatkan 6x, menggulung menembus panggung ini:
+ *
+ *              fps rata   frame p50   frame molor >50ms
+ *   390x844      40,4       16,7ms          3 dari 173
+ *   768x1024     23,4       49,9ms         19 dari 130
+ *   1920x1080    11,9       83,4ms         79 dari 107
+ *
+ * Perhatikan arahnya: MAKIN BESAR LAYAR MAKIN PARAH. Kalau penyebabnya jumlah
+ * elemen, angkanya akan sama di semua ukuran — jumlah hurufnya memang tetap 40.
+ * Yang berskala pada luas piksel cuma satu golongan: penyaringan gambar.
+ *
+ *   1. `filter: blur(46px)` pada kabut seukuran layar, DAN ia dianimasikan
+ *      terus-menerus lewat `fog-drift`. Setiap frame seluruh bidang itu disaring
+ *      ulang. Ini yang termahal.
+ *   2. `backdrop-filter: blur(14px)` pada empat kartu — dan kartunya BERGERAK,
+ *      jadi latar di belakangnya harus diambil dan diburamkan ulang tiap frame.
+ *   3. `will-change` pada 40 huruf: masing-masing jadi lapisan komposit
+ *      tersendiri. Di mode ringan huruf-huruf itu tidak dianimasikan sama
+ *      sekali (lihat SkillStage.jsx), jadi lapisannya murni pemborosan memori.
+ *
+ * Kabutnya sendiri TIDAK dihapus, hanya blur dan hanyutnya. Ketiga gumpalannya
+ * memang sudah gradien radial yang melandai halus dengan opasitas 5-9%;
+ * blur di atasnya menambah sedikit sekali pada apa yang terlihat, dan sangat
+ * banyak pada apa yang harus dihitung.
+ */
+html.is-lite .stage-fog {
+  filter: none;
+  animation: none;
+}
+
+/* Kaca diganti panel. Tanpa blur di belakangnya, latar 7% putih akan
+   meneruskan monolit di belakangnya dengan tajam dan teks kartu berhenti
+   terbaca — jadi yang menggantikan bukan sekadar "tanpa blur", melainkan
+   permukaan yang memang menutup. */
+html.is-lite .stage-card {
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--surface) 94%, transparent),
+    color-mix(in srgb, var(--surface) 88%, transparent)
+  );
+  backdrop-filter: none;
+}
+
+html.is-lite .stage-words [data-letter] {
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stage {
     height: auto;
