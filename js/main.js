@@ -83,12 +83,6 @@
     mobile: "(max-width: 639px)",
   };
 
-  /* Mode ringan sudah ditandai di <head> supaya CSS-nya berlaku sebelum
-     gambar pertama; di sini tinggal dibaca kembali. */
-  function isLite() {
-    return document.documentElement.classList.contains("is-lite");
-  }
-
   /* ── 3. BANTU-BANTU ─────────────────────────────────────────────────────*/
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) {
@@ -662,67 +656,52 @@
       }, EXPLODE_AT + 0.32);
 
       /*
-       * DUA CARA MELEDAK, DIPILIH DARI KEKUATAN PERANGKAT.
+       * SATU LEDAKAN UNTUK SEMUA PERANGKAT.
        *
-       * Per huruf: 40 elemen × 5 properti = 200 nilai baru tiap frame, dan 40
-       * lapisan komposit. Per kata: 4 elemen, 20 nilai — sepersepuluhnya.
+       * Dulu ada dua jalur: per huruf di desktop, per baris kata di layar
+       * <=899px. Jalur kedua dibuang setelah diukur, dan alasannya penting
+       * supaya tidak ada yang menghidupkannya lagi:
        *
-       * Yang hilang sedikit, yang didapat banyak. Pada layar ponsel, huruf
-       * setinggi 10vw yang terlempar ke segala arah terbaca sebagai gumpalan
-       * bergetar, bukan ledakan — kerapatannya terlalu tinggi untuk ukuran
-       * layarnya. Barisnya yang terbang berpencar justru lebih terbaca.
+       * 1. Ia tidak menolong. Diukur pada CPU dilambatkan 4x, tiga kali jalan:
+       *    per huruf 20,6 fps, per kata 21,6 fps. Selisihnya di dalam derau.
+       *    Yang memakan frame ternyata dua blur (lihat "PANGGUNG KEAHLIAN" di
+       *    css/style.css), bukan jumlah elemennya.
        *
-       * INTRO-nya ikut berpindah sasaran, dan itu wajib: kalau jalur ringan
-       * memakai elemen yang sama untuk meledak, kedua tween berebut properti
-       * yang sama dan yang kalah tersendat.
+       * 2. Pemilihnya salah kaprah. Ambangnya lebar layar, padahal lebar layar
+       *    bukan ukuran kekuatan perangkat: laptop lemah 1920px justru dapat
+       *    jalur berat, sementara tablet kuat dapat jalur ringan.
+       *
+       * 40 elemen x 5 properti memang bukan gratis, tapi semuanya transform
+       * dan opacity -- keduanya dikerjakan compositor, bukan tata letak ulang.
        */
-      var lite = isLite();
       var rowCount = rowEls.length;
 
       tl.fromTo(
-        lite ? words : rowEls,
+        rowEls,
         { scale: 0.94, opacity: 0.75 },
-        lite ? { scale: 1, opacity: 1, duration: 0.22 }
-             : { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
+        { scale: 1, opacity: 1, duration: 0.22, stagger: 0.03 },
         0,
       );
 
-      if (lite) {
-        rowEls.forEach(function (el, r) {
-          var vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
-          var n1 = noise(r + 1), n2 = noise(r + 97);
+      var seed = 0;
+      rowEls.forEach(function (row, r) {
+        var chars = $$("[data-letter]", row);
+        var len = chars.length;
+        var vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
+
+        chars.forEach(function (el, c) {
+          var hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
+          var n1 = noise(seed + 1), n2 = noise(seed + 97), n3 = noise(seed + 613);
+          seed += 1;
           tl.to(el, {
-            /* Dorongan mendatarnya kecil saja: yang memisahkan baris di sini
-               arah tegaknya, dan geseran samping besar hanya membuat keempatnya
-               saling menyeberang. */
-            x: (n1 - 0.5) * 180,
-            y: vy * (220 + n2 * 200),
-            rotate: (n1 - 0.5) * 24,
-            scale: 0.55 + n2 * 0.3,
-            opacity: 0, duration: 0.36, delay: n2 * 0.06,
+            x: hx * (260 + n1 * 460),
+            y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
+            rotate: (n1 - 0.5) * 240,
+            scale: 0.35 + n2 * 0.75,
+            opacity: 0, duration: 0.36, delay: n3 * 0.08,
           }, EXPLODE_AT);
         });
-      } else {
-        var seed = 0;
-        rowEls.forEach(function (row, r) {
-          var chars = $$("[data-letter]", row);
-          var len = chars.length;
-          var vy = rowCount > 1 ? (r / (rowCount - 1)) * 2 - 1 : 0;
-
-          chars.forEach(function (el, c) {
-            var hx = len > 1 ? (c / (len - 1)) * 2 - 1 : 0;
-            var n1 = noise(seed + 1), n2 = noise(seed + 97), n3 = noise(seed + 613);
-            seed += 1;
-            tl.to(el, {
-              x: hx * (260 + n1 * 460),
-              y: vy * (170 + n2 * 300) + (n3 - 0.5) * 160,
-              rotate: (n1 - 0.5) * 240,
-              scale: 0.35 + n2 * 0.75,
-              opacity: 0, duration: 0.36, delay: n3 * 0.08,
-            }, EXPLODE_AT);
-          });
-        });
-      }
+      });
 
       cards.forEach(function (card) {
         var offset = CORNER[card.dataset.position] || { x: 0, y: 0 };

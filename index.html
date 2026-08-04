@@ -26,30 +26,6 @@
 
   <link rel="stylesheet" href="css/style.css">
 
-  <!--
-    MODE RINGAN — ditandai DI SINI, bukan di js/main.js, dan itu disengaja.
-
-    Dua efek termahal di panggung keahlian (kabut ber-blur seukuran layar dan
-    backdrop-filter pada kartu yang bergerak) dilepas lewat kelas `is-lite`.
-    Kalau kelasnya baru dipasang setelah skrip utama jalan, efek berat itu
-    sempat tergambar satu frame lalu dicabut — dan yang terlihat pengunjung
-    adalah kedipan. Skrip sekecil ini di <head> berjalan sebelum gambar
-    pertama, jadi tidak ada yang sempat terlihat.
-
-    Ambangnya gabungan tiga petunjuk yang masing-masing bisa keliru sendirian:
-    inti prosesor sedikit, RAM kecil, atau layar <=899px. Yang ketiga menanggung
-    sisanya — banyak ponsel kelas bawah tetap melaporkan 8 inti.
-  -->
-  <script>
-    (function () {
-      var n = navigator;
-      if ((n.hardwareConcurrency > 0 && n.hardwareConcurrency <= 4) ||
-          (n.deviceMemory > 0 && n.deviceMemory <= 4) ||
-          window.matchMedia("(max-width: 899px)").matches) {
-        document.documentElement.classList.add("is-lite");
-      }
-    })();
-  </script>
 </head>
 
 <body>
