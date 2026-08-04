@@ -446,10 +446,16 @@
           <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Figma</span>
         </div>
 
+        <!-- Google tidak menerbitkan lambang Stitch dalam bentuk SVG; yang ada
+             hanya PNG. Berkas ini dibangun ulang dari ukuran PNG resmi 512px
+             mereka: kapsul 359x146 dengan dua titik berjari-jari 19. Bentuknya
+             murni geometris, jadi hasilnya persis, bukan penelusuran ulang.
+             Kedua titik dibuat berlubang (fill-rule evenodd), bukan diberi
+             warna latar, supaya ikut mengikuti warna latar apa pun. -->
         <div data-component="scrub-reveal" data-delay="0.03" class="group flex w-[calc(100%/3)] flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4 min-[640px]:w-[calc(100%/5)] min-[900px]:w-[calc(100%/7)]">
           <span class="flex w-full justify-center text-text">
             <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
-              <img src="assets/icons/stitch.png" alt="" loading="lazy" decoding="async" style="transform:scale(0.85)" class="max-h-full max-w-full object-contain">
+              <img src="assets/icons/stitch.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
             </span>
           </span>
           <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Stitch</span>
@@ -535,6 +541,15 @@
             </span>
           </span>
           <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Claude</span>
+        </div>
+
+        <div data-component="scrub-reveal" data-delay="0.30" class="group flex w-[calc(100%/3)] flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4 min-[640px]:w-[calc(100%/5)] min-[900px]:w-[calc(100%/7)]">
+          <span class="flex w-full justify-center text-text">
+            <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
+              <img src="assets/icons/claude-code.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
+            </span>
+          </span>
+          <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Claude Code</span>
         </div>
 
       </div>
