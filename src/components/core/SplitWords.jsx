@@ -54,13 +54,40 @@ export function SplitWords({
   }, [top, bottom, distance]);
 
   return (
-    /* `overflow-hidden` di sini menahan kedua kata selama mereka masih di luar
-       bingkai — itu inti transisinya. Tapi ia memotong ke SEGALA arah, termasuk
-       ke bawah, sehingga ekor huruf kata terakhir ikut terpangkas. Padding
-       menambah ruang potongnya, margin negatif mengembalikan tata letaknya. */
-    <div ref={ref} className={`overflow-hidden pb-[0.2em] mb-[-0.2em] ${className}`}>
-      <div className={`top-word will-change-transform ${lineClassName}`}>{top}</div>
-      <div className={`bottom-word will-change-transform ${lineClassName}`}>{bottom}</div>
+    /*
+     * DUA LAPIS, dan pemisahannya memperbaiki dua cacat yang saling menutupi.
+     *
+     * Lapis luar hanya membawa `className` dari pemanggil. Lapis dalam yang
+     * memotong dan menanggung pasangan padding/margin negatifnya.
+     *
+     * (1) MARGIN YANG BERTABRAKAN. Sebelumnya keduanya satu elemen, jadi
+     *     `mb-[-0.2em]` milik komponen ini dan `mb-20` milik pemanggil sama-sama
+     *     menyetel `margin-bottom` — dan yang menang bukan yang belakangan
+     *     ditulis, melainkan yang belakangan diemit Tailwind. Yang menang
+     *     ternyata `mb-[-0.2em]`, sehingga jarak 80px yang diminta
+     *     EducationSection TIDAK PERNAH ADA: judul "Riwayat / Pendidikan"
+     *     mendarat menempel di garis pemisah di bawahnya. Terukur -22px, bukan
+     *     +80px. Dipisah, keduanya berlaku pada elemen yang berbeda dan tidak
+     *     lagi berebut.
+     *
+     * (2) SATUAN `em` YANG SALAH ACUAN. `em` dihitung terhadap font elemen yang
+     *     memakainya. Selama ukuran display hanya menempel di kedua anaknya,
+     *     kotak pemotong mewarisi 16px dari badan halaman — jadi ruang untuk
+     *     ekor huruf cuma 3,2px, sementara pada judul 108px ekornya menjulur
+     *     sekitar 22px. `lineClassName` ikut dipasang di lapis dalam supaya
+     *     `0.2em` dan `-0.2em` sama-sama mengacu ke ukuran judulnya, saling
+     *     meniadakan dengan tepat, dan ruang yang tersedia benar-benar sebesar
+     *     yang dimaksud. Kebetulan belum ada yang hilang karena "Pendidikan"
+     *     tidak berekor — tapi cukup satu kata seperti "Pengalaman" masuk ke
+     *     sini dan ekornya terpotong rata.
+     */
+    <div ref={ref} className={className}>
+      <div className={`overflow-hidden pb-[0.2em] mb-[-0.2em] ${lineClassName}`}>
+        <div className={`top-word will-change-transform ${lineClassName}`}>{top}</div>
+        <div className={`bottom-word will-change-transform ${lineClassName}`}>
+          {bottom}
+        </div>
+      </div>
     </div>
   );
 }

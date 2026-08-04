@@ -60,13 +60,48 @@ export function ExperienceSection() {
         {/* Lebar kartu dipatok, bukan dibagi rata. Dengan `flex-wrap` dan
             `justify-content: center`, baris terakhir menengahkan dirinya
             sendiri berapa pun jumlah kartunya — jadi menambah pekerjaan
-            ketiga nanti tidak menuntut penyesuaian tata letak apa pun. */}
-        <HingeCards className="gap-4 sm:gap-6 nav:gap-8">
+            ketiga nanti tidak menuntut penyesuaian tata letak apa pun.
+
+            Jaraknya memakai `min-[...]`, bukan `sm:` dan `nav:`. Di build ini
+            `nav:` diemit lebih dulu, jadi `sm:gap-6 nav:gap-8` membuat desktop
+            diam-diam memakai jarak tablet — 24px, bukan 32px yang tertulis. */}
+        <HingeCards className="gap-4 min-[640px]:gap-6 min-[900px]:gap-8">
           {experienceList.map((entry, i) => (
             <article
               key={entry.company}
               data-hinge
-              className="flex w-full max-w-[30rem] shrink-0 flex-col rounded-lg bg-surface p-6 sm:p-8 nav:p-10"
+              /*
+               * TABLET IKUT SEBARIS SEPERTI DESKTOP, bukan bertumpuk.
+               *
+               * `max-w-[30rem]` (480px) yang membuatnya dulu bertumpuk: dua
+               * kartu selebar itu menuntut 984px termasuk jarak, sementara
+               * tablet 768px hanya menyisakan 720px setelah padding Container —
+               * jadi kartu kedua terlempar ke baris berikutnya.
+               *
+               * Di rentang tablet lebarnya diganti jadi separuh wadah dikurangi
+               * separuh jarak: `calc(50% - 0.75rem)` untuk `gap-6` yang 24px.
+               * Dinyatakan sebagai pecahan, bukan piksel tetap, supaya benar di
+               * seluruh rentang 640-899px — di 640px jadi 284px per kartu, di
+               * 899px jadi 413px, dan keduanya selalu pas satu baris.
+               *
+               * AMBANG KEMBALINYA KE 480px BUKAN 900px, MELAINKAN 1080px, dan
+               * angka itu dihitung: dua kartu 480px ditambah `gap-8` yang 32px
+               * menuntut 992px, sementara Container menyisakan lebar layar
+               * dikurangi padding `px-10` yang 80px. Jadi 480px baru muat mulai
+               * 1072px, dan dibulatkan ke 1080px.
+               *
+               * Dulu ambangnya 900px, dan akibatnya kartu bertumpuk di seluruh
+               * rentang 900-1071px — laptop 1024px termasuk — padahal di sana
+               * animasinya sudah memakai koreografi sebaris. Tata letak
+               * bertumpuk dengan koreografi sebaris adalah pasangan yang paling
+               * buruk: kartu bawah selesai berputar jauh sebelum pembaca sampai
+               * ke sana.
+               *
+               * Di 1080px ke atas ia kembali ke 480px karena pecahan separuh
+               * akan membuat kartu selebar 694px di layar 1440px, dan baris teks
+               * sepanjang itu sudah melewati lebar baca yang nyaman.
+               */
+              className="flex w-full max-w-[30rem] shrink-0 flex-col rounded-lg bg-surface p-6 min-[640px]:max-w-[calc(50%-0.75rem)] min-[640px]:p-8 min-[900px]:max-w-[calc(50%-1rem)] min-[900px]:p-10 min-[1080px]:max-w-[30rem]"
             >
               <div className="mb-8 flex items-baseline justify-between gap-4 border-b border-line pb-5">
                 <span className="-mono tabular-nums text-text-muted">

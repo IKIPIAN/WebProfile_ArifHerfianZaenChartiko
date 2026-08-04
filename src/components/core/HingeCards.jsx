@@ -72,7 +72,7 @@ export function HingeCards({ children, className = "" }) {
 
     /* Sebaris: SATU pemicu untuk semua kartu, karena posisi vertikalnya sama
        dan yang membedakan hanyalah gilirannya. */
-    mm.add(DEVICE.desktop, () => {
+    const rowCards = () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: list,
@@ -88,7 +88,9 @@ export function HingeCards({ children, className = "" }) {
       );
 
       return () => gsap.set(cards, { clearProps: "all" });
-    });
+    };
+
+    mm.add(DEVICE.desktop, rowCards);
 
     /* Bertumpuk: tiap kartu dapat pemicunya SENDIRI. Satu pemicu bersama akan
        memutar kartu bawah selagi ia masih jauh di luar layar, dan pembaca tiba
@@ -110,9 +112,19 @@ export function HingeCards({ children, className = "" }) {
       return () => gsap.set(cards, { clearProps: "all" });
     };
 
-    mm.add(DEVICE.tablet, () =>
-      stackedCards("clamp(top 88%)", "clamp(top 62%)"),
-    );
+    /*
+     * TABLET MEMAKAI KOREOGRAFI SEBARIS, sama seperti desktop — dan ini harus
+     * ikut berubah setiap kali tata letaknya berubah.
+     *
+     * Sejak kartu di rentang 640-899px berdiri berdampingan (lihat
+     * ExperienceSection.jsx), keduanya berada di ketinggian yang sama. Pemicu
+     * sendiri-sendiri per kartu hanya masuk akal untuk susunan bertumpuk, di
+     * mana tiap kartu tiba di layar pada waktu yang berbeda; pada kartu
+     * sebaris, pemicu terpisah membuat keduanya berputar bersamaan tanpa
+     * giliran — dan gelombang yang jadi maksud transisi ini hilang, tinggal dua
+     * kartu yang kebetulan bergerak berbarengan.
+     */
+    mm.add(DEVICE.tablet, rowCards);
     mm.add(DEVICE.mobile, () =>
       stackedCards("clamp(top 90%)", "clamp(top 66%)"),
     );
