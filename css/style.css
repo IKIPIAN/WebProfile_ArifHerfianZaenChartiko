@@ -53,10 +53,15 @@
    lebar penuh, dan empat kartu kembali muat. */
 @media (min-width: 1024px) {
   /* Lebar tetap, bukan mengikuti panjang tulisan: inilah yang membuat garis
-     rambut keempat kelompok lurus sejajar. "PENGEMBANGAN" adalah yang
-     terpanjang dan jadi patokannya. */
+     rambut keempat kelompok lurus sejajar.
+
+     Patokannya "RISET & DESAIN", label terpanjang, yang selebar 142px. 10,5rem
+     menyisakan 26px kelonggaran -- sengaja dilebihkan. Pas-pasan berbahaya di
+     sini: begitu satu label pecah dua baris, kelurusan keempat garis rambut
+     ikut hilang, dan huruf tidak selalu dirender sama persis di setiap
+     peramban dan sistem operasi. */
   .tool-label {
-    width: 9rem;
+    width: 10.5rem;
   }
 
   .tool-items {

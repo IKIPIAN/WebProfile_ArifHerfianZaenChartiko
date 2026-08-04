@@ -16,7 +16,7 @@ assets/certificate/   sertifikat — PDF asli dan gambar pratinjaunya
 assets/icons/         logo perkakas
 ```
 
-Hanya 28 berkas. Yang perlu Anda sunting hampir selalu cuma `index.html`.
+Hanya 32 berkas. Yang perlu Anda sunting hampir selalu cuma `index.html`.
 
 ## Cara menjalankan
 
@@ -56,9 +56,9 @@ jumlah kartu, bukan ditulis manual.
 
 ### Menambah perkakas
 
-Perkakas dibagi jadi empat kelompok berlabel — Desain, Pengembangan,
+Perkakas dibagi jadi empat kelompok berlabel — Riset & Desain, Pengembangan,
 Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
-**4-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
+**4-3-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
 lebar layar**: sama persis di ponsel, tablet, maupun desktop.
 
 Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam kelompok yang
@@ -78,7 +78,7 @@ lengkap dengan alasannya.
 
 Untuk menambah **kelompok baru**, salin satu blok `tool-row` utuh beserta
 label dan garis rambutnya, lalu ganti namanya. Kalau nama kelompoknya lebih
-panjang dari "Pengembangan", lebarkan `.tool-label` di CSS — kalau tidak,
+panjang dari "Riset & Desain", lebarkan `.tool-label` di CSS — kalau tidak,
 garis rambut kelompok itu tidak akan lurus sejajar dengan yang lain.
 
 ### Mengubah warna
