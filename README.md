@@ -56,16 +56,30 @@ jumlah kartu, bukan ditulis manual.
 
 ### Menambah perkakas
 
-Kisi Perkakas tersusun **4-2-2-3** dan susunan itu dikunci — sama persis di
-ponsel, tablet, maupun desktop. Tiap baris adalah satu blok `<div
-class="tool-row">` tersendiri, jadi **jumlah kartu per baris ditentukan oleh
-Anda, bukan oleh lebar layar.**
+Perkakas dibagi jadi empat kelompok berlabel — Desain, Pengembangan,
+Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
+**4-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
+lebar layar**: sama persis di ponsel, tablet, maupun desktop.
 
-Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam baris yang
-Anda mau, lalu ganti gambar dan namanya. Kalau baris itu jadi berisi lima
-kartu, ia akan berisi lima di semua perangkat — termasuk ponsel, yang berarti
-tiap kartu cuma kebagian seperlima lebar layar. Aturan lebarnya ada di bagian
-"KISI PERKAKAS" paling bawah `css/style.css`.
+Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam kelompok yang
+sesuai, lalu ganti gambar dan namanya.
+
+Dua hal yang perlu diperhatikan kalau menambah:
+
+- **Kelompok berisi lima kartu akan berisi lima di semua perangkat**, termasuk
+  ponsel — di sana tiap kartu cuma kebagian seperlima lebar layar dan namanya
+  hampir pasti pecah beberapa baris.
+- **Nama perkakas sebaiknya tidak lebih panjang dari "Google Workspace".**
+  Lebar kartu di desktop (9,5rem) dipas ke nama itu. Nama yang lebih panjang
+  akan pecah dua baris dan membuat tinggi kelompoknya berbeda dari yang lain.
+
+Kedua angka itu ada di bagian "KISI PERKAKAS" paling bawah `css/style.css`,
+lengkap dengan alasannya.
+
+Untuk menambah **kelompok baru**, salin satu blok `tool-row` utuh beserta
+label dan garis rambutnya, lalu ganti namanya. Kalau nama kelompoknya lebih
+panjang dari "Pengembangan", lebarkan `.tool-label` di CSS — kalau tidak,
+garis rambut kelompok itu tidak akan lurus sejajar dengan yang lain.
 
 ### Mengubah warna
 
