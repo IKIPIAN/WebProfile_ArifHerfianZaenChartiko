@@ -67,6 +67,37 @@
   }
 
   /*
+   * PERANGKAT LEMAH — diukur dari KEMAMPUANNYA, bukan dari lebar layarnya.
+   *
+   * Ini bukan "mode ringan" lama yang dibuang. Yang itu memakai lebar layar
+   * sebagai ambang, dan itu memang salah: lebar layar bukan ukuran kekuatan,
+   * sehingga laptop lemah 1920px justru mendapat jalur terberat sementara
+   * tablet kuat mendapat jalur ringan. Yang ini menanyakan langsung.
+   *
+   * navigator.deviceMemory melaporkan RAM dalam GiB, DIBULATKAN KE BAWAH ke
+   * pangkat dua dan dibatasi maksimal 8 — sengaja dibuat kasar supaya tidak
+   * bisa dipakai melacak orang. Nilai yang mungkin hanya 0,25 / 0,5 / 1 / 2 /
+   * 4 / 8. Jadi ponsel 6 GB melaporkan 4, dan laptop 16 GB melaporkan 8:
+   * keduanya jatuh di sisi ambang yang berbeda, persis yang dibutuhkan.
+   *
+   * hardwareConcurrency hanya dipakai kalau deviceMemory tidak tersedia
+   * (Safari belum punya). Ia tidak dipakai bersamaan, karena banyak laptop
+   * yang sepenuhnya mampu cuma punya 4 inti — memakainya sebagai syarat
+   * tambahan akan memangkas animasi dari perangkat yang sebenarnya sanggup.
+   *
+   * Kalau kedua-duanya diam, perangkat dianggap KUAT. Lebih baik keliru
+   * memberi animasi penuh kepada satu perangkat lemah daripada mencabutnya
+   * dari semua orang karena satu peramban tidak mau menjawab.
+   */
+  function perangkatLemah() {
+    var ram = navigator.deviceMemory;
+    if (typeof ram === "number" && ram > 0) return ram <= 4;
+    var inti = navigator.hardwareConcurrency;
+    if (typeof inti === "number" && inti > 0) return inti <= 4;
+    return false;
+  }
+
+  /*
    * Elemen yang sudah terlihat saat halaman dibuka tidak boleh digerakkan
    * scroll: pada scrollY 0 belum ada jarak scroll untuk menggerakkannya, jadi
    * animasinya diam di frame pertama dan isinya tampak terpotong permanen.
@@ -724,9 +755,111 @@
       };
     }
 
-    mm.add(DEVICE.desktop, function () { return createAnimation(0.9); });
-    mm.add(DEVICE.tablet, function () { return createAnimation(0.9); });
-    mm.add(DEVICE.mobile, function () { return createAnimation(0.8); });
+    /*
+     * Versi tanpa pin dan tanpa scrub, untuk perangkat lemah.
+     *
+     * Bagiannya tetap setinggi satu layar dan tetap punya gerak masuk — kata
+     * raksasanya naik, kartunya datang dari arah sudutnya masing-masing — tapi
+     * layar tidak ditahan dan tidak ada satu pun tween yang diikatkan ke posisi
+     * guliran. Animasinya berjalan sekali saat bagiannya masuk pandangan, lalu
+     * selesai; setelah itu tidak ada lagi pekerjaan per frame.
+     *
+     * `once: true` bukan penghematan sepele: tanpa itu, ScrollTrigger tetap
+     * mengawasi dan membalik animasinya tiap kali digulir bolak-balik.
+     */
+    function createLightAnimation() {
+      var cards = $$("[data-card]", root);
+      var rowEls = $$("[data-row]", root);
+      if (!cards.length || !rowEls.length) return;
+
+      /* Hurufnya tidak dipakai di sini, tapi CSS memberinya keadaan awal untuk
+         ledakan. Dikembalikan ke normal supaya kata-katanya terbaca utuh. */
+      var letters = $$("[data-letter]", root);
+      gsap.set(letters, { clearProps: "all" });
+
+      /* Sama seperti jalur penuh: panggungnya overflow-hidden, jadi gugus
+         kartu yang lebih tinggi dari ruangnya akan hilang, bukan meluber. */
+      function fitOrbit() {
+        if (!orbit || !cardsBox) return;
+        gsap.set(orbit, { scale: 1 });
+        var cs = getComputedStyle(cardsBox);
+        var available = cardsBox.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        var needed = orbit.offsetHeight;
+        if (!available || !needed) return;
+        var scale = needed > available ? Math.max(available / needed, 0.7) : 1;
+        gsap.set(orbit, { scale: scale, transformOrigin: "center center" });
+      }
+      fitOrbit();
+
+      var tl = gsap.timeline({
+        defaults: { ease: EASE },
+        scrollTrigger: { trigger: root, start: "top 65%", once: true },
+      });
+
+      /*
+       * URUTANNYA WAJIB BERGANTIAN, bukan bersamaan.
+       *
+       * Kata raksasa dan gugus kartu menempati kotak yang sama, dan
+       * .stage-words berada di z-index 3 — di atas kartu. Di jalur penuh
+       * mereka tidak pernah bertemu karena hurufnya sudah meledak pergi
+       * sebelum kartunya berangkat masuk. Tanpa ledakan itu, keduanya
+       * berakhir sama-sama tampil dan tulisannya menimpa kartu sampai dua-
+       * duanya tidak terbaca.
+       *
+       * Jadi di sini katanya masuk dulu, pamit, baru kartunya datang.
+       */
+      tl.fromTo(rowEls,
+        { scale: 0.94, opacity: 0 },
+        { scale: 1, opacity: 1, duration: DURATION.reveal, stagger: STAGGER },
+        0);
+
+      tl.to(rowEls,
+        { opacity: 0, scale: 1.05, duration: DURATION.reveal, stagger: STAGGER / 2 },
+        0.95);
+
+      cards.forEach(function (card) {
+        var offset = CORNER[card.dataset.position] || { x: 0, y: 0 };
+        var order = Number(card.dataset.order) || 0;
+        /* Jaraknya sepertiga jalur penuh: tanpa pin, gerak sepanjang itu
+           tidak sempat selesai sebelum kartunya sudah tergulir lewat. */
+        tl.fromTo(card,
+          { x: offset.x * card.offsetWidth * 0.3, y: offset.y * card.offsetHeight * 0.3, opacity: 0, scale: 0.92 },
+          { x: 0, y: 0, opacity: 1, scale: 1, duration: DURATION.reveal },
+          1.25 + order * 0.08);
+      });
+
+      return function () {
+        gsap.set(cards.concat(rowEls, letters, [words, slab, orbit]), { clearProps: "all" });
+      };
+    }
+
+    /*
+     * JALUR RINGAN: pin dan scrub dibuang, isinya tidak.
+     *
+     * Yang mahal ternyata BUKAN empat puluh hurufnya. Diukur tiga kali pada
+     * CPU dicekik 6x di ukuran ponsel 390x844:
+     *
+     *   apa adanya                      24,1 fps   111 dari 145 frame tersendat
+     *   40 huruf dimatikan, pin jalan   27,0 fps    97 dari 158   <- +3 fps saja
+     *   panggung dimatikan seluruhnya   41,5 fps    21 dari 191   <- +17 fps
+     *
+     * Jadi pengukuran lama tetap benar: jumlah elemen memang tidak penting.
+     * Yang memakan frame adalah `pin: true` yang digabung `scrub` — Lenis
+     * memicu ScrollTrigger.update tiap frame, dan trigger yang ter-pin adalah
+     * yang paling mahal dihitung ulang. Biayanya sama saja mau yang digerakkan
+     * 40 huruf atau nol huruf.
+     *
+     * pinType: "transform" sudah diuji lebih dulu dan TIDAK menolong (22,9 fps,
+     * di bawah angka dasar). Jangan dicoba lagi.
+     *
+     * Ledakan hurufnya ikut ditiadakan di jalur ini bukan demi hemat, tapi
+     * karena ia tidak punya arti tanpa pin: ledakan itu butuh layar yang
+     * menahan diri supaya ada ruang untuk terjadi.
+     */
+    var buat = perangkatLemah() ? createLightAnimation : createAnimation;
+    mm.add(DEVICE.desktop, function () { return buat(0.9); });
+    mm.add(DEVICE.tablet, function () { return buat(0.9); });
+    mm.add(DEVICE.mobile, function () { return buat(0.8); });
   }
 
   /*
