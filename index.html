@@ -322,10 +322,9 @@
     <p class="-caption-small absolute inset-x-0 top-24 z-4 text-center text-text-muted">03 — Keahlian</p>
 
     <div aria-hidden="true" class="stage-words pointer-events-none absolute inset-0 z-3 flex flex-col items-center justify-center">
-      <span data-row data-stage-word="ANTARMUKA" class="stage-word flex justify-center will-change-transform"></span>
-      <span data-row data-stage-word="PENGEMBANGAN" class="stage-word flex justify-center will-change-transform stage-word--hollow"></span>
-      <span data-row data-stage-word="PENGAJARAN" class="stage-word flex justify-center will-change-transform"></span>
-      <span data-row data-stage-word="ADMINISTRASI" class="stage-word flex justify-center will-change-transform stage-word--hollow"></span>
+      <span data-row data-stage-word="PENGEMBANGAN" class="stage-word flex justify-center will-change-transform"></span>
+      <span data-row data-stage-word="PENGAJARAN" class="stage-word flex justify-center will-change-transform stage-word--hollow"></span>
+      <span data-row data-stage-word="ADMINISTRASI" class="stage-word flex justify-center will-change-transform"></span>
     </div>
 
     <!-- Judul sungguhan untuk pembaca layar dan mesin pencari — tumpukan huruf
@@ -334,23 +333,30 @@
 
     <div class="stage-cards">
       <div class="stage-orbit">
-        <article data-card data-position="top-left" data-order="0" class="stage-card stage-card--top-left">
-          <div class="mb-6 flex items-start justify-between gap-6">
-            <h3 class="-h2 max-w-[9em]">Antarmuka &amp; Responsif</h3>
-            <span data-glyph="0"></span>
-          </div>
-          <p class="-body-small text-text-muted">Menyusun layout, hierarki visual, serta sistem tipografi dan warna yang tetap terbaca dari ponsel sampai desktop.</p>
-        </article>
+        <!-- Tiga kartu, dan jumlahnya bukan kebetulan: ia persis tiga peran
+             yang diketikkan mesin ketik di halaman sampul. Kartu pertama
+             melebar dua kolom karena ia peran yang dilamar lebih dulu —
+             hierarkinya jadi terlihat, tanpa perlu satu kata label pun.
 
-        <article data-card data-position="top-right" data-order="1" class="stage-card stage-card--top-right">
+             Dulu ada kartu keempat, "Antarmuka & Responsif", yang berdiri
+             sendiri di samping "Pengembangan Web". Keempatnya lalu tampil
+             setara padahal tiga di antaranya peran dan satu cuma kemampuan
+             penunjang — pembaca tidak punya cara membedakannya. Isinya
+             sekarang masuk ke kartu Pengembangan Web, karena memang di situ
+             tempatnya: menyusun tampilan adalah bagian dari membangunnya. -->
+        <article data-card data-position="top" data-order="0" class="stage-card stage-card--lead">
           <div class="mb-6 flex items-start justify-between gap-6">
             <h3 class="-h2 max-w-[9em]">Pengembangan Web</h3>
             <span data-glyph="1"></span>
           </div>
-          <p class="-body-small text-text-muted">Membangun dengan HTML, CSS, dan JavaScript tanpa kerangka kerja: gerak yang terukur, dan halaman yang tetap ringan di perangkat kelas menengah.</p>
+          <!-- Lebar teks dibatasi meski kartunya melebar. Tanpa ini satu baris
+               memuat sekitar 130 karakter di desktop, dan mata kehilangan
+               tempat saat berpindah ke baris berikutnya. 42rem menahannya di
+               sekitar 88 karakter. -->
+          <p class="-body-small max-w-2xl text-text-muted">Membangun dengan HTML, CSS, dan JavaScript tanpa kerangka kerja: menyusun layout dan hierarki visual, menjaga tampilan tetap terbaca dari ponsel sampai desktop, serta menakar gerak dan bobot halaman supaya tetap ringan di perangkat kelas menengah.</p>
         </article>
 
-        <article data-card data-position="bottom-left" data-order="2" class="stage-card stage-card--bottom-left">
+        <article data-card data-position="bottom-left" data-order="1" class="stage-card stage-card--bottom-left">
           <div class="mb-6 flex items-start justify-between gap-6">
             <h3 class="-h2 max-w-[9em]">Pengajaran Teknis</h3>
             <span data-glyph="2"></span>
@@ -358,7 +364,7 @@
           <p class="-body-small text-text-muted">Mengajar pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan, termasuk mengawasi dan mengevaluasi proyek akhir siswa.</p>
         </article>
 
-        <article data-card data-position="bottom-right" data-order="3" class="stage-card stage-card--bottom-right">
+        <article data-card data-position="bottom-right" data-order="2" class="stage-card stage-card--bottom-right">
           <div class="mb-6 flex items-start justify-between gap-6">
             <h3 class="-h2 max-w-[9em]">Administrasi Digital</h3>
             <span data-glyph="3"></span>
@@ -369,7 +375,7 @@
     </div>
 
     <p class="-caption-small absolute inset-x-0 bottom-16 z-4 text-center">
-      <span aria-hidden="true" class="mr-2 text-accent">✦</span>Empat bidang. Satu cara kerja.
+      <span aria-hidden="true" class="mr-2 text-accent">✦</span>Tiga peran. Satu cara kerja.
     </p>
   </div>
 

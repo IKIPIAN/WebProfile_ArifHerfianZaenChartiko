@@ -614,7 +614,12 @@
     var root = $(".stage");
     if (!root || prefersReducedMotion()) return;
 
+    /* "top" bukan sudut, dan itu disengaja: kartu peran utama melebar dua
+       kolom, jadi ia tidak punya sisi kiri atau kanan untuk datang dari sana.
+       Ia turun lurus dari atas. Keempat sudut lain tetap ada karena kartu
+       yang selebar satu kolom masih memakainya. */
     var CORNER = {
+      top: { x: 0, y: -1 },
       "top-left": { x: -1, y: -1 }, "top-right": { x: 1, y: -1 },
       "bottom-left": { x: -1, y: 1 }, "bottom-right": { x: 1, y: 1 },
     };
