@@ -247,7 +247,8 @@
         </a>
         <ul class="mb-10 flex flex-col gap-3">
           <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Mengajar mata pelajaran pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan (TLJ)</li>
-          <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Mengawasi dan mengevaluasi siswa, serta memastikan pemahaman dan proyek akhir selesai sesuai timeline dan target</li>
+          <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Membimbing proyek akhir kelas pemrograman dasar: siswa membangun web profil sekolah, dari rancangan tampilan sampai jadi</li>
+          <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Mengawasi dan mengevaluasi siswa, serta memastikan pemahaman dan capaian belajar terpenuhi sesuai timeline dan target</li>
           <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Merencanakan, mengadakan, dan mengoordinasi program kerja SEMAR “Seminar Marketing”</li>
           <li class="-body-small flex gap-3 text-text-muted"><span aria-hidden="true" class="mt-2 h-px w-3 shrink-0 bg-line"></span>Mendigitalisasi arsip sekolah dan mendukung kegiatan operasional sekolah</li>
         </ul>
@@ -406,9 +407,11 @@
       </div>
     </div>
 
-    <!-- PERKAKAS. Urutannya yang menggantikan label kelompok: mengalir desain →
-         pengembangan → administrasi, lalu ditutup AI. Nama ditulis lengkap
-         karena penyaring lamaran mencocokkan teks secara harfiah. -->
+    <!-- PERKAKAS. Urutan kelompoknya sengaja mengikuti urutan mesin ketik di
+         bagian sampul — desain → pengembangan → pengajaran → administrasi —
+         supaya tiga peran yang diklaim di sana punya alasnya di sini, lalu
+         ditutup AI sebagai cara kerja. Nama ditulis lengkap karena penyaring
+         lamaran mencocokkan teks secara harfiah. -->
     <div>
       <h3 data-component="scrub-reveal" class="-caption-small mb-8 text-text-muted">Perkakas</h3>
       <div class="border-t border-line">
@@ -504,13 +507,54 @@
           </div>
         </div>
 
+        <!-- PENGAJARAN. Isinya cuma dua karena sisanya sudah berdiri di baris
+             lain: Word, Excel, dan PowerPoint untuk modul ajar dan penilaian ada
+             di MS Office (Administrasi), dan VS Code — yang dipakai mengajar
+             pemrograman dasar — ada di Pengembangan. Perkakas yang sama tidak
+             ditulis dua kali; yang memberi tahu perannya adalah kartu pengalaman
+             "Guru Informatika" di bagian Pengalaman. -->
         <div class="tool-row border-b border-line">
-          <h4 data-component="scrub-reveal" data-delay="0.21" class="-caption-small tool-label text-text-muted">Administrasi</h4>
+          <h4 data-component="scrub-reveal" data-delay="0.21" class="-caption-small tool-label text-text-muted">Pengajaran</h4>
           <span data-component="scrub-reveal" data-delay="0.21" class="h-px w-8 self-center bg-line"></span>
 
           <div class="tool-items">
 
             <div data-component="scrub-reveal" data-delay="0.21" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+              <span class="flex w-full justify-center text-text">
+                <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
+                  <img src="assets/icons/google-classroom.svg" alt="" loading="lazy" decoding="async" style="transform:scale(1.25)" class="max-h-full max-w-full object-contain">
+                </span>
+              </span>
+              <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Google Classroom</span>
+            </div>
+
+            <!-- Quizizz berganti nama jadi Wayground pada 2025, dan lambang
+                 barunya huruf W merah muda. Yang dipakai di sini tetap lambang
+                 Quizizz, karena itu nama yang dikenal pendidik Indonesia dan itu
+                 pula yang dipakai saat mengajar. Badan hukumnya juga masih
+                 "Quizizz Inc. (DBA Wayground)".
+                 Warna resmi wordmark-nya #5D2057 — diuji di latar bagian ini
+                 (#040508) dan nyaris tak terlihat, jadi diterangkan ke #8854C0
+                 pada rona yang sama. Perlakuan yang sama seperti Maze. -->
+            <div data-component="scrub-reveal" data-delay="0.24" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+              <span class="flex w-full justify-center text-text">
+                <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
+                  <img src="assets/icons/quizizz.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
+                </span>
+              </span>
+              <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Quizizz</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tool-row border-b border-line">
+          <h4 data-component="scrub-reveal" data-delay="0.27" class="-caption-small tool-label text-text-muted">Administrasi</h4>
+          <span data-component="scrub-reveal" data-delay="0.27" class="h-px w-8 self-center bg-line"></span>
+
+          <div class="tool-items">
+
+            <div data-component="scrub-reveal" data-delay="0.27" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/ms-office.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -522,7 +566,7 @@
             <!-- Google Workspace memakai wordmark penuhnya, perbandingan 7,76:1.
                  Ia memang tampil lebih pendek daripada lambang persegi di
                  sebelahnya — itu sifat wordmark sepanjang ini, bukan salah ukuran. -->
-            <div data-component="scrub-reveal" data-delay="0.24" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.30" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/google-workspace.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -535,12 +579,12 @@
         </div>
 
         <div class="tool-row border-b border-line">
-          <h4 data-component="scrub-reveal" data-delay="0.27" class="-caption-small tool-label text-text-muted">AI</h4>
-          <span data-component="scrub-reveal" data-delay="0.27" class="h-px w-8 self-center bg-line"></span>
+          <h4 data-component="scrub-reveal" data-delay="0.33" class="-caption-small tool-label text-text-muted">AI</h4>
+          <span data-component="scrub-reveal" data-delay="0.33" class="h-px w-8 self-center bg-line"></span>
 
           <div class="tool-items">
 
-            <div data-component="scrub-reveal" data-delay="0.27" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.33" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/claude.svg" alt="" loading="lazy" decoding="async" style="transform:scale(1.14)" class="max-h-full max-w-full object-contain">
@@ -549,7 +593,7 @@
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Claude</span>
             </div>
 
-            <div data-component="scrub-reveal" data-delay="0.30" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.36" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/claude-code.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -564,7 +608,7 @@
                  murni geometris, jadi hasilnya persis, bukan penelusuran ulang.
                  Kedua titik dibuat berlubang (fill-rule evenodd), bukan diberi
                  warna latar, supaya ikut mengikuti warna latar apa pun. -->
-            <div data-component="scrub-reveal" data-delay="0.33" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.39" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/stitch.svg" alt="" loading="lazy" decoding="async" style="transform:scale(0.75)" class="max-h-full max-w-full object-contain">
