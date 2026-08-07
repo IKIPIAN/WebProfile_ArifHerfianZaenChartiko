@@ -77,22 +77,27 @@ jumlah kartu, bukan ditulis manual.
 
 ### Menambah perkakas
 
-Perkakas dibagi jadi lima kelompok berlabel — Riset & Desain, Pengembangan,
-Pengajaran, Administrasi, AI — masing-masing satu blok `<div class="tool-row">`.
-Isinya **4-3-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan
-oleh lebar layar**: sama persis di ponsel, tablet, maupun desktop.
+Perkakas dibagi jadi empat kelompok berlabel — Pengembangan, Pengajaran,
+Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
+**3-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
+lebar layar**: sama persis di ponsel, tablet, maupun desktop.
 
-Urutan kelompoknya bukan kebetulan: empat kelompok pertama mengikuti urutan
+Urutan kelompoknya bukan kebetulan: tiga kelompok pertama mengikuti urutan
 peran di mesin ketik halaman sampul, supaya tiap peran yang diklaim di sana
 punya alasnya di sini. AI ditaruh terakhir karena ia cara kerja, bukan peran.
 Kalau urutan mesin ketik di `index.html` diubah, urutan baris di sini
 sebaiknya ikut.
 
-> **Belum disesuaikan.** Peran utama sudah berganti dari UI/UX Designer jadi
-> **Web Developer**, tapi kelompok perkakasnya masih susunan lama — "Riset &
-> Desain" berdiri paling depan padahal tidak lagi mewakili peran yang
-> diklaim. Isi kelompoknya menyusul; sampai itu dikerjakan, urutan di sini
-> memang belum sejalan dengan sampul.
+Kelompok kelima, "Riset & Desain" (Figma, Google Analytics, Maze, Notion),
+dibuang bersama keempat berkas ikonnya waktu peran utama berganti dari UI/UX
+Designer jadi Web Developer — ia berdiri paling depan padahal tidak lagi
+mewakili peran mana pun yang diklaim di sampul.
+
+**Kalau menambah atau menghapus kartu, jeda animasinya harus dihitung ulang.**
+Tiap kartu punya `data-delay` yang naik 0,03 detik berurutan dari nol
+menembus semua kelompok, dan label beserta garis rambut tiap kelompok memakai
+jeda kartu pertamanya. Kalau ada lompatan angka, satu kelompok akan terlihat
+menunggu giliran yang tidak pernah datang.
 
 Satu perkakas hanya ditulis di **satu** kelompok, meski dipakai di beberapa
 peran. MS Office misalnya dipakai untuk modul ajar dan penilaian, tapi tetap
@@ -116,8 +121,10 @@ Kedua angka itu ada di bagian "KISI PERKAKAS" paling bawah `css/style.css`,
 lengkap dengan alasannya.
 
 Untuk menambah **kelompok baru**, salin satu blok `tool-row` utuh beserta
-label dan garis rambutnya, lalu ganti namanya. Kalau nama kelompoknya lebih
-panjang dari "Riset & Desain", lebarkan `.tool-label` di CSS — kalau tidak,
+label dan garis rambutnya, lalu ganti namanya. `.tool-label` di CSS masih
+selebar 10,5rem — dulu dipas ke "Riset & Desain" yang sekarang sudah tidak
+ada, jadi ada kelonggaran. Kalau nama kelompoknya lebih panjang dari itu,
+lebarkan angkanya — kalau tidak,
 garis rambut kelompok itu tidak akan lurus sejajar dengan yang lain.
 
 ### Mengubah warna
