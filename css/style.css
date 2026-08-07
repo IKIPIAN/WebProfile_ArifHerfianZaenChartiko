@@ -150,3 +150,20 @@
    ═══════════════════════════════════════════════════════════════════════ */
 .py-2 { padding-block: 0.5rem }  /* 8px  — label kotak */
 .py-4 { padding-block: 1rem }    /* 16px — tombol utama */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KARTU PERAN UTAMA — melebar dua kolom.
+
+   Bagian Keahlian berisi tiga kartu, satu untuk tiap peran yang diketikkan
+   di halaman sampul. Kartu pertama melebar sepenuh baris supaya hierarkinya
+   TERLIHAT, bukan dijelaskan: pembaca langsung tahu mana peran yang dilamar
+   lebih dulu tanpa perlu membaca label "utama" atau "penunjang".
+
+   Ia juga yang membuat tiga kartu tetap mengisi kisi dua kolom dengan rapi.
+   Tanpa ini, kartu ketiga berdiri sendirian menyisakan satu sel kosong yang
+   terbaca sebagai ada yang lupa dipasang.
+
+   Di ponsel (<=639px) kisinya sudah satu kolom, jadi aturan ini tidak
+   mengubah apa pun di sana — semua kartu memang sudah selebar layar.
+   ═══════════════════════════════════════════════════════════════════════ */
+.stage-card--lead { grid-column: 1 / -1 }
