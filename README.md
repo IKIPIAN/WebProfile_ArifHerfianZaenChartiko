@@ -83,10 +83,16 @@ Isinya **4-3-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan
 oleh lebar layar**: sama persis di ponsel, tablet, maupun desktop.
 
 Urutan kelompoknya bukan kebetulan: empat kelompok pertama mengikuti urutan
-mesin ketik di halaman sampul — desain → pengembangan → pengajaran →
-administrasi — supaya tiga peran yang diklaim di sana punya alasnya di sini.
-AI ditaruh terakhir karena ia cara kerja, bukan peran. Kalau urutan mesin ketik
-di `index.html` diubah, urutan baris di sini sebaiknya ikut.
+peran di mesin ketik halaman sampul, supaya tiap peran yang diklaim di sana
+punya alasnya di sini. AI ditaruh terakhir karena ia cara kerja, bukan peran.
+Kalau urutan mesin ketik di `index.html` diubah, urutan baris di sini
+sebaiknya ikut.
+
+> **Belum disesuaikan.** Peran utama sudah berganti dari UI/UX Designer jadi
+> **Web Developer**, tapi kelompok perkakasnya masih susunan lama — "Riset &
+> Desain" berdiri paling depan padahal tidak lagi mewakili peran yang
+> diklaim. Isi kelompoknya menyusul; sampai itu dikerjakan, urutan di sini
+> memang belum sejalan dengan sampul.
 
 Satu perkakas hanya ditulis di **satu** kelompok, meski dipakai di beberapa
 peran. MS Office misalnya dipakai untuk modul ajar dan penilaian, tapi tetap
