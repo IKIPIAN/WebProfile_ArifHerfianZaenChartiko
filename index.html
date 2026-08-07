@@ -390,46 +390,46 @@
 
   <div data-component="container" class="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] flex flex-col gap-16 py-24 sm:gap-20 sm:py-28 nav:gap-24 nav:py-36">
 
-    <!-- Kemampuan profesional. Flex-wrap, bukan kisi berkolom tetap: jumlahnya
-         ganjil (lima), dan kisi tiga kolom akan menyisakan satu sel kosong
-         berbingkai yang terbaca sebagai isi yang gagal dimuat. -->
+    <!-- KEMAMPUAN PROFESIONAL — lima kartu, tiga kolom (lima di >=1024px).
+
+         Tiap kartu punya tiga baris: ikon, judul, keterangan. Ketiganya harus
+         lurus sejajar dengan kartu di sebelahnya meski panjang judulnya
+         berbeda-beda, dan itu diurus `grid-template-rows: subgrid` di
+         .skill-card — bukan oleh tinggi cadangan yang ditebak. Alasan
+         lengkapnya ada di bagian "KEMAMPUAN PROFESIONAL" di css/style.css.
+
+         Yang penting diketahui di sini: JANGAN membungkus ikon, judul, dan
+         keterangan ke dalam div. Ketiganya harus jadi anak LANGSUNG .skill-card
+         supaya masing-masing menempati barisnya sendiri di subgrid. Dulu judul
+         dan keterangan dibungkus satu div demi efek naik saat disentuh kursor;
+         efek itu sekarang dipasang langsung ke keduanya lewat CSS. -->
     <div>
       <h3 data-component="scrub-reveal" class="-caption-small mb-8 text-text-muted">Kemampuan Profesional</h3>
-      <div class="flex flex-wrap border-t border-l border-line">
-        <div data-component="scrub-reveal" data-delay="0" class="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5">
+      <div class="skill-grid border-t border-l border-line">
+        <div data-component="scrub-reveal" data-delay="0" class="skill-card border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:p-5">
           <i class="fa-solid fa-comments text-text-muted"></i>
-          <div class="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-            <span class="-body-small block min-h-12 font-medium">Komunikasi Teknis</span>
-            <p class="-body-smaller mt-2 min-h-17 text-text-muted">Menjelaskan hal teknis ke orang awam.</p>
-          </div>
+          <span class="-body-small font-medium">Komunikasi Teknis</span>
+          <p class="-body-smaller text-text-muted">Menjelaskan hal teknis ke orang awam.</p>
         </div>
-        <div data-component="scrub-reveal" data-delay="0.04" class="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5">
+        <div data-component="scrub-reveal" data-delay="0.04" class="skill-card border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:p-5">
           <i class="fa-solid fa-magnifying-glass-chart text-text-muted"></i>
-          <div class="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-            <span class="-body-small block min-h-12 font-medium">Analisis &amp; Pemecahan Masalah</span>
-            <p class="-body-smaller mt-2 min-h-17 text-text-muted">Menelusuri akar masalah sebelum memilih solusinya.</p>
-          </div>
+          <span class="-body-small font-medium">Analisis &amp; Pemecahan Masalah</span>
+          <p class="-body-smaller text-text-muted">Menelusuri akar masalah sebelum memilih solusinya.</p>
         </div>
-        <div data-component="scrub-reveal" data-delay="0.08" class="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5">
-          <i class="fa-solid fa-lightbulb text-text-muted"></i>
-          <div class="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-            <span class="-body-small block min-h-12 font-medium">Kreativitas</span>
-            <p class="-body-smaller mt-2 min-h-17 text-text-muted">Menyiapkan beberapa alternatif, bukan satu ide saja.</p>
-          </div>
+        <div data-component="scrub-reveal" data-delay="0.08" class="skill-card border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:p-5">
+          <i class="fa-solid fa-arrows-rotate text-text-muted"></i>
+          <span class="-body-small font-medium">Adaptabilitas</span>
+          <p class="-body-smaller text-text-muted">Terbiasa berganti peran dan perkakas sesuai kebutuhan.</p>
         </div>
-        <div data-component="scrub-reveal" data-delay="0.12" class="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5">
+        <div data-component="scrub-reveal" data-delay="0.12" class="skill-card border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:p-5">
           <i class="fa-solid fa-list-check text-text-muted"></i>
-          <div class="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-            <span class="-body-small block min-h-12 font-medium">Ketelitian</span>
-            <p class="-body-smaller mt-2 min-h-17 text-text-muted">Terlatih dari pendataan dan pengelolaan surat dinas.</p>
-          </div>
+          <span class="-body-small font-medium">Ketelitian</span>
+          <p class="-body-smaller text-text-muted">Terlatih dari pendataan dan pengelolaan surat dinas.</p>
         </div>
-        <div data-component="scrub-reveal" data-delay="0.16" class="group flex min-h-36 flex-1 flex-col justify-between border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:min-w-52 sm:p-5">
+        <div data-component="scrub-reveal" data-delay="0.16" class="skill-card border-r border-b border-line p-4 transition-colors duration-500 ease-brand hover:bg-text/4 sm:p-5">
           <i class="fa-solid fa-people-group text-text-muted"></i>
-          <div class="transition-transform duration-500 ease-brand group-hover:-translate-y-0.5">
-            <span class="-body-small block min-h-12 font-medium">Koordinasi Tim</span>
-            <p class="-body-smaller mt-2 min-h-17 text-text-muted">Kepanitiaan proker dan pengarahan tim service center.</p>
-          </div>
+          <span class="-body-small font-medium">Koordinasi Tim</span>
+          <p class="-body-smaller text-text-muted">Kepanitiaan proker dan pengarahan tim service center.</p>
         </div>
       </div>
     </div>
