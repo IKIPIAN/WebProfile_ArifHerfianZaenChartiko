@@ -16,10 +16,22 @@
   <meta property="og:description" content="Arif Herfian Zaen Chartiko — UI/UX Designer, Pendidik Informatika, dan Staf Administrasi. Lulusan Pendidikan Teknik Informatika, Universitas Negeri Malang.">
   <meta property="og:url" content="https://webprofile-arifherfianzaenchartiko.vercel.app/">
 
-  <!-- Inter buat body teks, Fraunces (display serif) buat heading, JetBrains Mono buat aksen -->
+  <!-- Dua keluarga saja. Inter untuk seluruh teks DAN judul; JetBrains Mono
+       untuk label kecil berspasi lebar. Dulu Fraunces ikut dimuat sebagai
+       serif judul, tapi tidak pernah benar-benar dipasang — --font-display
+       menunjuk ke Inter — jadi 356 KB terunduh tanpa pernah tampil.
+
+       Bobotnya juga dipangkas ke yang benar-benar dipakai: Inter 400 dan 500
+       (font-medium), JetBrains Mono 400. Halaman ini tidak punya satu pun
+       <strong> atau <em>, dan tidak memakai kelas bobot selain font-medium,
+       jadi 300/600/700/800 cuma menambah unduhan tanpa mengubah apa pun di
+       layar. Beban font: 731 KB -> 115 KB.
+
+       Tanda & ditulis &amp; karena di HTML & mengawali entitas; tanpa itu
+       "&family" bisa terbaca sebagai entitas yang tidak dikenal. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
 
   <!-- icon dari font awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
