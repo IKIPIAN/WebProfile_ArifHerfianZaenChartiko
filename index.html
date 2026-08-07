@@ -86,19 +86,28 @@
         <div class="absolute inset-0 flex items-center justify-center wide:static wide:block">
           <div class="corner-marks relative h-[min(100%,32svh,60vw)] max-w-full border border-line p-3 wide:h-auto wide:w-full">
             <div data-component="image-reveal" data-delay="0.21"
-              class="aspect-[853/1280] h-full w-auto max-w-full wide:aspect-[4/5] wide:h-auto wide:w-full">
+              class="aspect-[853/1280] h-full w-auto max-w-full wide:h-auto wide:w-full">
               <span class="bg" aria-hidden="true"></span>
               <!-- `object-fit` ditulis SEBARIS, bukan sebagai kelas: `.media` di
                    style.css sudah menyetel `cover` dan ia CSS tak-berlapis, jadi
                    ia mengalahkan kelas utilitas apa pun. Yang sebaris menang
                    atas keduanya.
 
-                   `contain` berarti foto DIPASKAN utuh ke dalam bingkai. Di
-                   bawah 900px bingkainya memakai rasio berkas aslinya
-                   (853/1280) sehingga tidak ada bedanya; di desktop bingkainya
-                   4/5 dan menyisakan pita gelap tipis di kiri-kanan. Ganti ke
-                   `cover` kalau lebih suka fotonya memenuhi bingkai dengan
-                   konsekuensi atas-bawahnya terpotong. -->
+                   `contain` berarti foto DIPASKAN utuh ke dalam bingkai. Karena
+                   rasio bingkainya sekarang persis rasio berkasnya (853/1280)
+                   di SEMUA lebar, `contain` dan `cover` menghasilkan hal yang
+                   sama — tidak ada pita kosong dan tidak ada yang terpotong.
+                   `contain` yang dipilih karena ia yang aman kalau suatu saat
+                   fotonya diganti dengan rasio lain: yang muncul foto utuh
+                   dengan sedikit pita, bukan wajah yang terpotong diam-diam.
+
+                   Sampai 7 Agustus 2026 baris ini memakai `wide:aspect-[4/5]`
+                   khusus desktop. Itu yang membuat bingkainya lebih gemuk dari
+                   fotonya dan menyisakan 34,6px pita gelap di kiri dan kanan
+                   SAJA — atas-bawah tetap menempel. Jadi di desktop bingkainya
+                   terlihat renggang sebelah, di ponsel dan tablet menempel
+                   rapat. Jangan dipatok ulang ke rasio yang berbeda dari
+                   berkasnya. -->
               <img src="assets/photo/foto.jpeg" alt="Foto Arif Herfian Zaen Chartiko" class="media" style="object-fit:contain">
             </div>
           </div>
