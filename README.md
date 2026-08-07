@@ -118,7 +118,7 @@ dengan alasannya.
 
 Perkakas dibagi jadi empat kelompok berlabel — Pengembangan, Pengajaran,
 Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
-**3-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
+**4-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
 lebar layar**: sama persis di ponsel, tablet, maupun desktop.
 
 Urutan kelompoknya bukan kebetulan: tiga kelompok pertama mengikuti urutan
@@ -146,6 +146,21 @@ mana adalah kartu di bagian Pengalaman, bukan pengulangan ikon.
 
 Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam kelompok yang
 sesuai, lalu ganti gambar dan namanya.
+
+**Untuk mencari lambangnya, buka situs resmi perkakasnya, bukan kumpulan
+lambang pihak ketiga** — yang di sana sering ketinggalan satu rona atau satu
+pergantian merek. Cara yang dipakai di sini: muat halamannya di peramban,
+lalu ambil SVG-nya langsung dari DOM. Tiga jebakan yang sudah pernah kena:
+
+- **Warna di halaman belum tentu warna mereknya.** Lambang Wayground tampil
+  krem di situs mereka semata karena latar halamannya merah tua; warna
+  mereknya merah muda. Kalau ragu, **buka favicon-nya** — di sana lambangnya
+  hampir selalu tampil pada latar netral dengan warna aslinya.
+- **Sebagian merek tidak punya berkas lambang sama sekali.** Wordmark Stitch
+  di halaman Google adalah teks hidup, bukan gambar. SVG-nya di sini dibuat
+  dengan mengurai font yang dimuat halaman itu dan mengambil lekuk hurufnya.
+- **Rona lama masih banyak beredar.** Figma sudah berganti palet; yang dipakai
+  di sini rona dari halaman unduhan mereka sendiri.
 
 Dua hal yang perlu diperhatikan kalau menambah:
 
