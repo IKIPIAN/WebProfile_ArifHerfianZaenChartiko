@@ -513,23 +513,33 @@
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Google Classroom</span>
             </div>
 
-            <!-- Quizizz berganti nama jadi Wayground pada 2025, dan lambang
-                 barunya huruf W merah muda. Yang dipakai di sini tetap lambang
-                 Quizizz, karena itu nama yang dikenal pendidik Indonesia dan itu
-                 pula yang dipakai saat mengajar. Badan hukumnya juga masih
-                 "Quizizz Inc. (DBA Wayground)".
-                 Warna resmi wordmark-nya #5D2057 — diuji di latar bagian ini
-                 (#040508) dan nyaris tak terlihat, jadi diterangkan ke #8854C0
-                 pada rona yang sama: 1,76:1 jadi 3,96:1. Kalau nanti ada
-                 lambang gelap lain yang ditambahkan, perlakukan sama —
+            <!-- Quizizz berganti nama jadi Wayground pada 2025, dan sejak
+                 7 Agustus 2026 yang dipakai di sini nama serta lambang barunya.
+                 Sebelumnya sengaja tetap "Quizizz" dengan alasan itu nama yang
+                 dikenal pendidik Indonesia; alasan itu dilepas karena situsnya
+                 sendiri sudah wayground.com dan lambang lamanya tidak muncul
+                 lagi di mana pun.
+
+                 Lambangnya tiga bilah bersudut membentuk huruf W, diambil apa
+                 adanya dari SVG di halaman mereka. viewBox-nya dirapatkan dari
+                 "0 0 48 48" jadi "8 13 32 22" — itu kotak isi sebenarnya,
+                 diukur lewat getBBox, kebetulan bilangan bulat semua. Tanpa
+                 dirapatkan, lambangnya cuma mengisi separuh kotak 32px di
+                 kisi ini dan terlihat lebih kecil dari lambang tetangganya.
+
+                 Warnanya #F3EFDA, krem — itu warna yang MEREKA pakai sendiri
+                 untuk lambang ini di latar gelap, bukan hasil terkaan. Jadi
+                 tidak perlu diterangkan seperti wordmark Quizizz dulu, yang
+                 aslinya #5D2057 dan nyaris tak terlihat di latar #040508.
+                 Aturannya tetap berlaku kalau nanti ada lambang gelap lain:
                  terangkan pada rona aslinya, jangan diganti warnanya. -->
             <div data-component="scrub-reveal" data-delay="0.12" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
-                  <img src="assets/icons/quizizz.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
+                  <img src="assets/icons/wayground.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
                 </span>
               </span>
-              <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Quizizz</span>
+              <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Wayground</span>
             </div>
 
           </div>
@@ -589,16 +599,24 @@
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Claude Code</span>
             </div>
 
-            <!-- Google tidak menerbitkan lambang Stitch dalam bentuk SVG; yang ada
-                 hanya PNG. Berkas ini dibangun ulang dari ukuran PNG resmi 512px
-                 mereka: kapsul 359x146 dengan dua titik berjari-jari 19. Bentuknya
-                 murni geometris, jadi hasilnya persis, bukan penelusuran ulang.
-                 Kedua titik dibuat berlubang (fill-rule evenodd), bukan diberi
-                 warna latar, supaya ikut mengikuti warna latar apa pun. -->
+            <!-- Yang dipakai di sini WORDMARK tulisan "Stitch", bukan lambang
+                 kapsulnya. Pernah diganti ke lambang kapsul (SVG buatan sendiri,
+                 dibangun ulang dari PNG resmi 512px mereka) supaya sebaris
+                 dengan perkakas lain yang memakai lambang; hasilnya justru
+                 janggal — kapsul dengan dua titik itu tidak terbaca sebagai
+                 apa-apa dalam ukuran 32px, apalagi berdampingan dengan lambang
+                 yang punya bentuk khas seperti Claude dan VS Code. Wordmark-nya
+                 dikembalikan pada 7 Agustus 2026. Jangan diganti lagi ke kapsul.
+
+                 Bentuknya PNG karena Google tidak menerbitkan Stitch dalam SVG,
+                 dan wordmark bukan bentuk geometris yang bisa dibangun ulang
+                 dengan tepat seperti kapsulnya. 270x82, putih dengan latar
+                 tembus pandang. scale(0.85) menahannya supaya tidak lebih
+                 dominan dari lambang tetangganya yang bujur sangkar. -->
             <div data-component="scrub-reveal" data-delay="0.27" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
-                  <img src="assets/icons/stitch.svg" alt="" loading="lazy" decoding="async" style="transform:scale(0.75)" class="max-h-full max-w-full object-contain">
+                  <img src="assets/icons/stitch.png" alt="" loading="lazy" decoding="async" style="transform:scale(0.85)" class="max-h-full max-w-full object-contain">
                 </span>
               </span>
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Stitch</span>
