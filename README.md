@@ -228,22 +228,27 @@ angka yang terlihat aneh, baca komentar di atasnya — sebagian besar angka di
 situs ini hasil pengukuran, bukan selera, dan komentarnya menyebutkan apa yang
 rusak kalau diubah.
 
-**Satu tampilan untuk semua perangkat.** Situs ini pernah punya "mode ringan":
-di layar ≤899px, ledakan 40 huruf di bagian Keahlian diganti 4 baris kata dan
-dua efek buram dimatikan. Semuanya sudah dibuang, dan alasannya perlu diketahui
-sebelum ada yang tergoda membuatnya lagi:
+**Bagian Keahlian pernah jadi panggung, sekarang tidak lagi.** Dulu ia
+selebar layar dan disematkan (di-*pin*): kata raksasa bertumpuk di atas
+monolit 3D berputar, hurufnya pecah ke segala arah waktu digulir, lalu kartu
+masuk dari ruang yang ditinggalkannya. Monolit, kabut abu di belakangnya, dan
+ledakan hurufnya dibuang seluruhnya — beserta pin dan scrub yang jadi
+mesinnya. Sekarang isinya tiga kartu peran dalam wadah biasa yang ikut aliran
+halaman, sama seperti bagian lain.
+
+Riwayat pengukurannya disimpan karena ia yang menjelaskan kenapa jangan
+mencoba "mengoptimalkan" panggung itu kembali alih-alih membuangnya:
 
 - **Memotong jumlah elemen tidak menolong.** Diukur tiga kali, per huruf 20,6
   fps dan per kata 21,6 fps — selisihnya di dalam derau alat ukur.
 - **Ambangnya salah kaprah.** Lebar layar bukan ukuran kekuatan perangkat.
   Laptop lemah 1920px justru mendapat jalur terberat, sementara tablet kuat
   mendapat jalur ringan.
-- **Yang benar-benar mahal adalah efek buram**, karena dihitung per piksel
-  layar, bukan per elemen. Keduanya sudah dibuang untuk semua perangkat, dan
-  frame yang tersendat turun lebih dari separuh.
+- **Yang benar-benar mahal adalah efek buram dan pin.** Buram dihitung per
+  piksel layar, bukan per elemen. Pin yang digabung *scrub* lebih mahal lagi:
+  mematikan 40 hurufnya cuma memberi 3 fps, mematikan panggungnya memberi 17.
 
-Angka lengkapnya ada di bagian "PANGGUNG KEAHLIAN" paling bawah
-`css/style.css`.
+Angka lengkapnya ada di bagian "KEAHLIAN" paling bawah `css/style.css`.
 
 ## Riwayat
 
