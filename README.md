@@ -36,14 +36,23 @@ Situs ini sudah tersambung ke [Vercel](https://vercel.com) lewat GitHub: tiap
 `git push` ke `main` otomatis menerbitkan ulang. Tidak ada yang perlu disetel —
 tidak ada perintah build, tidak ada folder keluaran.
 
-**Jangan hapus `vercel.json`.** Isinya cuma empat baris yang semuanya `null`,
-dan kelihatan tidak berguna, tapi ia menyelesaikan masalah nyata. Proyek Vercel
-ini dibuat waktu situsnya masih React + Vite, jadi setelan di dasbornya masih
-menjalankan `vite build`. Setelah ditulis ulang jadi HTML biasa, perintah itu
-gagal terus — `vite: command not found` — dan Vercel diam-diam tetap
-menayangkan versi React yang lama selama berminggu-minggu. `vercel.json`
-menimpa setelan dasbor dan mengembalikannya ke "tidak usah dibangun, sajikan
-saja isi foldernya".
+Kalau suatu saat proyek Vercel-nya dibuat ulang, **Framework Preset harus
+`Other` dan Build Command harus kosong.** Kalau diimpor dari repo ini, Vercel
+memilih itu sendiri — repo ini tidak punya `package.json`, jadi tidak ada yang
+bisa disalahdeteksi. Yang perlu diwaspadai cuma kalau setelan itu diubah
+manual.
+
+Alasannya ada riwayatnya. Proyek Vercel yang pertama dibuat waktu situs ini
+masih React + Vite, jadi Build Command-nya `vite build`. Setelah ditulis ulang
+jadi HTML biasa, perintah itu gagal terus — `vite: command not found`, exit
+127 — dan yang berbahaya bukan kegagalannya, melainkan caranya gagal: `git
+push` tetap sukses, GitHub tetap terisi, tapi Vercel diam-diam bertahan
+menayangkan bangunan React terakhir yang berhasil. Berminggu-minggu perubahan
+tidak pernah kelihatan di situs yang tayang, tanpa satu pun tanda peringatan.
+
+Jadi setelah mengubah apa pun yang berhubungan dengan penerbitan, **buka situs
+yang tayang dan pastikan perubahannya benar-benar ada di sana.** Jangan percaya
+pada `git push` yang sukses.
 
 Kalau suatu saat pindah ke Netlify atau GitHub Pages, cukup seret foldernya —
 tidak ada langkah tambahan.
