@@ -478,8 +478,8 @@
             </div>
 
             <!-- Vercel digambar satu warna: lambang resminya memang hanya
-                 hitam atau putih. Aslinya hitam, dibalik ke #d8d8d8 seperti
-                 Maze karena latar bagian ini gelap. -->
+                 hitam atau putih. Aslinya hitam, dibalik ke #d8d8d8 karena
+                 latar bagian ini gelap. -->
             <div data-component="scrub-reveal" data-delay="0.06" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
@@ -487,6 +487,27 @@
                 </span>
               </span>
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Vercel</span>
+            </div>
+
+            <!-- Figma ditaruh PALING BELAKANG di baris ini, bukan paling depan,
+                 meski di alur kerja ia datang lebih dulu dari menulis kode.
+                 Baris ini dibaca dari kiri sebagai apa yang paling mewakili
+                 peran Web Developer, dan yang harus berdiri di depan adalah
+                 perkakas membangunnya. Kalau nanti barisnya mau dibaca sebagai
+                 alur — rancang, tulis, simpan, terbitkan — pindahkan Figma ke
+                 depan dan hitung ulang jedanya.
+
+                 Lambangnya lima bentuk berwarna, diambil apa adanya dari
+                 halaman unduhan Figma. Warnanya rona baru mereka (#FF7237,
+                 #FF3737, #00B6FF, #874FFF, #24CB71), bukan rona lama yang
+                 masih banyak beredar di kumpulan lambang pihak ketiga. -->
+            <div data-component="scrub-reveal" data-delay="0.09" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+              <span class="flex w-full justify-center text-text">
+                <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
+                  <img src="assets/icons/figma.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
+                </span>
+              </span>
+              <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Figma</span>
             </div>
 
           </div>
@@ -499,12 +520,12 @@
              ditulis dua kali; yang memberi tahu perannya adalah kartu pengalaman
              "Guru Informatika" di bagian Pengalaman. -->
         <div class="tool-row border-b border-line">
-          <h4 data-component="scrub-reveal" data-delay="0.09" class="-caption-small tool-label text-text-muted">Pengajaran</h4>
-          <span data-component="scrub-reveal" data-delay="0.09" class="h-px w-8 self-center bg-line"></span>
+          <h4 data-component="scrub-reveal" data-delay="0.12" class="-caption-small tool-label text-text-muted">Pengajaran</h4>
+          <span data-component="scrub-reveal" data-delay="0.12" class="h-px w-8 self-center bg-line"></span>
 
           <div class="tool-items">
 
-            <div data-component="scrub-reveal" data-delay="0.09" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.12" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/google-classroom.svg" alt="" loading="lazy" decoding="async" style="transform:scale(1.25)" class="max-h-full max-w-full object-contain">
@@ -527,13 +548,24 @@
                  dirapatkan, lambangnya cuma mengisi separuh kotak 32px di
                  kisi ini dan terlihat lebih kecil dari lambang tetangganya.
 
-                 Warnanya #F3EFDA, krem — itu warna yang MEREKA pakai sendiri
-                 untuk lambang ini di latar gelap, bukan hasil terkaan. Jadi
-                 tidak perlu diterangkan seperti wordmark Quizizz dulu, yang
-                 aslinya #5D2057 dan nyaris tak terlihat di latar #040508.
-                 Aturannya tetap berlaku kalau nanti ada lambang gelap lain:
-                 terangkan pada rona aslinya, jangan diganti warnanya. -->
-            <div data-component="scrub-reveal" data-delay="0.12" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+                 Warnanya #FF319F, merah muda. Sempat dipasang krem #F3EFDA —
+                 itu memang warna yang mereka pakai untuk lambang ini, tapi
+                 hanya SEBAGAI VERSI DI LATAR GELAP di halaman mereka sendiri,
+                 dan hasilnya di sini terbaca seperti lambang tak berwarna.
+                 Warna mereknya yang sebenarnya diambil dari favicon resmi
+                 mereka, yang isinya lambang merah muda di atas putih; piksel
+                 dominannya persis #FF319F.
+
+                 Pelajarannya: satu halaman bisa menampilkan lambang dalam
+                 warna yang BUKAN warna mereknya, semata karena latar halaman
+                 itu gelap. Kalau ragu, buka favicon-nya — di sana lambangnya
+                 hampir selalu tampil pada latar netral dengan warna aslinya.
+
+                 Aturan lama tetap berlaku kalau nanti ada lambang gelap yang
+                 ditambahkan: terangkan pada rona aslinya, jangan diganti
+                 warnanya. Wordmark Quizizz dulu aslinya #5D2057 dan nyaris
+                 tak terlihat di latar #040508. -->
+            <div data-component="scrub-reveal" data-delay="0.15" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/wayground.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -546,12 +578,12 @@
         </div>
 
         <div class="tool-row border-b border-line">
-          <h4 data-component="scrub-reveal" data-delay="0.15" class="-caption-small tool-label text-text-muted">Administrasi</h4>
-          <span data-component="scrub-reveal" data-delay="0.15" class="h-px w-8 self-center bg-line"></span>
+          <h4 data-component="scrub-reveal" data-delay="0.18" class="-caption-small tool-label text-text-muted">Administrasi</h4>
+          <span data-component="scrub-reveal" data-delay="0.18" class="h-px w-8 self-center bg-line"></span>
 
           <div class="tool-items">
 
-            <div data-component="scrub-reveal" data-delay="0.15" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.18" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/ms-office.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -563,7 +595,7 @@
             <!-- Google Workspace memakai wordmark penuhnya, perbandingan 7,76:1.
                  Ia memang tampil lebih pendek daripada lambang persegi di
                  sebelahnya — itu sifat wordmark sepanjang ini, bukan salah ukuran. -->
-            <div data-component="scrub-reveal" data-delay="0.18" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.21" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/google-workspace.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -576,12 +608,12 @@
         </div>
 
         <div class="tool-row border-b border-line">
-          <h4 data-component="scrub-reveal" data-delay="0.21" class="-caption-small tool-label text-text-muted">AI</h4>
-          <span data-component="scrub-reveal" data-delay="0.21" class="h-px w-8 self-center bg-line"></span>
+          <h4 data-component="scrub-reveal" data-delay="0.24" class="-caption-small tool-label text-text-muted">AI</h4>
+          <span data-component="scrub-reveal" data-delay="0.24" class="h-px w-8 self-center bg-line"></span>
 
           <div class="tool-items">
 
-            <div data-component="scrub-reveal" data-delay="0.21" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.24" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/claude.svg" alt="" loading="lazy" decoding="async" style="transform:scale(1.14)" class="max-h-full max-w-full object-contain">
@@ -590,7 +622,7 @@
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Claude</span>
             </div>
 
-            <div data-component="scrub-reveal" data-delay="0.24" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+            <div data-component="scrub-reveal" data-delay="0.27" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
                   <img src="assets/icons/claude-code.svg" alt="" loading="lazy" decoding="async" class="max-h-full max-w-full object-contain">
@@ -608,15 +640,34 @@
                  yang punya bentuk khas seperti Claude dan VS Code. Wordmark-nya
                  dikembalikan pada 7 Agustus 2026. Jangan diganti lagi ke kapsul.
 
-                 Bentuknya PNG karena Google tidak menerbitkan Stitch dalam SVG,
-                 dan wordmark bukan bentuk geometris yang bisa dibangun ulang
-                 dengan tepat seperti kapsulnya. 270x82, putih dengan latar
-                 tembus pandang. scale(0.85) menahannya supaya tidak lebih
-                 dominan dari lambang tetangganya yang bujur sangkar. -->
-            <div data-component="scrub-reveal" data-delay="0.27" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
+                 Google tidak menerbitkan lambang Stitch dalam bentuk SVG, dan
+                 halaman mereka tidak memuat berkas lambang APA PUN — wordmark
+                 di pojok kiri atasnya teks hidup ber-font Google Sans. Jadi
+                 berkas ini dibuat dengan mengurai woff2 yang dimuat halaman
+                 itu, mengambil lekuk keenam hurufnya dari tabel glyf, lalu
+                 menyusunnya jadi satu path. Bukan penelusuran ulang dari
+                 gambar: lekuknya lekuk asli dari fontnya.
+
+                 Jarak antar hurufnya bukan jumlah advance mentah. Ada dua
+                 pasangan yang dirapatkan GPOS, S-t dan t-c, masing-masing
+                 -25 unit; posisinya diukur dari penataan Chrome memakai font
+                 yang sama. Tanpa kerning itu wordmark-nya 50 unit terlalu
+                 lebar. Hasilnya diadu piksel dengan render Chrome: tinggi
+                 tinta sama persis, lebar meleset 1 piksel dari 982, tumpang
+                 tindih 97,8% (sisanya pelunakan tepi).
+
+                 Warnanya #d8d8d8, sama dengan Vercel di baris Pengembangan —
+                 itu perlakuan baku situs ini untuk lambang yang aslinya putih
+                 atau hitam polos. Aslinya di halaman Stitch memang putih
+                 penuh, tapi putih penuh di sini lebih terang dari semua
+                 lambang lain dan menarik perhatian melebihi porsinya.
+
+                 scale(0.85) menahannya supaya tidak lebih dominan dari
+                 lambang tetangganya yang bujur sangkar. -->
+            <div data-component="scrub-reveal" data-delay="0.30" class="group flex flex-col items-center justify-start gap-3 px-2 text-center nav:gap-4">
               <span class="flex w-full justify-center text-text">
                 <span class="flex h-8 w-full shrink-0 items-center justify-center nav:h-9">
-                  <img src="assets/icons/stitch.png" alt="" loading="lazy" decoding="async" style="transform:scale(0.85)" class="max-h-full max-w-full object-contain">
+                  <img src="assets/icons/stitch.svg" alt="" loading="lazy" decoding="async" style="transform:scale(0.85)" class="max-h-full max-w-full object-contain">
                 </span>
               </span>
               <span class="-body-smaller leading-tight text-text-muted transition-colors duration-500 ease-brand group-hover:text-text">Stitch</span>
