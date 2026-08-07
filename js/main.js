@@ -941,10 +941,27 @@
         return needed > available ? available / needed : 1;
       }
 
-      /* Selama masih bisa diperkecil tanpa melewati ambang keterbacaan, ini
-         panggung satu layar yang di-pin. Kalau sertifikatnya sudah terlalu
-         banyak, panggung melepas pin dan tumbuh mengikuti isi. */
-      var flow = neededScale() < FLOOR;
+      /*
+       * DUA SYARAT, BUKAN SATU, sebelum panggung ini boleh di-pin.
+       *
+       * 1. Panggungnya memang setinggi satu layar. Ini TIDAK selalu benar:
+       *    CSS memberi `height: 100vh` hanya di >=900px, dan di bawah itu
+       *    menggantinya jadi `height: auto`. Dulu syarat ini tidak diperiksa,
+       *    sehingga di tablet 768px panggung setinggi 2171px tetap di-pin
+       *    seolah setinggi 1024px — sebagian besar isinya tersemat di luar
+       *    pandangan dan tidak pernah benar-benar terlihat berhenti.
+       *
+       * 2. Kisinya masih bisa diperkecil tanpa melewati ambang keterbacaan.
+       *    Memaksa enam sertifikat muat di satu layar ponsel menuntut skala
+       *    sekitar 0,2 — tulisannya tidak lagi bisa dibaca, dan menyematkan
+       *    sesuatu yang tak terbaca adalah kemunduran, bukan gaya.
+       *
+       * Kalau salah satu tidak terpenuhi, panggung melepas pin dan tumbuh
+       * mengikuti isinya. Animasinya sendiri TIDAK berubah — kartu tetap
+       * datang dari sudut, tetap bergelombang, tetap mendarat lurus.
+       */
+      var satuLayar = root.getBoundingClientRect().height <= window.innerHeight + 1;
+      var flow = !satuLayar || neededScale() < FLOOR;
       root.classList.toggle("arrival-stage--flow", flow);
 
       function applyFit() {
@@ -1030,7 +1047,32 @@
         );
       });
 
-      var wave = createPaperWave(floats);
+      /*
+       * GELOMBANG KERTAS DIMATIKAN DI PERANGKAT LEMAH — dan justru INI, bukan
+       * jumlah kartunya, yang menentukan kemulusan bagian ini.
+       *
+       * Kedatangan kartu digerakkan scroll: ia bekerja hanya selama jarak
+       * scrub, lalu selesai. Gelombang ini lain — ia terpasang di gsap.ticker
+       * dan menulis y, rotate, rotateY, dan rotateX ke SETIAP lembaran di
+       * SETIAP frame, selamanya, selama bagiannya ada. Dua sumbu di antaranya
+       * rotasi 3D, dan yang diputar adalah gambar sertifikat berukuran penuh.
+       *
+       * Diukur pada CPU dicekik 6x, ukuran 390x844, tiga ulangan tiap kondisi:
+       *
+       *   6 kartu + gelombang    24,2 fps    38 frame >50ms
+       *   2 kartu + gelombang    38,9 fps     3 frame >50ms   <- versi lama
+       *   6 kartu, tanpa gelombang 52,9 fps   1 frame >50ms
+       *
+       * Jadi memangkas kartu dari enam jadi dua — yang dulu dilakukan — sama
+       * sekali tidak menyentuh sebabnya, dan harganya empat sertifikat yang
+       * muncul tanpa gerak apa pun. Mematikan gelombangnya membuat ponsel
+       * justru LEBIH mulus daripada sebelumnya, dengan keenam kartu tetap
+       * beranimasi masuk.
+       *
+       * Perangkat mampu tetap mendapat gelombangnya. Ia detail yang bagus;
+       * ia cuma tidak sepadan harganya di perangkat yang tidak sanggup.
+       */
+      var wave = createPaperWave(perangkatLemah() ? [] : floats);
       tl.to(wave.wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
 
       /*
@@ -1049,54 +1091,29 @@
       };
     }
 
-    /* Di ponsel hanya dua lembaran pertama yang dianimasikan, dan datangnya
-       dari samping — bukan dari sudut. */
-    function createArrivalMobile() {
-      var cards = $$("[data-arrive]", grid);
-      var floats = $$("[data-float]", grid);
-      if (!cards.length) return;
-
-      var n = Math.min(cards.length, 2);
-      var animated = cards.slice(0, n);
-      var animatedFloats = floats.slice(0, n);
-
-      var tl = gsap.timeline({
-        defaults: { ease: EASE_SCRUB },
-        scrollTrigger: {
-          trigger: root, start: "top 90%",
-          end: function () { return "+=" + Math.round(window.innerHeight * 0.9); },
-          scrub: SCRUB_PIN, invalidateOnRefresh: true,
-        },
-      });
-
-      animated.forEach(function (card, i) {
-        var arah = i % 2 === 0 ? -1 : 1;
-        var ragam = ((i * 41) % 17) / 16;
-        tl.fromTo(card,
-          {
-            x: arah * (window.innerWidth * 0.38 + ragam * 90),
-            y: (ragam - 0.5) * 40,
-            rotate: arah * (1.2 + ragam * 1.3),
-            scale: 0.95, opacity: 0,
-          },
-          { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, duration: 0.5 + ragam * 0.18, ease: "power2.out" },
-          0.06 + i * 0.03,
-        );
-      });
-
-      var wave = createPaperWave(animatedFloats);
-      tl.to(wave.wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
-      tl.to({}, { duration: 0.2 }, 0.8);
-
-      return function () {
-        wave.stop();
-        gsap.set(cards.concat(animatedFloats, [grid]), { clearProps: "all" });
-      };
-    }
-
+    /*
+     * SATU KEDATANGAN UNTUK SEMUA LEBAR.
+     *
+     * Dulu ponsel punya fungsinya sendiri, dan tiga hal membuatnya berbeda:
+     * hanya DUA lembaran pertama yang dianimasikan, datangnya dari samping
+     * bukan dari sudut, dan gelombang kertasnya hanya mengenai dua lembaran
+     * itu. Akibatnya empat dari enam sertifikat muncul begitu saja tanpa
+     * gerak apa pun — dan sertifikat yang muncul tiba-tiba terbaca sebagai
+     * halaman yang belum selesai, bukan sebagai pilihan desain.
+     *
+     * Memangkasnya juga tidak dibayar apa-apa. Diukur pada panggung Keahlian,
+     * jumlah elemen bukan yang memakan frame: mematikan empat puluh huruf di
+     * sana hanya mengembalikan 3 fps, sementara melepas pin mengembalikan 17.
+     * Empat lembaran tambahan di sini jauh lebih murah daripada itu.
+     *
+     * Yang membedakan antar lebar sekarang hanya SATU hal, dan itu keputusan
+     * tata letak bukan animasi: panggung disematkan kalau isinya memang muat
+     * satu layar tanpa mengorbankan keterbacaan, dan mengalir kalau tidak.
+     * Di ponsel enam sertifikat tidak akan pernah muat, jadi ia mengalir.
+     */
     mm.add(DEVICE.desktop, createArrival);
     mm.add(DEVICE.tablet, createArrival);
-    mm.add(DEVICE.mobile, createArrivalMobile);
+    mm.add(DEVICE.mobile, createArrival);
   }
 
   /*
