@@ -32,9 +32,21 @@ nyaman karena halaman menyegarkan sendiri tiap kali Anda menyimpan.
 
 ## Cara menerbitkan
 
-Seret folder ini ke [vercel.com](https://vercel.com) atau
-[netlify.com](https://netlify.com). Tidak ada yang perlu disetel — tidak ada
-perintah build, tidak ada folder keluaran. Bisa juga lewat GitHub Pages.
+Situs ini sudah tersambung ke [Vercel](https://vercel.com) lewat GitHub: tiap
+`git push` ke `main` otomatis menerbitkan ulang. Tidak ada yang perlu disetel —
+tidak ada perintah build, tidak ada folder keluaran.
+
+**Jangan hapus `vercel.json`.** Isinya cuma empat baris yang semuanya `null`,
+dan kelihatan tidak berguna, tapi ia menyelesaikan masalah nyata. Proyek Vercel
+ini dibuat waktu situsnya masih React + Vite, jadi setelan di dasbornya masih
+menjalankan `vite build`. Setelah ditulis ulang jadi HTML biasa, perintah itu
+gagal terus — `vite: command not found` — dan Vercel diam-diam tetap
+menayangkan versi React yang lama selama berminggu-minggu. `vercel.json`
+menimpa setelan dasbor dan mengembalikannya ke "tidak usah dibangun, sajikan
+saja isi foldernya".
+
+Kalau suatu saat pindah ke Netlify atau GitHub Pages, cukup seret foldernya —
+tidak ada langkah tambahan.
 
 ## Cara mengubah isi
 
