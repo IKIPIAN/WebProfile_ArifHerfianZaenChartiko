@@ -311,84 +311,78 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════════════════
-     03 KEAHLIAN — panggung selebar layar, tiga babak dalam satu bentangan
-     scroll yang dikunci: kata raksasa bertumpuk, lalu PECAH, lalu kartu masuk
-     menyusun gugus 2x2. Huruf-hurufnya dibuat js/main.js dari `data-stage-word`.
+     03 KEAHLIAN — tiga kartu, satu untuk tiap peran.
+
+     Bagian ini dulu panggung selebar layar yang di-pin: kata raksasa
+     bertumpuk di atas monolit 3D berputar, lalu hurufnya PECAH ke segala
+     arah, lalu kartu masuk dari ruang yang ditinggalkannya. Monolit, kabut
+     abu di belakangnya, dan ledakan hurufnya dibuang seluruhnya pada
+     8 Agustus 2026 — beserta pin dan scrub yang jadi mesinnya, karena
+     ketiganya memang satu-satunya alasan mesin itu ada.
+
+     Yang tersisa mengikuti pola bagian lain di halaman ini: satu wadah biasa
+     yang ikut aliran, dengan penyingkapan scrub-reveal yang sama seperti
+     Kemampuan Profesional dan Perkakas di bawahnya.
      ═══════════════════════════════════════════════════════════════════════ -->
 <section id="keahlian" data-component="chapter" class="relative scroll-mt-24">
 
-  <div class="stage relative h-auto sm:h-screen w-full overflow-hidden">
-    <div aria-hidden="true" class="stage-fog"></div>
+  <div data-component="container" class="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] flex flex-col gap-16 py-24 sm:gap-20 sm:py-28 nav:gap-24 nav:py-36">
+    <div>
 
-    <div class="pointer-events-none absolute inset-0 z-1 flex items-center justify-center">
-      <div class="slab">
-        <span class="slab-grain"></span>
-        <span class="slab-grid"></span>
-        <span class="slab-sheen"></span>
-      </div>
-    </div>
+    <h3 data-component="scrub-reveal" class="-caption-small mb-8 text-text-muted">03 — Keahlian</h3>
 
-    <p class="-caption-small absolute inset-x-0 top-24 z-4 text-center text-text-muted">03 — Keahlian</p>
-
-    <div aria-hidden="true" class="stage-words pointer-events-none absolute inset-0 z-3 flex flex-col items-center justify-center">
-      <span data-row data-stage-word="PENGEMBANGAN" class="stage-word flex justify-center will-change-transform"></span>
-      <span data-row data-stage-word="PENGAJARAN" class="stage-word flex justify-center will-change-transform stage-word--hollow"></span>
-      <span data-row data-stage-word="ADMINISTRASI" class="stage-word flex justify-center will-change-transform"></span>
-    </div>
-
-    <!-- Judul sungguhan untuk pembaca layar dan mesin pencari — tumpukan huruf
-         di atas sudah aria-hidden karena ia gambar, bukan teks berurutan. -->
+    <!-- Judul sungguhan untuk pembaca layar dan mesin pencari. -->
     <h2 class="sr-only">Keahlian Saya</h2>
 
-    <div class="stage-cards">
-      <div class="stage-orbit">
-        <!-- Tiga kartu, dan jumlahnya bukan kebetulan: ia persis tiga peran
-             yang diketikkan mesin ketik di halaman sampul. Kartu pertama
-             melebar dua kolom karena ia peran yang dilamar lebih dulu —
-             hierarkinya jadi terlihat, tanpa perlu satu kata label pun.
+    <!-- Tiga kartu, dan jumlahnya bukan kebetulan: ia persis tiga peran yang
+         diketikkan mesin ketik di halaman sampul. Kartu pertama melebar dua
+         kolom karena ia peran yang dilamar lebih dulu — hierarkinya jadi
+         terlihat, tanpa perlu satu kata label pun.
 
-             Dulu ada kartu keempat, "Antarmuka & Responsif", yang berdiri
-             sendiri di samping "Pengembangan Web". Keempatnya lalu tampil
-             setara padahal tiga di antaranya peran dan satu cuma kemampuan
-             penunjang — pembaca tidak punya cara membedakannya. Isinya
-             sekarang masuk ke kartu Pengembangan Web, karena memang di situ
-             tempatnya: menyusun tampilan adalah bagian dari membangunnya. -->
-        <article data-card data-position="top" data-order="0" class="stage-card stage-card--lead">
-          <div class="mb-6 flex items-start justify-between gap-6">
-            <h3 class="-h2 max-w-[9em]">Pengembangan Web</h3>
-            <span data-glyph="1"></span>
-          </div>
-          <!-- Lebar teks dibatasi meski kartunya melebar. Tanpa ini satu baris
-               memuat sekitar 130 karakter di desktop, dan mata kehilangan
-               tempat saat berpindah ke baris berikutnya. 42rem menahannya di
-               sekitar 88 karakter. -->
-          <p class="-body-small max-w-2xl text-text-muted">Membangun dengan HTML, CSS, dan JavaScript tanpa kerangka kerja: menyusun layout dan hierarki visual, menjaga tampilan tetap terbaca dari ponsel sampai desktop, serta menakar gerak dan bobot halaman supaya tetap ringan di perangkat kelas menengah.</p>
-        </article>
+         Dulu ada kartu keempat, "Antarmuka & Responsif", yang berdiri sendiri
+         di samping "Pengembangan Web". Keempatnya lalu tampil setara padahal
+         tiga di antaranya peran dan satu cuma kemampuan penunjang — pembaca
+         tidak punya cara membedakannya. Isinya sekarang masuk ke kartu
+         Pengembangan Web, karena memang di situ tempatnya: menyusun tampilan
+         adalah bagian dari membangunnya. -->
+    <div class="stage-orbit">
+      <article data-component="scrub-reveal" data-delay="0" class="stage-card stage-card--lead">
+        <div class="mb-6 flex items-start justify-between gap-6">
+          <h3 class="-h2 max-w-[9em]">Pengembangan Web</h3>
+          <span data-glyph="1"></span>
+        </div>
+        <!-- Lebar teks dibatasi meski kartunya melebar. Tanpa ini satu baris
+             memuat sekitar 130 karakter di desktop, dan mata kehilangan tempat
+             saat berpindah ke baris berikutnya. 42rem menahannya di sekitar
+             88 karakter. -->
+        <p class="-body-small max-w-2xl text-text-muted">Membangun dengan HTML, CSS, dan JavaScript tanpa kerangka kerja: menyusun layout dan hierarki visual, menjaga tampilan tetap terbaca dari ponsel sampai desktop, serta menakar gerak dan bobot halaman supaya tetap ringan di perangkat kelas menengah.</p>
+      </article>
 
-        <article data-card data-position="bottom-left" data-order="1" class="stage-card stage-card--bottom-left">
-          <div class="mb-6 flex items-start justify-between gap-6">
-            <h3 class="-h2 max-w-[9em]">Pengajaran Teknis</h3>
-            <span data-glyph="2"></span>
-          </div>
-          <p class="-body-small text-text-muted">Mengajar pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan, termasuk mengawasi dan mengevaluasi proyek akhir siswa.</p>
-        </article>
+      <article data-component="scrub-reveal" data-delay="0.04" class="stage-card">
+        <div class="mb-6 flex items-start justify-between gap-6">
+          <h3 class="-h2 max-w-[9em]">Pengajaran Teknis</h3>
+          <span data-glyph="2"></span>
+        </div>
+        <p class="-body-small text-text-muted">Mengajar pemrograman dasar, jaringan dasar, dan teknologi layanan jaringan, termasuk mengawasi dan mengevaluasi proyek akhir siswa.</p>
+      </article>
 
-        <article data-card data-position="bottom-right" data-order="2" class="stage-card stage-card--bottom-right">
-          <div class="mb-6 flex items-start justify-between gap-6">
-            <h3 class="-h2 max-w-[9em]">Administrasi Digital</h3>
-            <span data-glyph="3"></span>
-          </div>
-          <p class="-body-small text-text-muted">Pendataan, pencatatan surat masuk dan keluar, pengelolaan disposisi, serta digitalisasi arsip.</p>
-        </article>
-      </div>
+      <article data-component="scrub-reveal" data-delay="0.08" class="stage-card">
+        <div class="mb-6 flex items-start justify-between gap-6">
+          <h3 class="-h2 max-w-[9em]">Administrasi Digital</h3>
+          <span data-glyph="3"></span>
+        </div>
+        <p class="-body-small text-text-muted">Pendataan, pencatatan surat masuk dan keluar, pengelolaan disposisi, serta digitalisasi arsip.</p>
+      </article>
     </div>
 
-    <p class="-caption-small absolute inset-x-0 bottom-16 z-4 text-center">
+    <!-- mt-7 (28px), bukan mt-10: .mt-10 tidak ikut terkompilasi ke
+         css/style.css, jadi ia kelas mati dan jaraknya akan jadi nol. Yang
+         tersedia mt-2, mt-3, mt-7, mt-16. -->
+    <p data-component="scrub-reveal" class="-caption-small mt-7 text-center">
       <span aria-hidden="true" class="mr-2 text-accent">✦</span>Tiga peran. Satu cara kerja.
     </p>
-  </div>
+</div>
 
-  <div data-component="container" class="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] flex flex-col gap-16 py-24 sm:gap-20 sm:py-28 nav:gap-24 nav:py-36">
 
     <!-- KEMAMPUAN PROFESIONAL — lima kartu, tiga kolom (lima di >=1024px).
 
