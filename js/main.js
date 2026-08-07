@@ -1000,6 +1000,26 @@
         });
       }
 
+      /*
+       * DUA CARA MENDATANGKAN, karena dua tata letak yang berbeda.
+       *
+       * DI-PIN: seluruh kisi terlihat sekaligus dan layarnya ditahan, jadi satu
+       * timeline sepanjang jarak pin memang benar — lembaran berdatangan
+       * bergantian mengisi kisi yang sama-sama terpandang.
+       *
+       * MENGALIR: satu kolom ke bawah, dan hanya satu kartu yang benar-benar
+       * terpandang pada satu saat. Timeline tunggal salah di sini, dan
+       * salahnya terasa: ia direntangkan sepanjang SELURUH bagian — 2182px di
+       * ponsel — sehingga tiap kartu masih merayap mendekat padahal kartu
+       * berikutnya sudah masuk layar, dan tidak ada satu pun yang pernah
+       * terlihat BERHENTI.
+       *
+       * Jadi di mode mengalir tiap kartu memakai pemicunya sendiri, pendek,
+       * dan yang menentukan bukan posisi bagiannya melainkan posisi KARTU ITU:
+       * mulai saat tepi atasnya menyentuh 92% tinggi layar, selesai saat
+       * menyentuh 48% — kira-kira ketika kartunya duduk di tengah. Lewat titik
+       * itu progresnya sudah 1 dan ia diam sampai digulir balik.
+       */
       var tl = gsap.timeline({
         defaults: { ease: EASE_SCRUB },
         scrollTrigger: flow
@@ -1011,68 +1031,97 @@
             },
       });
 
+      var pemicuKartu = [];
+
       cards.forEach(function (card, i) {
         var sudut = CORNERS[i % CORNERS.length];
         var ragam = ((i * 41) % 17) / 16;
-        tl.fromTo(card,
-          {
-            /* Sepertiga layar sudah cukup untuk membuatnya masuk dari luar
-               bingkai sambil menyisakan hampir seluruh perjalanan untuk
-               dinikmati. Versi 0,55 lebar layar membuat sebagian besar
-               perjalanan habis di luar pandangan. */
-            x: sudut.x * (window.innerWidth * 0.32 + ragam * 90),
-            y: sudut.y * (window.innerHeight * 0.34 + ragam * 80),
-            rotate: sudut.x * (1.2 + ragam * 1.3),
-            scale: 0.95, opacity: 0,
-          },
-          {
-            x: 0, y: 0,
-            /* Mendarat LURUS. Sisa miring menghidupkan bidang yang sedang
-               bergerak, tapi begitu semuanya di tempat, kisi yang tiap kartunya
-               miring sendiri terbaca tidak rapi — bukan sebagai gaya. */
-            rotate: 0, scale: 1, opacity: 1,
-            duration: 0.5 + ragam * 0.18,
-            /*
-             * SATU-SATUNYA TEMPAT ATURAN "easing harus none" DILANGGAR, dan
-             * pelanggarannya disengaja. Timeline ini masih 1:1 dengan jarak
-             * scroll; yang diubah cuma bentuk gerak DI DALAM satu kedatangan.
-             * Dengan `none`, lembaran melaju penuh lalu berhenti mendadak — dan
-             * saat di-scroll balik, lompatan kecepatan itulah yang terasa.
-             */
-            ease: "power2.out",
-          },
-          /* Jeda antar lembaran sengaja lebih rapat daripada durasinya, jadi
-             selalu ada beberapa lembaran melayang bersamaan. */
-          0.06 + i * 0.03,
-        );
+
+        /*
+         * JARAK BERANGKAT BEDA ANTARA DUA MODE, dan harus beda.
+         *
+         * Di mode pin, kartu punya lebih dari satu layar penuh scroll untuk
+         * menempuh perjalanannya, jadi sepertiga layar terasa lapang.
+         * Di mode mengalir jatahnya cuma 44% tinggi layar — sekitar 370px di
+         * ponsel. Jarak sejauh itu di ruang sesempit itu terbaca sebagai
+         * kartu yang dilempar, bukan diletakkan, dan sebagian besar
+         * perjalanannya habis di luar bingkai.
+         */
+        var dari = flow
+          ? {
+              x: sudut.x * (window.innerWidth * 0.22 + ragam * 40),
+              y: 40 + ragam * 24,
+              rotate: sudut.x * (0.8 + ragam * 0.8),
+              scale: 0.97, opacity: 0,
+            }
+          : {
+              /* Sepertiga layar sudah cukup untuk membuatnya masuk dari luar
+                 bingkai sambil menyisakan hampir seluruh perjalanan untuk
+                 dinikmati. Versi 0,55 lebar layar membuat sebagian besar
+                 perjalanan habis di luar pandangan. */
+              x: sudut.x * (window.innerWidth * 0.32 + ragam * 90),
+              y: sudut.y * (window.innerHeight * 0.34 + ragam * 80),
+              rotate: sudut.x * (1.2 + ragam * 1.3),
+              scale: 0.95, opacity: 0,
+            };
+
+        var ke = {
+          x: 0, y: 0,
+          /* Mendarat LURUS. Sisa miring menghidupkan bidang yang sedang
+             bergerak, tapi begitu semuanya di tempat, kisi yang tiap kartunya
+             miring sendiri terbaca tidak rapi — bukan sebagai gaya. */
+          rotate: 0, scale: 1, opacity: 1,
+          /*
+           * SATU-SATUNYA TEMPAT ATURAN "easing harus none" DILANGGAR, dan
+           * pelanggarannya disengaja. Gerakannya masih 1:1 dengan jarak
+           * scroll; yang diubah cuma bentuk gerak DI DALAM satu kedatangan.
+           * Dengan `none`, lembaran melaju penuh lalu berhenti mendadak — dan
+           * saat di-scroll balik, lompatan kecepatan itulah yang terasa.
+           */
+          ease: "power2.out",
+        };
+
+        if (flow) {
+          ke.scrollTrigger = {
+            trigger: card, start: "top 92%", end: "top 48%",
+            scrub: SCRUB_PIN, invalidateOnRefresh: true,
+          };
+          var t = gsap.fromTo(card, dari, ke);
+          if (t.scrollTrigger) pemicuKartu.push(t.scrollTrigger);
+          return;
+        }
+
+        ke.duration = 0.5 + ragam * 0.18;
+        /* Jeda antar lembaran sengaja lebih rapat daripada durasinya, jadi
+           selalu ada beberapa lembaran melayang bersamaan. */
+        tl.fromTo(card, dari, ke, 0.06 + i * 0.03);
       });
 
       /*
-       * GELOMBANG KERTAS DIMATIKAN DI PERANGKAT LEMAH — dan justru INI, bukan
-       * jumlah kartunya, yang menentukan kemulusan bagian ini.
+       * DUA SEBAB GELOMBANG INI DIMATIKAN, dan keduanya berdiri sendiri.
        *
-       * Kedatangan kartu digerakkan scroll: ia bekerja hanya selama jarak
-       * scrub, lalu selesai. Gelombang ini lain — ia terpasang di gsap.ticker
-       * dan menulis y, rotate, rotateY, dan rotateX ke SETIAP lembaran di
-       * SETIAP frame, selamanya, selama bagiannya ada. Dua sumbu di antaranya
-       * rotasi 3D, dan yang diputar adalah gambar sertifikat berukuran penuh.
+       * PERTAMA, di mode mengalir ia melawan maksud desainnya sendiri. Tiap
+       * kartu sekarang sengaja BERHENTI begitu sampai di tengah layar; kalau
+       * setelah itu ia masih bergoyang pelan, "berhenti" tidak pernah benar-
+       * benar terjadi. Di mode pin persoalannya tidak muncul, karena di sana
+       * gelombangnya diredam ke nol pada 66% timeline saat kisi sudah utuh.
        *
-       * Diukur pada CPU dicekik 6x, ukuran 390x844, tiga ulangan tiap kondisi:
+       * KEDUA, di perangkat lemah ia mahal — dan justru INI, bukan jumlah
+       * kartunya, yang menentukan kemulusan bagian ini. Kedatangan kartu
+       * digerakkan scroll lalu selesai; gelombang ini terpasang di gsap.ticker
+       * dan menulis y, rotate, rotateY, rotateX ke setiap lembaran di setiap
+       * frame selamanya. Dua di antaranya rotasi 3D pada gambar sertifikat
+       * berukuran penuh.
        *
-       *   6 kartu + gelombang    24,2 fps    38 frame >50ms
-       *   2 kartu + gelombang    38,9 fps     3 frame >50ms   <- versi lama
-       *   6 kartu, tanpa gelombang 52,9 fps   1 frame >50ms
+       * Diukur pada CPU dicekik 6x, 390x844, tiga ulangan tiap kondisi:
        *
-       * Jadi memangkas kartu dari enam jadi dua — yang dulu dilakukan — sama
-       * sekali tidak menyentuh sebabnya, dan harganya empat sertifikat yang
-       * muncul tanpa gerak apa pun. Mematikan gelombangnya membuat ponsel
-       * justru LEBIH mulus daripada sebelumnya, dengan keenam kartu tetap
-       * beranimasi masuk.
+       *   6 kartu + gelombang        24,2 fps    38 frame >50ms
+       *   2 kartu + gelombang        38,9 fps     3 frame >50ms
+       *   6 kartu, tanpa gelombang   52,9 fps     1 frame >50ms
        *
-       * Perangkat mampu tetap mendapat gelombangnya. Ia detail yang bagus;
-       * ia cuma tidak sepadan harganya di perangkat yang tidak sanggup.
+       * Jadi memangkas kartu tidak menyentuh sebabnya sama sekali.
        */
-      var wave = createPaperWave(perangkatLemah() ? [] : floats);
+      var wave = createPaperWave(flow || perangkatLemah() ? [] : floats);
       tl.to(wave.wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
 
       /*
@@ -1087,6 +1136,10 @@
         clearTimeout(settleTimer);
         ro.disconnect();
         wave.stop();
+        /* Pemicu per-kartu di mode mengalir tidak ikut mati bersama timeline,
+           karena ia memang bukan miliknya. Tanpa ini, berganti lebar layar
+           meninggalkan pemicu lama yang masih mengawasi kartu yang sama. */
+        pemicuKartu.forEach(function (t) { t.kill(true); });
         gsap.set(cards.concat(floats, [grid]), { clearProps: "all" });
       };
     }
