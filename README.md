@@ -128,6 +128,23 @@ BARU yang belum pernah dipakai (misalnya `mt-14` kalau belum ada) tidak akan
 berpengaruh apa-apa. Untuk gaya baru, tulis CSS-nya sendiri di bagian bawah
 `css/style.css`.
 
+**Semua jarak kelipatan 4px, dan hampir semua ukuran font juga.** Ini datang
+gratis dari Tailwind, yang satu satuannya 0,25rem = 4px: `mb-4` jadi 16px,
+`gap-6` jadi 24px, `p-7` jadi 28px. Jadi **jangan pakai kelas pecahan** seperti
+`py-1.5` atau `gap-2.5` — keduanya meleset dari kisi. Margin tepi halaman
+memakai `px-4` (16px).
+
+Ukuran font memakai sepuluh langkah: 12, 14, 16, 18, 20, 24, 28, 40, 52, 68.
+Tidak ada angka ganjil. Delapan di antaranya kelipatan 4; **14 dan 18 sengaja
+dikecualikan**, karena tanpa keduanya `-body-small` dan `-title-4` runtuh jadi
+16px seperti `-body` dan tiga tingkat hierarki hilang sekaligus. Di rentang
+11–24px cuma ada empat kelipatan 4 (12, 16, 20, 24) untuk menampung tujuh
+tingkat teks — aritmetikanya memang tidak muat.
+
+Dua utilitas, `.py-2` dan `.py-4`, ditulis tangan di bagian bawah
+`css/style.css`. Keduanya tidak ikut terkompilasi karena belum pernah dipakai,
+padahal dibutuhkan untuk menggantikan `py-1.5` dan `py-3.5`.
+
 **Komentar di dalam berkas menjelaskan KENAPA, bukan apa.** Sebelum mengubah
 angka yang terlihat aneh, baca komentar di atasnya — sebagian besar angka di
 situs ini hasil pengukuran, bukan selera, dan komentarnya menyebutkan apa yang
