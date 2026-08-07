@@ -55,11 +55,14 @@
   /* Lebar tetap, bukan mengikuti panjang tulisan: inilah yang membuat garis
      rambut keempat kelompok lurus sejajar.
 
-     Patokannya "RISET & DESAIN", label terpanjang, yang selebar 142px. 10,5rem
-     menyisakan 26px kelonggaran -- sengaja dilebihkan. Pas-pasan berbahaya di
-     sini: begitu satu label pecah dua baris, kelurusan keempat garis rambut
-     ikut hilang, dan huruf tidak selalu dirender sama persis di setiap
-     peramban dan sistem operasi. */
+     Angka 10,5rem dulu dipas ke "RISET & DESAIN" (142px), label terpanjang
+     waktu itu. Kelompok itu sudah dibuang, dan yang terpanjang sekarang
+     "PENGEMBANGAN" — lebih pendek, jadi kelonggarannya bertambah. Sengaja
+     TIDAK dikecilkan mengikuti label baru: pas-pasan berbahaya di sini,
+     karena begitu satu label pecah dua baris, kelurusan garis rambut seluruh
+     kelompok ikut hilang, dan huruf tidak selalu dirender sama persis di
+     setiap peramban dan sistem operasi. Angka ini baru perlu dinaikkan kalau
+     ada label yang lebih panjang dari "RISET & DESAIN" ditambahkan. */
   .tool-label {
     width: 10.5rem;
   }
