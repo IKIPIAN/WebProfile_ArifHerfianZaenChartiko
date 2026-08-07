@@ -91,6 +91,29 @@ sama di ponsel, tablet, maupun desktop.
 Angka jumlah sertifikat di bagian Pendidikan **ikut sendiri** — ia dihitung dari
 jumlah kartu, bukan ditulis manual.
 
+### Mengubah kemampuan profesional
+
+Lima kartu berikon di bagian Tentang. Untuk mengganti isinya, ketik ulang
+judul dan keterangannya — keterangan yang baik di sini pendek, satu kalimat,
+dan menyebut buktinya, bukan sifatnya.
+
+Dua hal yang perlu diperhatikan kalau **menambah atau menghapus** kartu:
+
+- **Ikon, judul, dan keterangan harus jadi anak langsung `.skill-card`.**
+  Jangan dibungkus `<div>`. Ketiganya menempati barisnya masing-masing lewat
+  `grid-template-rows: subgrid`, dan itulah yang membuat ketiganya lurus
+  sejajar dengan kartu di sebelahnya meski panjang judulnya berbeda. Begitu
+  dibungkus, ketiganya masuk ke satu baris dan perataannya hilang.
+- **Jumlah kolomnya terikat ke jumlah kartu.** Sekarang kisinya enam kolom:
+  tiga kartu pertama merentang dua kolom, dua kartu terakhir merentang tiga,
+  sehingga kedua baris habis rata tanpa sel kosong. Kalau kartunya jadi enam,
+  ubah jadi tiga kolom biasa dan buang perentangannya; kalau jadi empat, dua
+  kolom. Kalau ditambah tanpa dihitung ulang, akan muncul sel kosong
+  berbingkai di baris terakhir yang terbaca seperti isi yang gagal dimuat.
+
+Keduanya ada di bagian "KEMAMPUAN PROFESIONAL" di `css/style.css`, lengkap
+dengan alasannya.
+
 ### Menambah perkakas
 
 Perkakas dibagi jadi empat kelompok berlabel — Pengembangan, Pengajaran,

@@ -166,6 +166,129 @@
 .p-3  { padding: 0.75rem }       /* 12px — bingkai foto sampul */
 
 /* ══════════════════════════════════════════════════════════════════════════
+   KEMAMPUAN PROFESIONAL — ikon, judul, dan keterangan yang lurus sejajar.
+
+   Tiap kartu berisi tiga hal bertumpuk: ikon, judul, keterangan. Supaya
+   barisnya terbaca sebagai satu baris utuh, ketiganya harus lurus sejajar
+   dengan kartu di sebelahnya. Masalahnya panjang judulnya berbeda-beda —
+   "Adaptabilitas" satu baris, "Analisis & Pemecahan Masalah" bisa tiga di
+   layar sempit — jadi kesejajarannya tidak datang dengan sendirinya.
+
+   CARA LAMA DAN KENAPA IA GAGAL
+
+   Dulu kartunya flex-column dengan justify-between: ikon didorong ke atas,
+   blok teks ke bawah. Karena kartu satu baris tingginya sama rata, blok teks
+   yang lebih tinggi mulai lebih ATAS — judul 3 baris jadi tidak sejajar
+   dengan judul 2 baris di sebelahnya. Ada tinggi cadangan min-h-12 (48px)
+   untuk menahannya, tapi 48px cuma muat dua baris; judul yang tiga baris
+   (67px) melewatinya dan perataannya lepas.
+
+   Diukur sebelum diperbaiki: di >=768px semua judul kebetulan jatuh 2 baris
+   sehingga terlihat sejajar, tapi di 360, 390, dan 414px jarak ikon ke judul
+   jadi 60px di satu kartu dan 16px di kartu sebelahnya. Jadi kesejajarannya
+   selama ini KEBETULAN, bukan diatur — dan yang kebetulan akan lepas lagi
+   begitu ada judul yang lebih panjang ditambahkan.
+
+   CARA SEKARANG
+
+   subgrid: tiap kartu meminjam tiga baris milik kisi induknya, jadi tinggi
+   baris ikon, baris judul, dan baris keterangan ditentukan BERSAMA oleh
+   seluruh kartu dalam satu baris. Yang paling tinggi menentukan, sisanya
+   ikut. Tidak ada angka cadangan yang perlu ditebak, dan berapa pun panjang
+   judul yang ditambahkan nanti perataannya tetap.
+
+   Konsekuensinya kartu berjudul pendek menyisakan ruang kosong di bawah
+   keterangannya. Itu memang pertukarannya, dan ia pilihan yang benar:
+   ruang kosong yang rata terbaca sebagai kolom, tulisan yang naik-turun
+   tidak terbaca sebagai apa pun.
+
+   TIGA HAL YANG TIDAK BOLEH DIUBAH SEMBARANGAN
+
+   1. Ikon, judul, dan keterangan harus jadi anak LANGSUNG .skill-card. Begitu
+      dibungkus div, ketiganya masuk ke satu baris subgrid dan perataannya
+      hilang total. Efek naik saat disentuh kursor — yang dulu jadi alasan
+      pembungkus itu ada — sekarang dipasang langsung ke judul dan keterangan.
+
+   2. Jangan pasang min-height ke .skill-card. Tinggi paksa di elemen yang
+      merentang tiga baris akan dibagikan ke ketiga barisnya, dan jarak ikon
+      ke judul mengembang lagi persis seperti cara lama. Tinggi kartu sekarang
+      ditentukan isinya, dan itu memang yang diinginkan.
+
+   3. Jaraknya ditulis sebagai margin di anaknya, bukan row-gap di induknya.
+      row-gap milik kisi induk, dan mengubahnya akan merenggangkan seluruh
+      halaman, bukan cuma kartu ini.
+
+   KOLOM — DAN KENAPA ANGKANYA ENAM
+
+   Kartunya lima, jumlah ganjil, jadi kisi berkolom tetap selalu menyisakan
+   sel kosong di baris terakhir. Sel kosong itu bukan sekadar jelek: ia
+   dikelilingi garis kartu di kiri dan atasnya tapi tidak punya garis sendiri,
+   sehingga sudut kanan-bawah kisinya menganga dan terbaca seperti isi yang
+   gagal dimuat. Dulu masalah ini dihindari dengan flex-wrap — kartu baris
+   terakhir memanjang sendiri mengisi sisa lebar.
+
+   Sekarang kisinya ENAM kolom, dan kartunya merentang: tiga kartu pertama
+   dua kolom (3 x 2 = 6, baris penuh), dua kartu terakhir tiga kolom
+   (2 x 3 = 6, baris penuh juga). Enam adalah kelipatan persekutuan terkecil
+   dari 3 dan 2, jadi kedua baris habis rata tanpa sisa. Hasilnya sama persis
+   dengan flex-wrap dulu — baris atas tiga kartu, baris bawah dua kartu
+   selebar setengah — tapi kali ini di atas kisi sungguhan, yang dibutuhkan
+   subgrid untuk bekerja.
+
+   ANGKA ENAM ITU TERIKAT KE JUMLAH KARTU. Kalau nanti kartunya jadi enam,
+   ubah jadi kisi biasa tiga kolom (2 baris x 3) dan buang perentangannya;
+   kalau jadi empat, dua kolom. Kalau ditambah tanpa dihitung ulang, kartu
+   keenam akan merentang tiga kolom sendirian dan menyisakan lubang lagi.
+
+   Di >=1024px kelimanya muat berdampingan, jadi kisinya jadi lima kolom dan
+   perentangannya dimatikan. Angka 1024 bukan selera: sebelum diperbaiki,
+   di lebar itu kartu kelima terlempar ke baris sendirian dan memanjang jadi
+   975px — satu kartu selebar layar penuh di bawah empat kartu sempit.
+   ═══════════════════════════════════════════════════════════════════════ */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.skill-card              { grid-column: span 2 }   /* tiga kartu pertama */
+.skill-card:nth-child(n + 4) { grid-column: span 3 }   /* dua kartu terakhir */
+
+@media (width >= 1024px) {
+  .skill-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) }
+  .skill-card,
+  .skill-card:nth-child(n + 4) { grid-column: auto }
+}
+
+.skill-card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+}
+
+.skill-card > i    { margin-bottom: 1rem }   /* 16px — ikon ke judul */
+.skill-card > span { display: block }
+.skill-card > p    { margin-top: 0.5rem }    /* 8px  — judul ke keterangan */
+
+.skill-card > span,
+.skill-card > p {
+  transition: transform .5s var(--ease-brand);
+}
+
+.skill-card:hover > span,
+.skill-card:hover > p { transform: translateY(-2px) }
+
+/* Peramban tanpa subgrid — Chrome di bawah 117, Safari di bawah 16, dan
+   sebagian WebView Android bawaan aplikasi. Di sana kartunya kembali jadi
+   kotak biasa dan judulnya diberi tinggi cadangan 72px, cukup untuk tiga
+   baris pada 14px/1,6. Ikon dan judul tetap sejajar karena jaraknya tetap;
+   yang bisa meleset cuma keterangan, dan cuma kalau ada judul yang lebih
+   dari tiga baris. */
+@supports not (grid-template-rows: subgrid) {
+  .skill-card { display: block; grid-row: auto }
+  .skill-card > span { min-height: 4.5rem }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    KARTU PERAN UTAMA — melebar dua kolom.
 
    Bagian Keahlian berisi tiga kartu, satu untuk tiap peran yang diketikkan
