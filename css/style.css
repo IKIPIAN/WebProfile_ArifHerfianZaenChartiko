@@ -137,7 +137,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   KISI 4 — dua utilitas jarak yang tidak ada di hasil kompilasi.
+   KISI 4 — tiga utilitas jarak yang tidak ada di hasil kompilasi.
 
    Seluruh jarak di situs ini kelipatan 4px. Itu datang gratis dari Tailwind,
    yang satu satuannya 0,25rem = 4px: mb-4 jadi 16px, gap-6 jadi 24px, p-7
@@ -149,10 +149,21 @@
    keduanya belum pernah dipakai. Menukar kelasnya begitu saja akan
    menghapus paddingnya. Jadi keduanya ditulis di sini.
 
-   Kalau suatu saat Tailwind dijalankan ulang, dua aturan ini boleh dibuang.
+   p-3 masalahnya kebalikannya, dan lebih licik: kelas itu SUDAH TERPASANG di
+   bingkai foto halaman sampul sejak versi HTML pertama (waktu itu p-2.5),
+   tapi tidak pernah ikut terkompilasi juga. Jadi paddingnya 0px dan garis
+   bingkainya menempel rapat ke foto di semua perangkat — terlihat seperti
+   pilihan desain, padahal kelasnya cuma mati. Kelas yang salah ketik gampang
+   ketahuan karena tidak ada apa-apa yang muncul; kelas yang mati begini tidak,
+   karena yang lain di elemen sama tetap bekerja. Kalau ada jarak yang
+   "kelihatannya sudah diatur tapi kok tidak ada", curigai ini dulu: cari
+   kelasnya di baris hasil kompilasi, bukan di HTML.
+
+   Kalau suatu saat Tailwind dijalankan ulang, tiga aturan ini boleh dibuang.
    ═══════════════════════════════════════════════════════════════════════ */
 .py-2 { padding-block: 0.5rem }  /* 8px  — label kotak */
 .py-4 { padding-block: 1rem }    /* 16px — tombol utama */
+.p-3  { padding: 0.75rem }       /* 12px — bingkai foto sampul */
 
 /* ══════════════════════════════════════════════════════════════════════════
    KARTU PERAN UTAMA — melebar dua kolom.

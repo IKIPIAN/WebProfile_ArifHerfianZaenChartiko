@@ -63,6 +63,22 @@ tidak ada langkah tambahan.
 
 Cari kalimatnya di `index.html` dan ketik ulang. Selesai.
 
+### Mengganti foto
+
+Timpa `assets/photo/foto.jpeg`, lalu **sesuaikan rasio bingkainya** di
+`index.html`: kelas `aspect-[853/1280]` adalah rasio berkas foto yang sekarang
+(853 lebar, 1280 tinggi). Kalau foto barunya berasio lain, tulis angka barunya
+di situ.
+
+Kalau lupa disesuaikan, halaman tidak akan rusak — fotonya tetap tampil utuh —
+tapi akan muncul pita kosong di kiri-kanan atau atas-bawah, dan jarak foto ke
+garis bingkai jadi tidak lagi sama di keempat sisi. Persis itu yang dulu
+terjadi di desktop: bingkainya dipatok `4/5` padahal fotonya `853/1280`,
+menyisakan 34,6px pita gelap di kiri dan kanan saja.
+
+Jaraknya sendiri diatur `p-3` (12px) di elemen `.corner-marks` pembungkusnya,
+sama di ponsel, tablet, maupun desktop.
+
 ### Menambah sertifikat
 
 1. Taruh PDF-nya **dan** gambar pratinjaunya (JPG, lebar sekitar 900px) di
@@ -154,9 +170,20 @@ dikecualikan**, karena tanpa keduanya `-body-small` dan `-title-4` runtuh jadi
 11–24px cuma ada empat kelipatan 4 (12, 16, 20, 24) untuk menampung tujuh
 tingkat teks — aritmetikanya memang tidak muat.
 
-Dua utilitas, `.py-2` dan `.py-4`, ditulis tangan di bagian bawah
-`css/style.css`. Keduanya tidak ikut terkompilasi karena belum pernah dipakai,
-padahal dibutuhkan untuk menggantikan `py-1.5` dan `py-3.5`.
+Tiga utilitas — `.py-2`, `.py-4`, dan `.p-3` — ditulis tangan di bagian bawah
+`css/style.css`. Ketiganya tidak ikut terkompilasi karena belum pernah dipakai.
+
+`.p-3` layak diperhatikan karena caranya gagal berbeda. Dua yang pertama
+memang kelas baru, jadi ketiadaannya ketahuan saat dipasang. Tapi `p-3` sudah
+menempel di bingkai foto halaman sampul sejak versi HTML pertama (waktu itu
+`p-2.5`) — dan diam-diam tidak berefek apa-apa selama itu, sehingga garis
+bingkainya menempel rapat ke foto di semua perangkat. Kelihatan seperti
+pilihan desain, padahal kelasnya cuma mati.
+
+Pelajarannya: **kelas yang salah ketik gampang ketahuan, kelas yang mati
+tidak** — kelas lain di elemen yang sama tetap bekerja, jadi tidak ada tanda
+apa pun. Kalau ada jarak yang "kelihatannya sudah diatur tapi kok tidak ada",
+cari kelasnya di `css/style.css` dulu, jangan percaya pada HTML-nya.
 
 **Komentar di dalam berkas menjelaskan KENAPA, bukan apa.** Sebelum mengubah
 angka yang terlihat aneh, baca komentar di atasnya — sebagian besar angka di
