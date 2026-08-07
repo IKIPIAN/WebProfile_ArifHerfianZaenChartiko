@@ -56,10 +56,22 @@ jumlah kartu, bukan ditulis manual.
 
 ### Menambah perkakas
 
-Perkakas dibagi jadi empat kelompok berlabel — Riset & Desain, Pengembangan,
-Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
-**4-3-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
-lebar layar**: sama persis di ponsel, tablet, maupun desktop.
+Perkakas dibagi jadi lima kelompok berlabel — Riset & Desain, Pengembangan,
+Pengajaran, Administrasi, AI — masing-masing satu blok `<div class="tool-row">`.
+Isinya **4-3-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan
+oleh lebar layar**: sama persis di ponsel, tablet, maupun desktop.
+
+Urutan kelompoknya bukan kebetulan: empat kelompok pertama mengikuti urutan
+mesin ketik di halaman sampul — desain → pengembangan → pengajaran →
+administrasi — supaya tiga peran yang diklaim di sana punya alasnya di sini.
+AI ditaruh terakhir karena ia cara kerja, bukan peran. Kalau urutan mesin ketik
+di `index.html` diubah, urutan baris di sini sebaiknya ikut.
+
+Satu perkakas hanya ditulis di **satu** kelompok, meski dipakai di beberapa
+peran. MS Office misalnya dipakai untuk modul ajar dan penilaian, tapi tetap
+berdiri di Administrasi saja — begitu juga VS Code yang dipakai mengajar tapi
+berdiri di Pengembangan. Yang menjelaskan perkakas mana dipakai untuk peran
+mana adalah kartu di bagian Pengalaman, bukan pengulangan ikon.
 
 Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam kelompok yang
 sesuai, lalu ganti gambar dan namanya.
