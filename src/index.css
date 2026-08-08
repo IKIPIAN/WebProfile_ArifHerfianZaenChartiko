@@ -708,3 +708,96 @@ html.lenis,html.lenis body{height:auto}
    mengubah apa pun di sana — semua kartu memang sudah selebar layar.
    ═══════════════════════════════════════════════════════════════════════ */
 .stage-card--lead { grid-column: 1 / -1 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PEMBUKA — panel yang menutup layar sampai monogramnya selesai tergambar.
+
+   Panel ini SUDAH terlihat sejak gambar pertama, tanpa menunggu JavaScript:
+   background dan posisinya ditulis di sini, bukan disetel GSAP. Itu yang
+   membedakannya dari preloader lama yang dibuang pada 2 Agustus 2026 --
+   yang itu menahan halaman sampai skripnya jalan, ini cuma menutupinya.
+
+   Kalau JavaScript gagal dimuat, panel ini tidak akan menggantung selamanya:
+   ia dirender oleh React, jadi tanpa JS ia tidak pernah ada sama sekali.
+
+   z-index 80 di atas bilah status (40) dan tombol naik (50), supaya tidak ada
+   yang menyembul di atas panel saat ia sedang menutup.
+   ═══════════════════════════════════════════════════════════════════════ */
+.pembuka {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  /* Nilai awal harus ADA supaya GSAP punya titik berangkat saat menyeka
+     panelnya ke atas; tanpa ini nilai awalnya "none" dan transisinya loncat. */
+  clip-path: inset(0% 0% 0% 0%);
+}
+
+/* Kunci gulir selama pembuka. Dipasang dan dilepas oleh initPembuka(), dan
+   ikut dilepas oleh pembongkar -- kalau tidak, StrictMode meninggalkan
+   halaman yang tidak bisa digulir di mode pengembangan. */
+html.pembuka-aktif,
+html.pembuka-aktif body {
+  overflow: hidden;
+}
+
+.pembuka-isi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.pembuka-lambang {
+  width: min(58vw, 176px);
+  height: auto;
+  /* Goresan berada di tepi viewBox; tanpa ini ujungnya terpotong. */
+  overflow: visible;
+}
+
+.pembuka-lambang path {
+  fill: none;
+  /* square, bukan round: seluruh situs ini bersudut tegas -- ujung bulat akan
+     terbaca sebagai lambang dari tempat lain yang ditempel ke sini. */
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.pembuka-lambang [data-pembuka-bingkai] path {
+  stroke: var(--line);
+  stroke-width: 1;
+  /* Rambutnya tetap 1px berapa pun lambangnya diperbesar, sama seperti garis
+     .corner-marks di bingkai foto yang ia tiru. */
+  vector-effect: non-scaling-stroke;
+}
+
+.pembuka-lambang [data-pembuka-goresan] path {
+  stroke: var(--text);
+  stroke-width: 4;
+}
+
+.pembuka-teks {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pembuka-titik {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--accent);
+  flex: none;
+}
+
+@media (width <= 380px) {
+  .pembuka-teks { font-size: 10px; letter-spacing: 0.12em }
+}

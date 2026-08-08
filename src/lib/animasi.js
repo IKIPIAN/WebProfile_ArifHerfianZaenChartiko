@@ -1268,12 +1268,143 @@ export function pasangAnimasi() {
     });
   }
 
+  /*
+   * PEMBUKA — monogram AH digambar bertahap, lalu situsnya masuk.
+   *
+   * MEKANISMENYA. Tiap <path> di Pembuka.jsx digambar dengan trik
+   * stroke-dasharray: panjang garisnya diukur getTotalLength(), lalu
+   * strokeDasharray DAN strokeDashoffset disetel sebesar panjang itu --
+   * garisnya jadi satu strip putus-putus yang seluruhnya digeser keluar,
+   * sehingga tidak ada yang terlihat. Menganimasikan offset-nya kembali ke 0
+   * menariknya masuk dari pangkal ke ujung, jadi garisnya seolah ditulis.
+   *
+   * Panjangnya DIUKUR, bukan ditulis tangan, supaya mengubah koordinat di
+   * Pembuka.jsx tidak menuntut angka di berkas ini ikut diperbarui.
+   *
+   * KENAPA `lanjut` DIPANGGIL SEBAGAI CALLBACK, BUKAN SETELAH initPembuka.
+   *
+   * Seluruh animasi situs dipasang lewat parameter itu, dan pemasangannya
+   * ditunda sampai panelnya mulai terangkat. Alasannya: gerak masuk Beranda
+   * -- topeng judul, clip foto, mesin ketik -- berjalan begitu dipasang. Kalau
+   * dipasang bersamaan dengan pembuka, semuanya sudah selesai di balik panel
+   * dan yang terlihat saat panel naik cuma halaman diam. Ini persis jenis
+   * cacat yang tidak akan pernah muncul sebagai galat.
+   *
+   * BEDANYA DENGAN PRELOADER YANG DIBUANG PADA 2 AGUSTUS 2026. Yang itu
+   * menahan halaman sampai skripnya jalan. Panel ini sudah tergambar sejak
+   * frame pertama lewat CSS biasa, jadi tidak ada yang ditunda; ia hanya
+   * menutupi. Ia juga punya batas keras 3,5 detik dan dilewati sama sekali
+   * kalau pengguna minta gerak dikurangi.
+   */
+  function initPembuka(lanjut) {
+    var panel = $('[data-component="pembuka"]');
+    if (!panel) { lanjut(); return; }
+
+    var isi = $("[data-pembuka-isi]", panel);
+    var teks = $("[data-pembuka-teks]", panel);
+
+    /* Batas keras dipasang PALING AWAL, sebelum satu baris pun yang bisa
+       melempar. Kalau ada yang gagal di bawah, panelnya tetap terbuka dan
+       situs tidak tertutup selamanya. */
+    var sudah = false;
+    var pemaksa = setTimeout(function () { keluar(); }, 3000);
+    bersih.push(function () { clearTimeout(pemaksa); });
+    bersih.push(function () {
+      document.documentElement.classList.remove("pembuka-aktif");
+    });
+
+    /* StrictMode memasang ulang efek ini pada simpul DOM yang SAMA, jadi
+       panelnya bisa mewarisi display:none dan opacity 0 dari putaran
+       sebelumnya. Dikembalikan dulu ke keadaan berangkat. */
+    gsap.set([panel, isi, teks], { clearProps: "all" });
+    panel.style.display = "";
+
+    function bereskan() {
+      panel.style.display = "none";
+      document.documentElement.classList.remove("pembuka-aktif");
+      if (lenis) lenis.start();
+    }
+
+    function keluar() {
+      if (sudah) return;
+      sudah = true;
+      clearTimeout(pemaksa);
+
+      if (prefersReducedMotion()) { lanjut(); bereskan(); return; }
+
+      /*
+       * ANGKA 0,45 ITU HASIL UKUR, BUKAN SELERA.
+       *
+       * Percobaan pertama memanggil lanjut() di awal fungsi ini. Terukur:
+       * panel pergi pada 2180ms, dan sesudah itu baris judul bergeser 0px --
+       * seluruh gerak masuk Beranda sudah habis di balik panel, jadi yang
+       * terlihat saat halaman terbuka justru halaman diam.
+       *
+       * Sapuan membuka dari bawah ke atas (inset bawah 0% -> 100%). Memanggil
+       * lanjut() pada 0,45 detik menaruh awal gerak Beranda di saat sapuan
+       * sudah membuka sebagian: ekornya tersembunyi di balik sisa panel, dan
+       * bagian terbesarnya berjalan di halaman yang sudah terbuka penuh.
+       */
+      gsap.timeline({ onComplete: bereskan })
+        .to(isi, { autoAlpha: 0, duration: 0.25, ease: "power2.in" })
+        .to(panel, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.6, ease: EASE }, "-=0.1")
+        .call(lanjut, null, 0.45);
+    }
+
+    if (prefersReducedMotion()) { keluar(); return; }
+
+    document.documentElement.classList.add("pembuka-aktif");
+    if (lenis) lenis.stop();
+    /* Peramban memulihkan posisi gulir kunjungan sebelumnya; tanpa ini situs
+       terbuka di tengah halaman begitu panelnya naik. */
+    window.scrollTo(0, 0);
+
+    var bingkai = $$("[data-pembuka-bingkai] path", panel);
+    var goresan = $$("[data-pembuka-goresan] path", panel);
+
+    bingkai.concat(goresan).forEach(function (p) {
+      var panjang = p.getTotalLength();
+      p.style.strokeDasharray = panjang;
+      p.style.strokeDashoffset = panjang;
+    });
+
+    var tl = gsap.timeline({
+      onComplete: function () {
+        /*
+         * Font ditunggu supaya nama di bawah monogram tidak berganti bentuk
+         * tepat saat panelnya terangkat -- TAPI dengan batas.
+         *
+         * Terukur: pada muat dingin document.fonts.ready baru selesai sekitar
+         * 2,9 detik, dan pembukanya jadi 3,6 detik; pada muat panas ia selesai
+         * seketika dan pembukanya 2,0 detik. Selisih 1,6 detik itu terlalu
+         * besar untuk sesuatu yang menghalangi situs, dan yang paling parah
+         * justru dialami pengunjung pertama kali.
+         *
+         * Jadi yang duluan selesai, itu yang dipakai: font atau 500ms.
+         */
+        var siapFont = (document.fonts && document.fonts.ready) || Promise.resolve();
+        var batasFont = new Promise(function (lepas) {
+          var id = setTimeout(lepas, 500);
+          bersih.push(function () { clearTimeout(id); });
+        });
+        Promise.race([siapFont, batasFont]).then(keluar);
+      },
+    });
+
+    tl.to(bingkai, { strokeDashoffset: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }, 0);
+    tl.to(goresan, { strokeDashoffset: 0, duration: 0.38, stagger: 0.11, ease: "power1.inOut" }, 0.18);
+    tl.fromTo(teks, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: EASE }, "-=0.1");
+  }
+
   /* ── 7. PENYALAAN ───────────────────────────────────────────────────────
    *
    * Urutannya bukan selera. Struktur dibangun lebih dulu (huruf, lambang,
    * odometer, salinan marquee) karena setiap transisi di bawahnya mencari
    * elemen yang baru saja dibuat itu. Baru setelah semuanya ada di DOM,
    * animasi dipasang.
+   *
+   * Lenis dinyalakan sebelum pembuka supaya ada yang bisa dihentikan selama
+   * panelnya menutup; sisanya menunggu panggilan balik dari initPembuka().
    */
   function start() {
     buildGlyphs();
@@ -1283,7 +1414,10 @@ export function pasangAnimasi() {
     buildMarquees();
 
     initScroller();
+    initPembuka(pasangSisanya);
+  }
 
+  function pasangSisanya() {
     initLineMasks();
     initScrubReveals();
     initRevealImages();

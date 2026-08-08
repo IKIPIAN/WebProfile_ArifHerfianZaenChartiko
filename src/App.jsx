@@ -10,6 +10,7 @@ import Sertifikat from "./components/Sertifikat.jsx";
 import Kontak from "./components/Kontak.jsx";
 import Footer from "./components/Footer.jsx";
 import Antarmuka from "./components/Antarmuka.jsx";
+import Pembuka from "./components/Pembuka.jsx";
 
 export default function App() {
   /*
@@ -53,6 +54,11 @@ export default function App() {
       </main>
       <Footer />
       <Antarmuka />
+
+      {/* Ditaruh paling akhir supaya ia berada di atas saudara-saudaranya
+          tanpa mengandalkan z-index semata. Ia `position: fixed`, jadi tetap
+          menutup seluruh layar meski bersarang di dalam pembungkus scroller. */}
+      <Pembuka />
     </div>
   );
 }
