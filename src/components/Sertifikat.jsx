@@ -11,7 +11,7 @@ export default function Sertifikat() {
            sama, tanpa 1,7 MB JavaScript. Berkas PDF aslinya tetap yang dibuka saat
            kartunya diklik.
            ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="sertifikat" data-band="panel" data-component="chapter" className="scroll-mt-24">
+      <section id="sertifikat" data-band="panel" data-component="chapter">
         <div className="arrival-stage">
           <div className="arrival-head">
             <div className="mx-auto max-w-[1180px] px-6 nav:px-10">

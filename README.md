@@ -142,8 +142,30 @@ StrictMode memasang lalu melepas lalu memasang lagi tiap efek waktu
 pengembangan, dan simpul DOM-nya tidak dibuat ulang. Tanpa pembongkaran, tiap
 pendengar peristiwa dan pemicu scroll terpasang dua kali. Karena itu setiap
 efek samping di `src/lib/animasi.js` didaftarkan lewat `dengar()`,
-`tambahTicker()`, dan `amati()` — jangan panggil `addEventListener`,
-`gsap.ticker.add`, atau `new ResizeObserver` langsung.
+`tambahTicker()`, `amati()`, dan `tambahSimpul()` — jangan panggil
+`addEventListener`, `gsap.ticker.add`, `new ResizeObserver`, atau
+`appendChild` langsung.
+
+`tambahSimpul()` yang paling mudah terlupa, karena `removeEventListener()`
+tidak mengeluarkan simpul dari pohon DOM — jadi `appendChild()` adalah efek
+samping tersendiri. StrictMode menjalankan efek mount → unmount → mount pada
+simpul host yang sama, sehingga `appendChild` yang tidak terdaftar berjalan
+dua kali dan **menumpuk, bukan menimpa**: `.chapter-dot` pernah jadi 12
+(seharusnya 6) dan anak `.marquee-track` jadi 7 (seharusnya 4), tanpa satu pun
+galat terlempar. Akibatnya bilah bab tampil utuh tapi separuh titiknya diam
+saat diklik.
+
+### Lompatan antar bagian harus mendarat di 0
+
+Semua lompatan bermuara ke satu `scrollTo()` di `animasi.js`, dan tepi atas
+bagian tujuan harus berhenti **persis** di tepi atas viewport.
+
+**Jangan memasang `scroll-mt-*` pada `<section id>`.** Kelas itu menghasilkan
+`scroll-margin-top`, yang dibaca Lenis (juga `scrollIntoView()` bawaan) sebagai
+cadangan ruang, sehingga titik berhentinya jadi `offsetTop - nilai` — dulu
+`scroll-mt-24` membuat setiap lompatan meleset tetap 96px di semua lebar.
+Cadangan itu gunanya menghindari header `position: fixed`; halaman ini tidak
+punya, bilah babnya di bawah. Jarak di atas judul sudah dari padding section.
 
 **Komentar di dalam berkas menjelaskan KENAPA, bukan apa.** Sebagian besar
 angka di situs ini hasil pengukuran, bukan selera.

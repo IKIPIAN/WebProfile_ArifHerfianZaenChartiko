@@ -9,7 +9,21 @@ export default function Kontak() {
            tidak ada yang bisa diklik: semua jalan menuju WhatsApp dan surel sengaja
            dikumpulkan ke satu pintu, yaitu formulir di bawahnya.
            ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="kontak" data-component="chapter" className="relative scroll-mt-24">
+      {/* SENGAJA tanpa `scroll-mt-*` — berlaku untuk keenam <section id>.
+
+          Mekanismenya: `scroll-mt-24` menghasilkan `scroll-margin-top: 6rem`,
+          dan Lenis membaca properti itu saat `scrollTo()` diberi elemen, sama
+          seperti `scrollIntoView()` bawaan. Titik berhentinya jadi
+          `offsetTop - 96px`, bukan `offsetTop`. Terukur +96px di 390, 768, dan
+          1440 — konstan, karena `rem` tidak ikut lebar layar.
+
+          Akibatnya di layar: bagian tujuan berhenti satu jengkal di bawah tepi
+          atas, sehingga ekor bagian sebelumnya masih terlihat dan lompatannya
+          terbaca seperti gagal sampai. Cadangan itu gunanya menghindari header
+          `position: fixed`; di sini bilah babnya di bawah, jadi tidak ada yang
+          perlu dihindari. Jarak di atas judul sudah disediakan padding section
+          (`py-28`, `nav:py-36`). */}
+      <section id="kontak" data-component="chapter" className="relative">
         <div data-component="container"
           className="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] grid grid-cols-1 gap-x-8 gap-y-10 py-24 sm:py-28 nav:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] nav:gap-x-16 nav:gap-y-12 nav:py-40">
 
