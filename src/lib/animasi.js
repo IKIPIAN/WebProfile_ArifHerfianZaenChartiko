@@ -10,10 +10,11 @@
  * animasi jadi dua kali lebih cepat dan scroll terasa berat, hanya di mode
  * pengembangan, jadi mudah disalahartikan sebagai masalah performa.
  *
- * Karena itu SETIAP efek samping di berkas ini didaftarkan lewat tiga
- * pembantu di bawah: dengar(), tambahTicker(), dan amati(). Kalau menambah
- * efek samping baru, pakai ketiganya — jangan panggil addEventListener,
- * gsap.ticker.add, atau new ResizeObserver secara langsung.
+ * Karena itu SETIAP efek samping di berkas ini didaftarkan lewat empat
+ * pembantu di bawah: dengar(), tambahTicker(), amati(), dan tambahSimpul().
+ * Kalau menambah efek samping baru, pakai keempatnya — jangan panggil
+ * addEventListener, gsap.ticker.add, new ResizeObserver, atau appendChild
+ * secara langsung.
  *
  * URUTAN ISI BERKAS INI:
  *   1. Token gerak        kosakata bersama: kurva, durasi, jeda
@@ -51,6 +52,35 @@ export function pasangAnimasi() {
     ro.observe(simpul);
     bersih.push(function () { ro.disconnect(); });
     return ro;
+  }
+
+  /*
+   * appendChild() tidak bisa dibatalkan lewat removeEventListener(): melepas
+   * pendengar tidak mengeluarkan simpulnya dari pohon DOM. Jadi ia efek
+   * samping tersendiri dan butuh pendaftarnya sendiri.
+   *
+   * Kenapa itu jadi masalah di sini: StrictMode menjalankan efek dengan
+   * urutan mount -> unmount -> mount pada simpul host yang SAMA — React tidak
+   * membuat ulang DOM-nya di antara keduanya. Setiap appendChild yang tidak
+   * terdaftar karena itu berjalan dua kali dan hasilnya menumpuk, bukan
+   * menimpa.
+   *
+   * Terukur sebelum diperbaiki: .chapter-dot berjumlah 12 (seharusnya 6),
+   * anak .marquee-track 7 (seharusnya 4). Tidak ada satu pun galat yang
+   * terlempar. Yang tersisa dari mount pertama sudah kehilangan
+   * pendengarnya, jadi bilah babnya tampil utuh tapi separuh titiknya diam
+   * saat diklik — dan marquee ikut salah karena `half = scrollWidth / 2`
+   * dihitung dari lebar yang sudah telanjur berlipat.
+   *
+   * Khusus appendChild. Penetapan innerHTML tidak perlu lewat sini: ia
+   * mengganti isi, bukan menambah, jadi sudah idempoten.
+   */
+  function tambahSimpul(induk, simpul) {
+    induk.appendChild(simpul);
+    bersih.push(function () {
+      if (simpul.parentNode === induk) induk.removeChild(simpul);
+    });
+    return simpul;
   }
 
 
@@ -268,7 +298,7 @@ export function pasangAnimasi() {
       for (var i = 1; i < 4; i++) {
         var salinan = asli.cloneNode(true);
         salinan.setAttribute("aria-hidden", "true");
-        track.appendChild(salinan);
+        tambahSimpul(track, salinan);
       }
     });
   }
@@ -1075,7 +1105,7 @@ export function pasangAnimasi() {
       b.innerHTML = '<span aria-hidden="true" class="chapter-tip -caption-small">' + bab.label + "</span>" +
         '<span data-dot class="block h-px transition-all duration-500 ease-brand w-2 bg-line group-hover:w-4 group-hover:bg-text-muted"></span>';
       dengar(b, "click", function () { scrollTo("#" + bab.id); });
-      dotsEl.appendChild(b);
+      tambahSimpul(dotsEl, b);
     });
     var dots = $$("[data-dot]", dotsEl);
 

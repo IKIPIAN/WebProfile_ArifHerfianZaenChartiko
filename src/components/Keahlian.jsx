@@ -15,7 +15,7 @@ export default function Keahlian() {
            yang ikut aliran, dengan penyingkapan scrub-reveal yang sama seperti
            Kemampuan Profesional dan Perkakas di bawahnya.
            ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="keahlian" data-component="chapter" className="relative scroll-mt-24">
+      <section id="keahlian" data-component="chapter" className="relative">
 
         <div data-component="container" className="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] flex flex-col gap-16 py-24 sm:gap-20 sm:py-28 nav:gap-24 nav:py-36">
           <div>

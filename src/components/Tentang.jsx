@@ -6,7 +6,7 @@ export default function Tentang() {
            isinya paragraf yang memang ingin dibaca, jadi teksnya ditawarkan lebih
            dulu (redup) dan scroll hanya mengatur temponya.
            ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="tentang" data-component="chapter" className="relative scroll-mt-24">
+      <section id="tentang" data-component="chapter" className="relative">
         <div data-component="container"
           className="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1180px] grid grid-cols-1 gap-x-8 gap-y-10 py-24 sm:py-28 nav:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] nav:gap-x-16 nav:gap-y-12 nav:py-40">
 

@@ -11,7 +11,7 @@ export default function Pendidikan() {
            mendapat transisi paling mencolok: dua baris judul datang dari arah
            berlawanan lalu bertemu di tengah. Dipakai SEKALI saja di seluruh halaman.
            ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="pendidikan" data-band="panel" data-component="chapter" className="scroll-mt-24">
+      <section id="pendidikan" data-band="panel" data-component="chapter">
         <div data-component="container" className="mx-auto w-full px-4 sm:px-6 nav:px-10 max-w-[1500px] py-28 nav:py-40">
 
           <div className="mb-16 flex items-center gap-4">
