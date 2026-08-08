@@ -185,14 +185,21 @@ export function pasangAnimasi() {
   };
 
   /* Lambang cincin di kartu keahlian. Jumlah cincinnya berbeda-beda supaya
-     keempat kartu tidak terbaca sebagai satu ikon yang diulang. */
+     keempat kartu tidak terbaca sebagai satu ikon yang diulang.
+
+     `--i` adalah nomor urut cincin dari dalam ke luar, dan ia dipakai CSS
+     untuk menunda riak hover per cincin — lihat blok "LAMBANG CINCIN" di
+     src/index.css. Ditulis di sini, bukan dihitung CSS lewat :nth-child,
+     karena jumlah cincin tiap kartu berbeda dan urutannya sudah diketahui
+     persis di titik ini. */
   function buildGlyphs() {
     $$("[data-glyph]").forEach(function (slot) {
       var index = Number(slot.getAttribute("data-glyph")) || 0;
       var rings = 4 + (index % 3);
       var svg = '<svg viewBox="0 0 64 64" aria-hidden="true" class="h-12 w-12 shrink-0">';
       for (var i = 0; i < rings; i++) {
-        svg += '<circle cx="32" cy="32" r="' + (5 + i * (26 / rings)) +
+        svg += '<circle class="stage-ring" style="--i:' + i + '" cx="32" cy="32" r="' +
+          (5 + i * (26 / rings)) +
           '" fill="none" stroke="currentColor" stroke-width="1" opacity="' + (0.25 + i * 0.14) + '"/>';
       }
       slot.innerHTML = svg + "</svg>";
@@ -535,6 +542,68 @@ export function pasangAnimasi() {
             scrollTrigger: { trigger: el, start: "top 90%", once: true },
           },
         );
+      });
+    });
+  }
+
+  /*
+   * LAMBANG CINCIN YANG DIGAMBAR — satu-satunya gerak milik bagian Keahlian.
+   *
+   * KENAPA ADA. Sebelum ini seluruh bagian Keahlian memakai satu gerak yang
+   * sama persis untuk dua puluhan elemen: kartu peran, lima kartu kemampuan,
+   * empat baris perkakas, dua baris bahasa — semuanya `scrub-reveal`. Bukan
+   * sepi, tapi seragam, dan yang seragam terbaca datar. Tiap bagian lain
+   * punya satu ide geraknya sendiri (tumpukan kartu di Pengalaman, akordeon
+   * di Sertifikat, mesin ketik di Beranda); bagian ini tidak punya. Cincin di
+   * kartu peran adalah satu-satunya bentuk yang cuma dimiliki bagian ini,
+   * jadi di situlah idenya ditaruh.
+   *
+   * CARANYA SAMA DENGAN MONOGRAM PEMBUKA, dan itu disengaja — bukan kosakata
+   * baru, melainkan yang sudah ada dipakai di tempat kedua. Keliling tiap
+   * cincin diukur getTotalLength(), lalu strokeDasharray DAN strokeDashoffset
+   * disetel sebesar itu, sehingga cincinnya jadi satu strip putus-putus yang
+   * seluruhnya tergeser keluar. Menarik offset-nya kembali ke 0 menggambarnya
+   * dari titik jam 3 searah jarum jam.
+   *
+   * DARI DALAM KE LUAR. Urutan DOM cincin sudah dari radius terkecil ke
+   * terbesar, jadi stagger positif otomatis membaca sebagai riak yang menyebar
+   * keluar. Jangan dibalik jadi negatif: yang menyusut ke dalam terbaca
+   * seperti sesuatu yang menutup, bukan terbentuk.
+   *
+   * KENAPA TIDAK BERPUTAR. Sempat direncanakan cincinnya berputar pelan saat
+   * disentuh kursor. Itu dibatalkan sebelum ditulis: cincin sepusat yang
+   * diputar mengelilingi pusatnya sendiri tidak menghasilkan satu piksel pun
+   * yang berubah. Yang menggantikannya riak melebar, dan itu seluruhnya CSS —
+   * lihat blok "LAMBANG CINCIN" di src/index.css.
+   *
+   * `once: true`, bukan scrub. Menggambar garis adalah peristiwa sekali jadi;
+   * memetakannya ke gulir berarti cincinnya terhapus lagi saat digulir balik,
+   * dan lambang yang terurai sendiri terbaca sebagai rusak.
+   */
+  function initGlyphRings() {
+    $$("[data-glyph]").forEach(function (slot) {
+      var cincin = $$("circle", slot);
+      if (!cincin.length) return;
+
+      /* Gerak dikurangi: lambangnya dibiarkan apa adanya. Tidak ada yang perlu
+         disetel ulang — tanpa strokeDasharray, cincinnya memang sudah utuh. */
+      if (prefersReducedMotion()) return;
+
+      cincin.forEach(function (c) {
+        var keliling = c.getTotalLength();
+        c.style.strokeDasharray = keliling;
+        c.style.strokeDashoffset = keliling;
+      });
+
+      gsap.to(cincin, {
+        strokeDashoffset: 0,
+        duration: 0.7,
+        ease: EASE,
+        stagger: 0.09,
+        /* Ambangnya 92%, lebih rendah dari penyingkapan kartunya sendiri
+           (95%), supaya cincinnya mulai tergambar saat kartunya sudah
+           terbuka — bukan di balik clip-path yang masih menutup. */
+        scrollTrigger: { trigger: slot, start: "top 92%", once: true },
       });
     });
   }
@@ -1534,6 +1603,7 @@ export function pasangAnimasi() {
     initWordScrub();
     initSplitWords();
     initOdometers();
+    initGlyphRings();
     initMarquees();
     initTukarKartu();
     initGaleriAkordeon();

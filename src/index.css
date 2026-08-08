@@ -513,6 +513,74 @@ html.lenis,html.lenis body{height:auto}
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   LAMBANG CINCIN — riak yang melebar saat kartu peran disentuh kursor.
+
+   Kartu peran adalah SATU-SATUNYA kartu di halaman ini yang dulu tidak
+   menanggapi kursor sama sekali. Kartu kemampuan meredup latarnya dan
+   isinya naik 2px, ikon perkakas berubah warna, kartu pengalaman bisa
+   diputar — kartu peran, yang justru paling besar dan berdiri paling atas,
+   diam. Ini yang mengisinya.
+
+   SELURUHNYA CSS, dan itu bukan penghematan baris. Riak ini berjalan saat
+   kursor melintas, jadi ia bisa terpicu berkali-kali dalam sedetik; transisi
+   CSS ditangani compositor tanpa satu baris JavaScript pun ikut jalan tiap
+   frame. Polanya sama dengan .letter-hover di atas, yang juga hanya menumpang
+   transition-delay bertingkat.
+
+   `--i` DATANG DARI buildGlyphs(), bukan dari :nth-child. Jumlah cincin tiap
+   kartu berbeda (5, 6, 4), jadi nomor urut yang ditulis di sumbernya lebih
+   jujur daripada yang disimpulkan dari posisi. Cincin luar berangkat paling
+   akhir, dan itu yang membuatnya terbaca menyebar keluar alih-alih membesar
+   serentak.
+
+   transform-box: view-box, BUKAN fill-box. Keduanya menaruh titik putar di
+   tengah cincin — kebetulan, karena semua cincin sepusat. Bedanya view-box
+   mengambil 50% dari viewBox 64x64, jadi titiknya (32,32) untuk SEMUA cincin
+   tanpa bergantung kotak isi masing-masing; fill-box menghitung ulang per
+   elemen dan ikut menyertakan tebal goresan pada sebagian peramban.
+
+   1,08 bukan angka besar dan memang tidak boleh besar: pada lambang 48px,
+   cincin terluar bergeser sekitar 2px. Lebih dari itu, cincin terluar keluar
+   dari viewBox dan terpotong rata — radius terbesarnya 25,8 dari batas 32.
+
+   Dibungkus (hover: hover): di layar sentuh :hover menempel setelah diketuk,
+   dan kartu ini bukan tautan, jadi tidak ada yang akan melepasnya kembali.
+   ═══════════════════════════════════════════════════════════════════════ */
+.stage-ring {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage-ring {
+    transition:
+      transform 0.55s var(--ease-brand),
+      opacity 0.55s var(--ease-brand);
+    transition-delay: calc(var(--i) * 45ms);
+  }
+
+  /* opacity di sini menimpa atribut presentasi `opacity` yang ditulis
+     buildGlyphs() (0,25 sampai 0,95 tergantung cincinnya). Atribut presentasi
+     berada di urutan paling bawah cascade, jadi nilai istirahatnya tetap yang
+     dari atribut — dan transisinya tetap punya dua ujung yang sah. */
+  .stage-card:hover .stage-ring {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* Gerak dikurangi: transisinya dimatikan DAN keadaan hover-nya dinetralkan.
+   Mematikan transisi saja tidak cukup — yang tersisa justru versi terburuknya,
+   cincin yang melompat ke ukuran barunya tanpa peralihan sama sekali. */
+@media (prefers-reduced-motion: reduce) {
+  .stage-ring,
+  .stage-card:hover .stage-ring {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    KISI 4 — tiga utilitas jarak yang tidak ada di hasil kompilasi.
 
    Seluruh jarak di situs ini kelipatan 4px. Itu datang gratis dari Tailwind,
