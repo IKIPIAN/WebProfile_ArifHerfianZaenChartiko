@@ -710,7 +710,7 @@ html.lenis,html.lenis body{height:auto}
 .stage-card--lead { grid-column: 1 / -1 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   PEMBUKA — panel yang menutup layar sampai monogramnya selesai tergambar.
+   PEMBUKA — panel yang menutup layar sampai monogramnya selesai terbentuk.
 
    Panel ini SUDAH terlihat sejak gambar pertama, tanpa menunggu JavaScript:
    background dan posisinya ditulis di sini, bukan disetel GSAP. Itu yang
@@ -746,58 +746,47 @@ html.pembuka-aktif body {
 
 .pembuka-isi {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.75rem;
+  justify-content: center;
 }
 
 .pembuka-lambang {
-  width: min(58vw, 176px);
+  width: min(52vw, 168px);
   height: auto;
-  /* Goresan berada di tepi viewBox; tanpa ini ujungnya terpotong. */
+  /* Goresan tebal menonjol keluar viewBox di puncak; tanpa ini ujungnya
+     terpotong rata. */
   overflow: visible;
 }
 
 .pembuka-lambang path {
   fill: none;
-  /* square, bukan round: seluruh situs ini bersudut tegas -- ujung bulat akan
-     terbaca sebagai lambang dari tempat lain yang ditempel ke sini. */
-  stroke-linecap: square;
+  /* butt, bukan square: ujung persegi menambah setengah tebal goresan di
+     kedua ujung tiap garis, dan pada goresan setebal 12 itu membuat tiangnya
+     menjulur 6 satuan melewati palang. miter yang membentuk sudut lancip di
+     puncak -- sudutnya 84,6 derajat, jauh di dalam batas miter bawaan, jadi
+     ia tidak pernah dipangkas jadi bevel. */
+  stroke-linecap: butt;
   stroke-linejoin: miter;
 }
 
 .pembuka-lambang [data-pembuka-bingkai] path {
   stroke: var(--line);
-  stroke-width: 1;
-  /* Rambutnya tetap 1px berapa pun lambangnya diperbesar, sama seperti garis
-     .corner-marks di bingkai foto yang ia tiru. */
+  stroke-width: 1.5;
+  /* Rambut heksagonnya tetap setipis itu berapa pun lambangnya diperbesar,
+     sama seperti garis .corner-marks di bingkai foto. */
   vector-effect: non-scaling-stroke;
 }
 
+/* Tebal 12 dari 176 satuan lebar. Ini yang membuat tandanya bertubuh alih-alih
+   terbaca sebagai garis rambut seperti versi pertama. */
 .pembuka-lambang [data-pembuka-goresan] path {
   stroke: var(--text);
-  stroke-width: 4;
+  stroke-width: 12;
 }
 
-.pembuka-teks {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.pembuka-titik {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--accent);
-  flex: none;
-}
-
-@media (width <= 380px) {
-  .pembuka-teks { font-size: 10px; letter-spacing: 0.12em }
+/* Palang pengunci: satu-satunya bagian berwarna aksen, dan satu-satunya yang
+   merangkap palang A sekaligus palang H. */
+.pembuka-lambang [data-pembuka-kunci] path {
+  stroke: var(--accent);
+  stroke-width: 12;
 }

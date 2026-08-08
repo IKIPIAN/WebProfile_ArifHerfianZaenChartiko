@@ -1301,7 +1301,6 @@ export function pasangAnimasi() {
     if (!panel) { lanjut(); return; }
 
     var isi = $("[data-pembuka-isi]", panel);
-    var teks = $("[data-pembuka-teks]", panel);
 
     /* Batas keras dipasang PALING AWAL, sebelum satu baris pun yang bisa
        melempar. Kalau ada yang gagal di bawah, panelnya tetap terbuka dan
@@ -1316,7 +1315,7 @@ export function pasangAnimasi() {
     /* StrictMode memasang ulang efek ini pada simpul DOM yang SAMA, jadi
        panelnya bisa mewarisi display:none dan opacity 0 dari putaran
        sebelumnya. Dikembalikan dulu ke keadaan berangkat. */
-    gsap.set([panel, isi, teks], { clearProps: "all" });
+    gsap.set([panel, isi], { clearProps: "all" });
     panel.style.display = "";
 
     function bereskan() {
@@ -1361,8 +1360,9 @@ export function pasangAnimasi() {
 
     var bingkai = $$("[data-pembuka-bingkai] path", panel);
     var goresan = $$("[data-pembuka-goresan] path", panel);
+    var kunci = $$("[data-pembuka-kunci] path", panel);
 
-    bingkai.concat(goresan).forEach(function (p) {
+    bingkai.concat(goresan, kunci).forEach(function (p) {
       var panjang = p.getTotalLength();
       p.style.strokeDasharray = panjang;
       p.style.strokeDashoffset = panjang;
@@ -1391,9 +1391,16 @@ export function pasangAnimasi() {
       },
     });
 
-    tl.to(bingkai, { strokeDashoffset: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }, 0);
-    tl.to(goresan, { strokeDashoffset: 0, duration: 0.38, stagger: 0.11, ease: "power1.inOut" }, 0.18);
-    tl.fromTo(teks, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: EASE }, "-=0.1");
+    /*
+     * Urutannya menceritakan bentuknya terbentuk, bukan sekadar muncul:
+     * heksagon menggariskan wilayahnya, dua tiang berdiri, puncaknya menutup
+     * jadi huruf A, lalu palang aksen mengunci keduanya jadi satu tanda.
+     * Palang itu sengaja paling akhir DAN sendirian di ujung timeline --
+     * sampai ia turun, bentuknya masih terbaca sebagai gerbang kosong.
+     */
+    tl.to(bingkai, { strokeDashoffset: 0, duration: 0.45, stagger: 0.07, ease: "power2.out" }, 0);
+    tl.to(goresan, { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 0.22);
+    tl.to(kunci, { strokeDashoffset: 0, duration: 0.38, ease: "power2.out" }, 0.98);
   }
 
   /* ── 7. PENYALAAN ───────────────────────────────────────────────────────
