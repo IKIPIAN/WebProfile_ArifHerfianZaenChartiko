@@ -867,20 +867,50 @@ html.pembuka-aktif body {
    perspective ditaruh di WADAH, bukan di tiap panel. Kalau tiap panel punya
    perspektifnya sendiri, titik hilangnya ikut berpindah bersama panelnya dan
    deretan yang miring tidak lagi terbaca sebagai satu ruang.
+
+   ── MENDATAR DI SEMUA LEBAR, DAN APA ONGKOSNYA ──────────────────────────
+
+   Sampai 8 Agustus 2026 galeri ini TEGAK di bawah 900px, dengan alasan yang
+   ditulis di sini: enam bilah mendatar setinggi ~55px masih bisa disentuh,
+   enam bilah tegak selebar 55px tidak. Alasan itu dilepas atas permintaan,
+   dan penggantinya bukan "ternyata dulu salah" — melainkan bahwa MENGETUK
+   BILAH BUKAN LAGI CARA UTAMA MENELUSURI. Sejak gulir ikut memilih panel di
+   perangkat tanpa hover, bilah sempit cuma jalan pintas; yang harus cukup
+   besar untuk jari hanyalah panel yang sedang TERBUKA, dan ia 155-190px.
+
+   TINGGINYA JUSTRU DIPENDEKKAN, DAN ITU BUKAN SEKADAR "supaya muat".
+   Sertifikatnya semua landscape ~1,42:1 (900x630-an), sementara panel aktif
+   yang mendatar di ponsel berbentuk PORTRAIT. Dengan object-fit: cover,
+   bagian lebar yang selamat = lebarPanel / (tinggiPanel * 1,42) — jadi
+   tinggi yang MAKIN BESAR justru memangkas MAKIN BANYAK sisi kiri-kanan
+   sertifikatnya. Pada 390px: tinggi 560px hanya menyisakan 21% lebar
+   sertifikat, tinggi 219px menyisakan 55%. Karena itu tinggi ponsel turun
+   dari min(76svh, 560px) jadi clamp(200px, 26svh, 260px).
+
+   Sisa 45% yang tetap terpangkas itu ongkos yang tidak bisa dihapus: bentuk
+   landscape di dalam lubang portrait memang tidak pernah muat utuh. Yang
+   dibuka saat diketuk tetap PDF penuh, jadi yang hilang cuma pratinjaunya.
    ═══════════════════════════════════════════════════════════════════════ */
 .galeri {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  /* Tegak di layar sempit: enam bilah mendatar setinggi ~55px masih bisa
-     disentuh, sementara enam bilah TEGAK selebar 55px tidak. */
-  height: min(76svh, 560px);
+  flex-direction: row;
+  gap: 6px;
+  height: clamp(200px, 26svh, 260px);
   perspective: 1400px;
+}
+
+/* Tablet punya lebar untuk bernapas: pada 768px bilahnya 65px dan panel
+   aktifnya 354px, jadi tingginya boleh naik tanpa memangkas terlalu banyak. */
+@media (width >= 640px) {
+  .galeri {
+    gap: 8px;
+    height: clamp(260px, 34svh, 340px);
+  }
 }
 
 @media (width >= 900px) {
   .galeri {
-    flex-direction: row;
+    gap: 10px;
     height: clamp(320px, 52svh, 460px);
   }
 }
@@ -929,14 +959,21 @@ html.pembuka-aktif body {
   pointer-events: none;
 }
 
+/* Padding dan gap-nya DIHITUNG DARI LEBAR BILAH TERSEMPIT, bukan dipilih
+   karena enak dilihat. Pada 360px bilah yang tertutup selebar 28,6px; dengan
+   padding 6px dan ikon 13px, ikon itu berakhir di 19px — masih di dalam 22px
+   sisa ruangnya. Menaikkan salah satu dari ketiganya membuat ikon tersentuh
+   `overflow: hidden` panelnya dan terpotong separuh, dan itulah satu-satunya
+   penanda yang dipunyai panel tertutup. Teks judul di sebelahnya boleh
+   melimpah: ia ber-opacity 0 selama panelnya tidak aktif. */
 .galeri-label {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.375rem;
+  padding: 0.375rem;
   color: #fff;
   /* Tirai landai sendiri, terlepas dari peredup di atas: tanpa ini teksnya
      jatuh di atas bagian pindaian yang kebetulan putih dan hilang. */
@@ -944,9 +981,29 @@ html.pembuka-aktif body {
   pointer-events: none;
 }
 
+@media (width >= 640px) {
+  .galeri-label {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (width >= 900px) {
+  .galeri-label {
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+}
+
 .galeri-ikon {
   flex: none;
-  font-size: 16px;
+  font-size: 13px;
+}
+
+@media (width >= 900px) {
+  .galeri-ikon {
+    font-size: 16px;
+  }
 }
 
 .galeri-teks {
@@ -955,8 +1012,14 @@ html.pembuka-aktif body {
   min-width: 0;
 }
 
+/* 13px, bukan 16px, dan itu ditentukan judul TERPANJANG. Panel aktif di
+   ponsel 390px selebar 170px; dikurangi padding, ikon, dan gap, sisa untuk
+   teks 138px. "Panitia LKTIN PESC" pada 16px selebar ~146px — terpotong
+   elipsis. Pada 13px ia ~119px dan muat utuh. Kalau nanti ada judul yang
+   lebih panjang, yang dipendekkan judulnya, bukan angka ini: di bawah 13px
+   sumbernya (11px x 0,85) jatuh ke ukuran yang tidak lagi terbaca. */
 .galeri-judul {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -965,11 +1028,21 @@ html.pembuka-aktif body {
 
 .galeri-sumber {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: 9px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
   opacity: 0.75;
+}
+
+@media (width >= 900px) {
+  .galeri-judul {
+    font-size: 16px;
+  }
+  .galeri-sumber {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
 }
 
 /* Petunjuk interaksi galeri: dua kalimat, yang dipakai dipilih CSS.

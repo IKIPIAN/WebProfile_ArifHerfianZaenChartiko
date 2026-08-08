@@ -969,7 +969,6 @@ export function pasangAnimasi() {
        masing-masing: 43,2 fps rata-rata pada 0,55 dan 44,7 pada 0,35. Selisih
        itu di dalam derau; jangan pakai angka ini untuk membenarkan
        memperpendek durasi di tempat lain. */
-    var mendatarQ = window.matchMedia("(min-width: 900px)");
     var DURASI_GULIR = 0.35;
     var aktif = 0;
     var tl = null;
@@ -977,7 +976,6 @@ export function pasangAnimasi() {
     var durasiSekali = null;
 
     function terapkan() {
-      var mendatar = mendatarQ.matches;
       var durasi = pertama || prefersReducedMotion()
         ? 0
         : durasiSekali != null ? durasiSekali : DURASI;
@@ -988,30 +986,54 @@ export function pasangAnimasi() {
 
       panel.forEach(function (p, i) {
         var ini = i === aktif;
-        var media = $("[data-panel-media]", p);
+        var media = $("[data-panel-media] img", p);
         var tirai = $("[data-panel-tirai]", p);
         var teks = $("[data-panel-teks]", p);
 
         /* Panel sebelum yang aktif miring ke satu arah, sesudahnya ke arah
            sebaliknya, jadi keduanya seolah membuka jalan ke tengah. */
         var derajat = ini ? 0 : i < aktif ? MIRING : -MIRING;
-        var ubah = { flexGrow: ini ? tumbuh : 1, duration: durasi, ease: EASE };
-        if (mendatar) ubah.rotationY = derajat;
-        else ubah.rotationX = -derajat;
-        tl.to(p, ubah, 0);
+        tl.to(p, {
+          flexGrow: ini ? tumbuh : 1, rotationY: derajat,
+          duration: durasi, ease: EASE,
+        }, 0);
 
         p.setAttribute("aria-current", ini ? "true" : "false");
 
         if (media) {
-          /* Paralaks: media panel yang jauh dari yang aktif digeser lebih
-             banyak, dibatasi 1,5 langkah supaya panel di ujung tidak melompat
-             sejauh jaraknya dari yang aktif. */
+          /*
+           * PARALAKS. Yang digeser GAMBARNYA DI DALAM BINGKAI, bukan
+           * bingkainya. Dulu yang ditweenkan .galeri-media -- span
+           * `position:absolute; inset:0` yang sekaligus jadi kotak
+           * pengguntingnya -- jadi menggesernya memindahkan gunting dan
+           * isinya sekaligus, dan yang tersingkap di sisi berlawanan adalah
+           * latar panel. Sekarang bingkainya diam dan <img>-nya yang bergerak
+           * di baliknya, persis arti kata paralaks.
+           *
+           * xPercent, BUKAN x. Geseran 26px tetap masih masuk akal pada bilah
+           * desktop selebar ~106px, tapi bilah ponsel cuma 28px -- gambarnya
+           * praktis terdorong keluar seluruhnya. Persen mengikat geseran ke
+           * lebar panelnya sendiri, jadi satu angka benar di semua lebar.
+           *
+           * SKALANYA TERIKAT KE GESERAN, dan syaratnya: setengah kelebihan
+           * skala harus menutupi geseran terbesar. Geseran maksimum 1,5 x 4%
+           * = 6%; skala 1,18 menggantung (1,18-1)/2 = 9% di tiap sisi, jadi
+           * tersisa 3% sebagai kelonggaran. Kelonggaran itu bukan hiasan:
+           * 6% lawan 7% sempat dipakai dan sisanya cuma 1% — pada bilah
+           * ponsel selebar 28px itu 0,28px, cukup untuk menyisakan garis
+           * rambut latar panel di tepi setelah pembulatan subpiksel. Kalau
+           * salah satu angka diubah, hitung ulang pertidaksamaan ini.
+           *
+           * Batas 1,5 langkah BUKAN kasus tepi: dengan enam panel, setiap
+           * panel yang berjarak dua atau lebih dari yang aktif kena batas itu,
+           * jadi 6% adalah geseran yang paling sering dipakai — bukan yang
+           * paling jarang. Batasnya sendiri ada supaya panel di ujung tidak
+           * melompat sejauh jaraknya dari yang aktif.
+           */
           var jarak = Math.max(-1.5, Math.min(1.5, aktif - i));
-          var geser = jarak * 26;
           tl.to(media, {
-            x: mendatar ? (ini ? 0 : geser) : 0,
-            y: mendatar ? 0 : ini ? 0 : geser,
-            scale: ini ? 1 : 1.06,
+            xPercent: ini ? 0 : jarak * 4,
+            scale: ini ? 1 : 1.18,
             duration: durasi, ease: EASE,
           }, 0);
         }
@@ -1075,14 +1097,19 @@ export function pasangAnimasi() {
      *
      * KENAPA BUKAN GARIS TENGAH VIEWPORT. Cara yang biasa dipakai —
      * IntersectionObserver dengan rootMargin "-50% 0px -50% 0px" — rusak di
-     * sini justru karena panelnya berubah ukuran. Yang terbuka tumbuh jadi
-     * 265px dari 560px tinggi galeri, sisanya menyusut jadi bilah 49px.
-     * Begitu garis tengah masuk ke panel terbuka, ia butuh 265px gulir untuk
-     * keluar, sedangkan melewati bilah cuma butuh 49px: pemilihannya menempel
-     * pada dirinya sendiri, dan dalam satu lintasan layar dua panel terakhir
-     * tidak akan pernah tercapai. Pita berbasis kemajuan tidak bergantung
-     * pada ukuran yang sedang dianimasikan, jadi keenamnya kebagian jarak
-     * gulir yang persis sama.
+     * sini justru karena panelnya berubah ukuran: yang terbuka mengambil 52%
+     * ruang dan lima sisanya berbagi 48%, jadi melewati panel terbuka
+     * menuntut sekitar lima kali lebih banyak gulir daripada melewati bilah.
+     * Pemilihannya menempel pada dirinya sendiri, dan dalam satu lintasan
+     * layar dua panel terakhir tidak akan pernah tercapai. Pita berbasis
+     * kemajuan tidak bergantung pada ukuran yang sedang dianimasikan, jadi
+     * keenamnya kebagian jarak gulir yang persis sama.
+     *
+     * Argumen ini SELAMAT dari perubahan 8 Agustus 2026 yang membuat galeri
+     * mendatar di semua lebar, dan itu bukan kebetulan: ia ditulis dalam
+     * porsi, bukan piksel. Yang berganti cuma sumbu pembagiannya — dulu
+     * tinggi, sekarang lebar — sementara ketimpangan 52:48 yang jadi
+     * pokok masalahnya tidak berubah sama sekali.
      *
      * `terakhirGulir` yang membuat ketukan manual tidak langsung ditimpa:
      * gulir hanya bicara saat pitanya BERGANTI, bukan tiap frame. Setelah
@@ -1109,9 +1136,12 @@ export function pasangAnimasi() {
       },
     });
 
-    /* Berganti orientasi menukar sumbu miring DAN sumbu tumbuh, jadi tata
-       letaknya harus dihitung ulang, bukan cuma digambar ulang. */
-    dengar(mendatarQ, "change", function () { pertama = true; terapkan(); });
+    /* Satu-satunya yang perlu memicu gambar ulang sekarang adalah perubahan
+       ukuran wadah. Dulu ada pendengar kedua di media query 900px, karena di
+       bawahnya galeri ini menumpuk ke bawah dan sumbu miring ikut bertukar;
+       sejak ia mendatar di semua lebar, tidak ada lagi orientasi yang bisa
+       berganti — dan ResizeObserver ini toh sudah menangkap setiap pergantian
+       titik henti, sebab semuanya mengubah tinggi wadahnya. */
     amati(akar, function () { terapkan(); });
 
     terapkan();
