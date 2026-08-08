@@ -769,8 +769,20 @@ html.pembuka-aktif body {
   stroke-linejoin: miter;
 }
 
+/* SATU warna untuk seluruh lambang, termasuk heksagonnya.
+
+   --text (#d8d8d8), bukan #fff. Itu warna yang dipakai seluruh teks di situs
+   ini; putih murni akan lebih terang daripada apa pun yang menyusul di
+   halaman, dan lambangnya jadi menyala sendiri alih-alih senada.
+
+   Yang membedakan heksagon dari tandanya sekarang cuma tebal goresan --
+   1,5 lawan 12 -- dan itu cukup: rasio delapan kali lipat membuat tandanya
+   tetap yang dibaca lebih dulu tanpa perlu dibedakan warnanya. */
+.pembuka-lambang path {
+  stroke: var(--text);
+}
+
 .pembuka-lambang [data-pembuka-bingkai] path {
-  stroke: var(--line);
   stroke-width: 1.5;
   /* Rambut heksagonnya tetap setipis itu berapa pun lambangnya diperbesar,
      sama seperti garis .corner-marks di bingkai foto. */
@@ -779,14 +791,7 @@ html.pembuka-aktif body {
 
 /* Tebal 12 dari 176 satuan lebar. Ini yang membuat tandanya bertubuh alih-alih
    terbaca sebagai garis rambut seperti versi pertama. */
-.pembuka-lambang [data-pembuka-goresan] path {
-  stroke: var(--text);
-  stroke-width: 12;
-}
-
-/* Palang pengunci: satu-satunya bagian berwarna aksen, dan satu-satunya yang
-   merangkap palang A sekaligus palang H. */
+.pembuka-lambang [data-pembuka-goresan] path,
 .pembuka-lambang [data-pembuka-kunci] path {
-  stroke: var(--accent);
   stroke-width: 12;
 }

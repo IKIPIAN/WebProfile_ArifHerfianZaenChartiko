@@ -1393,10 +1393,12 @@ export function pasangAnimasi() {
 
     /*
      * Urutannya menceritakan bentuknya terbentuk, bukan sekadar muncul:
-     * heksagon menggariskan wilayahnya, dua tiang berdiri, puncaknya menutup
-     * jadi huruf A, lalu palang aksen mengunci keduanya jadi satu tanda.
-     * Palang itu sengaja paling akhir DAN sendirian di ujung timeline --
-     * sampai ia turun, bentuknya masih terbaca sebagai gerbang kosong.
+     * heksagon menggariskan wilayahnya, satu goresan menyusur naik dari kaki
+     * kiri melewati puncak lalu turun ke kaki kanan, baru palangnya mengunci
+     * keduanya jadi satu tanda. Palang itu sengaja paling akhir DAN sendirian
+     * di ujung timeline -- sampai ia turun, bentuknya masih terbaca sebagai
+     * gerbang kosong. Seluruh lambang satu warna, jadi urutan inilah
+     * satu-satunya yang membedakan perannya.
      */
     tl.to(bingkai, { strokeDashoffset: 0, duration: 0.45, stagger: 0.07, ease: "power2.out" }, 0);
     tl.to(goresan, { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 0.22);

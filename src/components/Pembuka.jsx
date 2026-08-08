@@ -9,12 +9,13 @@ export default function Pembuka() {
 
              dua tiang tegak   -> batang kiri dan kanan huruf H
              puncak lancip     -> huruf A, memakai kedua tiang itu sebagai kaki
-             palang jingga     -> palang A DAN palang H sekaligus
+             palang            -> palang A DAN palang H sekaligus
 
-           Jadi tiap goresan dipakai dua kali. Palangnya digambar paling akhir
-           dan satu-satunya yang berwarna aksen, karena sampai ia turun
-           bentuknya masih terbaca sebagai gerbang kosong -- ia yang mengunci
-           dua huruf jadi satu tanda.
+           Jadi tiap goresan dipakai dua kali. Palangnya berdiri sebagai
+           kelompok sendiri bukan karena warnanya -- seluruh lambang satu
+           warna -- melainkan karena WAKTUNYA: ia digambar paling akhir,
+           sebab sampai ia turun bentuknya masih terbaca sebagai gerbang
+           kosong. Ia yang mengunci dua huruf jadi satu tanda.
 
            GEOMETRI, viewBox 176x168, semua angka dalam satuan itu:
 
