@@ -56,6 +56,17 @@
 @custom-variant wide (@media (width >= 640px) and (orientation: landscape));
 @custom-variant roomy (@media (width >= 900px) and (orientation: landscape) and (height >= 600px));
 
+/* `pendek:` menutup lubang yang ditinggalkan ketiganya: ponsel yang diputar.
+   844x390 lolos syarat `wide:` (width >= 640px + mendatar) sehingga memakai
+   tata letak dua kolom, tapi gagal syarat `roomy:` (height >= 600px) sehingga
+   jarak tegaknya jatuh ke nilai `min-[640px]:` yang dipatok LEBAR saja —
+   pt 9svh + pb 6rem = 131px pada layar setinggi 390px.
+
+   Terukur akibatnya: kolom kiri 364px + padding 131px = hero 495px, meluber
+   105px dari layar. Varian ini dipatok TINGGI, bukan lebar, karena tinggi
+   itulah yang langka saat ponsel diputar. */
+@custom-variant pendek (@media (height < 600px) and (orientation: landscape));
+
 /* ══════════════════════════════════════════════════════════════════════════
    ALIAS TOKEN — nama pendek untuk dipakai CSS tulisan tangan di bawah.
 
