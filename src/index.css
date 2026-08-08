@@ -904,6 +904,31 @@ html.pembuka-aktif body {
   opacity: 0.75;
 }
 
+/* Petunjuk interaksi galeri: dua kalimat, yang dipakai dipilih CSS.
+
+   Pembedanya HARUS media query, bukan cabang JavaScript. `@media (hover:
+   hover)` sudah dievaluasi sebelum cat pertama, jadi tidak ada satu frame pun
+   yang menampilkan kalimat perangkat yang salah — sementara cabang JS baru
+   berjalan setelah hidrasi dan akan terlihat berganti. Yang tersembunyi
+   `display: none`, bukan opacity, supaya pembaca layar juga hanya menemukan
+   satu kalimat.
+
+   Bawaannya versi sentuh, dan versi penunjuk yang harus meminta izin. Sebab
+   `(hover: hover)` bisa salah menjawab "ya" pada beberapa peramban ponsel,
+   sedangkan kebalikannya tidak pernah terjadi. */
+.petunjuk-tunjuk {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .petunjuk-tunjuk {
+    display: inline;
+  }
+  .petunjuk-sentuh {
+    display: none;
+  }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    TUMPUKAN KARTU PENGALAMAN.
 

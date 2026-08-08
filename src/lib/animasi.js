@@ -866,9 +866,16 @@ export function pasangAnimasi() {
    * ponsel). Peredupnya di sini <span> hitam ber-opacity: compositor cuma
    * menyusun ulang lapisan, tidak menghitung ulang piksel.
    *
+   * TIGA JALAN MASUK, SATU KEADAAN. pilih() satu-satunya pintu, dipanggil
+   * oleh hover (hanya di penunjuk halus), fokus keyboard, dan posisi gulir
+   * (hanya di perangkat tanpa hover — lihat blok panjang di bawah). Ketiganya
+   * cuma memindahkan `aktif`; terapkan() yang menggambar.
+   *
    * KETUK PERTAMA MEMILIH, KETUK KEDUA MEMBUKA. Di perangkat sentuh tidak ada
    * hover, jadi tanpa aturan ini panel pertama yang disentuh langsung membuka
-   * PDF dan galeri ini tidak akan pernah bisa ditelusuri.
+   * PDF-nya tanpa pernah sempat dilihat. Sejak gulir ikut memilih, aturan ini
+   * bukan lagi satu-satunya jalan menelusuri, melainkan jalan pintas — dan
+   * itu yang membuatnya tidak lagi terasa seperti ketukan yang gagal.
    */
   function initGaleriAkordeon() {
     var akar = $('[data-component="galeri"]');
@@ -882,14 +889,30 @@ export function pasangAnimasi() {
     var DURASI = 0.55;
     var tumbuh = panel.length > 1 ? (RASIO * (panel.length - 1)) / (1 - RASIO) : 1;
 
+    /* Pergantian yang dipicu gulir lebih pendek dari yang dipicu hover.
+       Alasannya KECEPATAN TANGGAP, bukan performa: pita gulirnya ~190px, dan
+       transisi 0,55 detik belum selesai saat pita berikutnya sudah masuk,
+       sehingga panel selalu tertinggal di belakang jari.
+
+       Sempat diduga ini juga menghemat tata letak -- flex-grow memaksa tata
+       letak ulang tiap frame, dan saat dipicu gulir itu terjadi BERSAMAAN
+       dengan gulir. Diukur di 390x844 dengan CPU dicekik 6x, tiga jalan
+       masing-masing: 43,2 fps rata-rata pada 0,55 dan 44,7 pada 0,35. Selisih
+       itu di dalam derau; jangan pakai angka ini untuk membenarkan
+       memperpendek durasi di tempat lain. */
     var mendatarQ = window.matchMedia("(min-width: 900px)");
+    var DURASI_GULIR = 0.35;
     var aktif = 0;
     var tl = null;
     var pertama = true;
+    var durasiSekali = null;
 
     function terapkan() {
       var mendatar = mendatarQ.matches;
-      var durasi = pertama || prefersReducedMotion() ? 0 : DURASI;
+      var durasi = pertama || prefersReducedMotion()
+        ? 0
+        : durasiSekali != null ? durasiSekali : DURASI;
+      durasiSekali = null;
 
       if (tl) tl.kill();
       tl = gsap.timeline();
@@ -938,9 +961,10 @@ export function pasangAnimasi() {
       pertama = false;
     }
 
-    function pilih(i) {
+    function pilih(i, durasi) {
       if (i === aktif) return;
       aktif = (i + panel.length) % panel.length;
+      durasiSekali = typeof durasi === "number" ? durasi : null;
       terapkan();
     }
 
@@ -964,6 +988,56 @@ export function pasangAnimasi() {
         pilih(tujuan);
         panel[tujuan].focus();
       });
+    });
+
+    /*
+     * GULIR YANG MEMILIH, UNTUK PERANGKAT TANPA HOVER.
+     *
+     * Di penunjuk halus menelusuri galeri ini gratis: arahkan kursor, panel
+     * terbuka. Di layar sentuh tidak ada gerak yang setara. Yang tersisa cuma
+     * ketuk, dan ketuk pertama sudah habis dipakai untuk memilih — jadi
+     * melihat keenam sertifikat menuntut sebelas ketukan, dan ketukan pertama
+     * yang tidak membuka apa pun terbaca sebagai kegagalan, bukan pilihan.
+     *
+     * Peran hover karena itu diambil alih posisi gulir: lintasan galeri
+     * melewati layar dibagi rata sejumlah panel, dan panel yang pitanya
+     * sedang dilewati adalah yang terbuka. Menelusuri kembali gratis, nol
+     * ketukan; ketuk kembali murni berarti "buka yang ini".
+     *
+     * KENAPA BUKAN GARIS TENGAH VIEWPORT. Cara yang biasa dipakai —
+     * IntersectionObserver dengan rootMargin "-50% 0px -50% 0px" — rusak di
+     * sini justru karena panelnya berubah ukuran. Yang terbuka tumbuh jadi
+     * 265px dari 560px tinggi galeri, sisanya menyusut jadi bilah 49px.
+     * Begitu garis tengah masuk ke panel terbuka, ia butuh 265px gulir untuk
+     * keluar, sedangkan melewati bilah cuma butuh 49px: pemilihannya menempel
+     * pada dirinya sendiri, dan dalam satu lintasan layar dua panel terakhir
+     * tidak akan pernah tercapai. Pita berbasis kemajuan tidak bergantung
+     * pada ukuran yang sedang dianimasikan, jadi keenamnya kebagian jarak
+     * gulir yang persis sama.
+     *
+     * `terakhirGulir` yang membuat ketukan manual tidak langsung ditimpa:
+     * gulir hanya bicara saat pitanya BERGANTI, bukan tiap frame. Setelah
+     * mengetuk panel lain, geseran beberapa piksel karena jari tidak
+     * mengembalikan pilihan — gulir baru mengambil alih lagi saat pengguna
+     * memang berpindah pita.
+     *
+     * Pemicunya tetap dibuat di penunjuk halus, cuma diam. Menanyakan
+     * bisaHover di dalam onUpdate, bukan saat membuat, membuat perangkat
+     * hibrida yang berpindah modus penunjuk langsung benar tanpa perlu
+     * membangun ulang pemicunya.
+     */
+    var terakhirGulir = -1;
+    ScrollTrigger.create({
+      trigger: akar,
+      start: "top 85%",
+      end: "bottom 15%",
+      onUpdate: function (diri) {
+        if (bisaHover.matches) return;
+        var i = Math.min(panel.length - 1, Math.floor(diri.progress * panel.length));
+        if (i === terakhirGulir) return;
+        terakhirGulir = i;
+        pilih(i, DURASI_GULIR);
+      },
     });
 
     /* Berganti orientasi menukar sumbu miring DAN sumbu tumbuh, jadi tata

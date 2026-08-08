@@ -93,6 +93,25 @@ setinggi 49px masih bisa disentuh, enam bilah tegak selebar 49px tidak.
 Menambah sertifikat membuat tiap bilah makin sempit; di atas sekitar sepuluh,
 pertimbangkan tata letak lain.
 
+**Yang membuka panel berbeda per perangkat**, dan ini yang paling mudah
+terlewat saat menyunting bagian ini:
+
+| perangkat | cara menelusuri | cara membuka PDF |
+|---|---|---|
+| penunjuk halus | arahkan kursor | klik |
+| sentuh | **gulir** — lintasan galeri dibagi jadi enam pita | ketuk panel yang terbuka |
+
+Hover tidak punya padanan di layar sentuh, jadi di sana posisi gulir yang
+mengambil perannya. Konsekuensinya **jumlah sertifikat menentukan lebar tiap
+pita**: enam panel di ponsel dapat sekitar 190px gulir masing-masing. Kalau
+jumlahnya digandakan, tiap pita jadi separuhnya dan panel akan berkedip cepat
+saat digulir — itu batas praktis yang lain, di samping lebar bilah.
+
+Kalimat petunjuk di atas galeri ada **dua**, dan yang tampil dipilih
+`@media (hover: hover)` di `index.css`, bukan JavaScript. Kalau cara
+berinteraksinya diubah, ubah keduanya — kalimat yang menjanjikan sesuatu yang
+tidak terjadi lebih buruk daripada tidak ada kalimat.
+
 ### Menambah pengalaman kerja
 
 Salin satu blok `<article data-kartu>` di `src/components/Pengalaman.jsx`. Titik

@@ -58,8 +58,11 @@ export default function Sertifikat() {
     <>
       {/* ══════════════════════════════════════════════════════════════════════════
            05 SERTIFIKAT — galeri akordeon. Satu panel terbuka, sisanya menyempit
-           jadi bilah dan miring menjauh; yang terbuka mengikuti kursor, sentuhan,
-           atau fokus keyboard.
+           jadi bilah dan miring menjauh. Yang terbuka mengikuti kursor di
+           penunjuk halus, POSISI GULIR di perangkat sentuh, dan fokus keyboard
+           di keduanya — sebab hover tidak punya padanan di layar sentuh, dan
+           galeri yang cuma bisa ditelusuri dengan mengetuk berulang kali sama
+           saja dengan galeri yang tidak bisa ditelusuri.
 
            Panelnya <a> ke PDF, bukan <div> yang dibuat bisa diklik. Konsekuensinya
            disengaja: ia dapat fokus keyboard, bisa dibuka di tab baru lewat klik
@@ -82,11 +85,21 @@ export default function Sertifikat() {
             <h2 className="-h1" data-line-mask>
               <span data-anim="line-mask"><span>Sertifikat</span></span>
             </h2>
-            {/* Interaksi yang tidak terlihat sama saja dengan tidak ada. Kalimat
-                ini menyebut KEDUA cara karena keduanya memang berbeda: di
-                penunjuk cukup diarahkan, di sentuh perlu dua ketukan. */}
+            {/* Dua kalimat, satu ditampilkan CSS lewat @media (hover: hover),
+                bukan satu kalimat kompromi. Cara menelusurinya memang berbeda
+                per perangkat: di penunjuk halus cukup diarahkan, di sentuh
+                gulirlah yang memilih. Kalimat sebelumnya berbunyi "ketuk untuk
+                membuka berkasnya" di keduanya, padahal di sentuh ketukan
+                pertama pada panel yang tertutup hanya memilih — petunjuk yang
+                menjanjikan sesuatu yang tidak terjadi lebih buruk daripada
+                tidak ada petunjuk sama sekali. */}
             <p className="-body-small max-w-[22rem] text-text-muted" data-component="scrub-reveal">
-              Arahkan kursor untuk melihat, ketuk untuk membuka berkasnya.
+              <span className="petunjuk-tunjuk">
+                Arahkan kursor untuk melihat, klik untuk membuka berkasnya.
+              </span>
+              <span className="petunjuk-sentuh">
+                Gulir untuk menelusuri, ketuk panel yang terbuka untuk membuka berkasnya.
+              </span>
             </p>
           </div>
 
