@@ -2,9 +2,18 @@
  * ══════════════════════════════════════════════════════════════════════════
  * SELURUH GERAK SITUS INI, DALAM SATU BERKAS.
  *
- * Dijalankan sekali saat halaman siap. Tidak ada kerangka kerja, tidak ada
- * langkah build — `gsap`, `ScrollTrigger`, dan `Lenis` datang dari tiga berkas
- * di js/vendor/ dan tersedia sebagai variabel global.
+ * Dipanggil sekali dari useLayoutEffect di src/App.jsx, dan MENGEMBALIKAN
+ * fungsi pembongkar. Itu bukan kerapian belaka: React StrictMode sengaja
+ * memasang lalu melepas lalu memasang lagi tiap efek waktu pengembangan,
+ * dan simpul DOM-nya TIDAK dibuat ulang. Tanpa pembongkaran, tiap pendengar
+ * peristiwa, ticker, dan pemicu scroll akan terpasang dua kali — gejalanya
+ * animasi jadi dua kali lebih cepat dan scroll terasa berat, hanya di mode
+ * pengembangan, jadi mudah disalahartikan sebagai masalah performa.
+ *
+ * Karena itu SETIAP efek samping di berkas ini didaftarkan lewat tiga
+ * pembantu di bawah: dengar(), tambahTicker(), dan amati(). Kalau menambah
+ * efek samping baru, pakai ketiganya — jangan panggil addEventListener,
+ * gsap.ticker.add, atau new ResizeObserver secara langsung.
  *
  * URUTAN ISI BERKAS INI:
  *   1. Token gerak        kosakata bersama: kurva, durasi, jeda
@@ -16,10 +25,35 @@
  *   7. Penyalaan          urutan pemanggilan, dan kenapa urutannya begitu
  * ══════════════════════════════════════════════════════════════════════════
  */
-(function () {
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
+
+gsap.registerPlugin(ScrollTrigger);
+
+export function pasangAnimasi() {
   "use strict";
 
-  gsap.registerPlugin(ScrollTrigger);
+  /* Daftar pembongkar. Diisi oleh ketiga pembantu di bawah, dijalankan
+     terbalik saat bongkar() dipanggil. */
+  var bersih = [];
+
+  function dengar(sasaran, jenis, fn, opsi) {
+    sasaran.addEventListener(jenis, fn, opsi);
+    bersih.push(function () { sasaran.removeEventListener(jenis, fn, opsi); });
+  }
+  function tambahTicker(fn) {
+    gsap.ticker.add(fn);
+    bersih.push(function () { gsap.ticker.remove(fn); });
+  }
+  function amati(simpul, fn) {
+    var ro = new ResizeObserver(fn);
+    ro.observe(simpul);
+    bersih.push(function () { ro.disconnect(); });
+    return ro;
+  }
+
+
 
   /* Lenis yang menggerakkan scroll, jadi ticker GSAP yang harus memanggil rAF —
      dua loop rAF terpisah membuat scroll dan animasi beda satu frame. */
@@ -246,7 +280,7 @@
     if (prefersReducedMotion()) return;
     lenis = new Lenis({ duration: 1.1, smoothWheel: true });
     lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    tambahTicker(function (time) { lenis.raf(time * 1000); });
   }
 
   /* Satu-satunya pintu untuk melompat antar bagian. Jalur cadangan dipakai
@@ -494,7 +528,7 @@
 
       var setX = gsap.quickSetter(track, "x", "px");
 
-      gsap.ticker.add(function (_t, deltaMs) {
+      tambahTicker(function (_t, deltaMs) {
         /* deltaMs dari ticker GSAP, bukan selisih timestamp sendiri — supaya
            kecepatannya sama di layar 60Hz maupun 120Hz. */
         offset += (speed * direction * deltaMs) / 1000;
@@ -512,7 +546,7 @@
         },
       });
 
-      new ResizeObserver(function () { half = track.scrollWidth / 2; }).observe(track);
+      amati(track, function () { half = track.scrollWidth / 2; });
     });
   }
 
@@ -633,7 +667,7 @@
           });
         });
       }
-      gsap.ticker.add(tick);
+      tambahTicker(tick);
       return { wave: wave, stop: function () { gsap.ticker.remove(tick); } };
     }
 
@@ -686,12 +720,12 @@
       applyFit();
 
       var settleTimer = 0;
-      var ro = new ResizeObserver(function () {
+      var ro = amati(fit, function () {
         clearTimeout(settleTimer);
         settleTimer = setTimeout(applyFit, 180);
       });
-      ro.observe(fit);
       ro.observe(grid);
+      bersih.push(function () { clearTimeout(settleTimer); });
 
       /*
        * DUA BENTANGAN, BUKAN SATU — dan pemisahan inilah kuncinya.
@@ -955,22 +989,24 @@
       build();
 
       /* Canvas di luar layar tidak perlu menggambar apa pun. */
-      new IntersectionObserver(function (entries) {
+      var io = new IntersectionObserver(function (entries) {
         if (entries[0].isIntersecting) {
           if (!running) { running = true; raf = requestAnimationFrame(draw); }
         } else {
           running = false; cancelAnimationFrame(raf);
         }
-      }, { threshold: 0 }).observe(canvas);
+      }, { threshold: 0 });
+      io.observe(canvas);
+      bersih.push(function () { io.disconnect(); running = false; cancelAnimationFrame(raf); });
 
-      new ResizeObserver(build).observe(canvas);
+      amati(canvas, build);
 
-      window.addEventListener("pointermove", function (e) {
+      dengar(window, "pointermove", function (e) {
         var rect = canvas.getBoundingClientRect();
         pointer.x = e.clientX - rect.left;
         pointer.y = e.clientY - rect.top;
       }, { passive: true });
-      window.addEventListener("pointerleave", function () { pointer.x = -9999; pointer.y = -9999; });
+      dengar(window, "pointerleave", function () { pointer.x = -9999; pointer.y = -9999; });
     });
   }
 
@@ -1038,7 +1074,7 @@
          karena tombolnya sudah punya aria-label dengan teks yang sama. */
       b.innerHTML = '<span aria-hidden="true" class="chapter-tip -caption-small">' + bab.label + "</span>" +
         '<span data-dot class="block h-px transition-all duration-500 ease-brand w-2 bg-line group-hover:w-4 group-hover:bg-text-muted"></span>';
-      b.addEventListener("click", function () { scrollTo("#" + bab.id); });
+      dengar(b, "click", function () { scrollTo("#" + bab.id); });
       dotsEl.appendChild(b);
     });
     var dots = $$("[data-dot]", dotsEl);
@@ -1075,7 +1111,7 @@
       });
     });
 
-    jumpBtn.addEventListener("click", function () { scrollTo("#" + CHAPTERS[index].id); });
+    dengar(jumpBtn, "click", function () { scrollTo("#" + CHAPTERS[index].id); });
 
     /*
      * WARNA BILAH MENGIKUTI PITA DI BELAKANGNYA.
@@ -1126,9 +1162,9 @@
       btn.style.pointerEvents = next ? "auto" : "none";
     }
     sync();
-    window.addEventListener("scroll", sync, { passive: true });
+    dengar(window, "scroll", sync, { passive: true });
 
-    btn.addEventListener("click", function () {
+    dengar(btn, "click", function () {
       var jarak = window.scrollY;
       scrollTo(0, { duration: Math.min(Math.max(jarak / SPEED, MIN), MAX), easing: easeInOutCubic });
     });
@@ -1138,7 +1174,7 @@
      dicegah — kalau tidak, halaman menyentak lalu Lenis menariknya balik. */
   function initAnchors() {
     $$('a[href^="#"]').forEach(function (a) {
-      a.addEventListener("click", function (e) {
+      dengar(a, "click", function (e) {
         var target = document.querySelector(a.getAttribute("href"));
         if (!target) return;
         e.preventDefault();
@@ -1182,7 +1218,7 @@
       return teks + "\n\n" + isian.pesan;
     }
 
-    form.addEventListener("submit", function (e) {
+    dengar(form, "submit", function (e) {
       e.preventDefault();
       var isian = ambilIsian();
       if (!isian) return;
@@ -1192,7 +1228,7 @@
         "_blank", "noopener,noreferrer");
     });
 
-    $("#kirim-email").addEventListener("click", function () {
+    dengar($("#kirim-email"), "click", function () {
       var isian = ambilIsian();
       if (!isian) return;
       window.location.href = "https://mail.google.com/mail/?view=cm&fs=1&to=" +
@@ -1255,9 +1291,17 @@
     }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-  } else {
-    start();
-  }
-})();
+  start();
+
+  /*
+   * PEMBONGKAR. Urutannya penting: Lenis dimatikan lebih dulu supaya ia tidak
+   * lagi memanggil ScrollTrigger.update saat pemicunya sedang dibunuh.
+   */
+  return function bongkar() {
+    if (lenis) { lenis.destroy(); lenis = null; }
+    ScrollTrigger.getAll().forEach(function (t) { t.kill(true); });
+    gsap.globalTimeline.clear();
+    for (var i = bersih.length - 1; i >= 0; i--) bersih[i]();
+    bersih = [];
+  };
+}

@@ -1,260 +1,162 @@
 # Web Profil — Arif Herfian Zaen Chartiko
 
-Situs satu halaman: HTML, CSS, dan JavaScript biasa. **Tidak ada langkah build,
-tidak ada npm, tidak ada terminal.** Klik dua kali `index.html` dan situsnya
-jalan.
+Situs satu halaman: **React + Vite + Tailwind CSS v4**, gerak dengan GSAP dan
+Lenis.
+
+## Cara menjalankan
+
+```
+npm install     # sekali saja
+npm run dev     # buka alamat yang muncul, biasanya http://localhost:5173
+```
+
+`npm run build` menghasilkan folder `dist/`, dan `npm run preview` menayangkan
+hasil build itu untuk diperiksa sebelum diterbitkan.
+
+**Klik dua kali `index.html` TIDAK lagi bekerja.** Berkas itu sekarang cuma
+kerangka; isinya dipasang React saat dijalankan. Ini konsekuensi yang disengaja
+dari pindah ke React — sebelumnya situs ini memang bisa dibuka langsung tanpa
+perkakas apa pun.
 
 ## Isi proyek
 
 ```
-index.html            seluruh isi halaman — teks, gambar, susunan
-css/style.css         seluruh tampilan
-js/main.js            seluruh gerak
-js/vendor/            tiga pustaka, disimpan sendiri (bukan dari CDN)
-assets/photo/         foto diri
-assets/certificate/   sertifikat — PDF asli dan gambar pratinjaunya
-assets/icons/         logo perkakas
+index.html            kerangka: meta, font, dan satu <div id="root">
+src/main.jsx          titik masuk React
+src/App.jsx           susunan bagian halaman
+src/index.css         tema Tailwind + seluruh CSS milik situs
+src/components/       satu berkas per bagian halaman
+src/lib/animasi.js    seluruh gerak situs
+public/assets/        foto, sertifikat, dan lambang perkakas
 ```
 
-Hanya 32 berkas. Yang perlu Anda sunting hampir selalu cuma `index.html`.
+Yang perlu Anda sunting hampir selalu ada di `src/components/`.
 
-## Cara menjalankan
+## Kenapa React, dan apa yang berubah
 
-**Untuk melihat hasil:** klik dua kali `index.html`.
+Situs ini pernah ditulis React + Vite, lalu dipindah ke HTML/CSS/JS biasa
+tanpa langkah build, lalu **dikembalikan ke React pada 8 Agustus 2026**.
+Riwayat itu bukan sekadar berputar-putar — ada satu hal yang ikut terbawa
+pulang, dan itu yang paling penting untuk diketahui:
 
-Satu-satunya yang tidak bekerja lewat cara itu: tidak ada. Semua animasi jalan
-penuh dari berkas lokal, karena ketiga pustakanya ada di `js/vendor/` dan bukan
-diambil dari internet.
+**Tailwind sekarang berjalan sungguhan.** Versi HTML biasa memakai `style.css`
+yang merupakan HASIL KOMPILASI yang dibekukan: ia hanya berisi kelas yang
+kebetulan sudah dipakai, dan **kelas baru tidak berefek apa-apa — diam-diam,
+tanpa pesan galat**. Itu memakan korban berkali-kali: `p-3` di bingkai foto
+tidak pernah bekerja sejak berkas itu dibuat, dan `mt-10` juga mati waktu
+dipasang. Sekarang kelas apa pun hidup.
 
-**Untuk menyunting sambil melihat perubahan langsung:** buka folder ini di VS
-Code, klik kanan `index.html` → *Open with Live Server*. Tidak wajib, tapi lebih
-nyaman karena halaman menyegarkan sendiri tiap kali Anda menyimpan.
+### Satu perbedaan tampilan yang perlu Anda tahu
 
-## Cara menerbitkan
+Di build beku yang lama, varian `sm:` MENIMPA `nav:` untuk properti yang sama.
+Akibatnya di layar ≥900px semua nilai `nav:` diabaikan tanpa tanda. Tailwind
+sungguhan menerapkannya dengan benar, jadi di desktop:
 
-Situs ini sudah tersambung ke [Vercel](https://vercel.com) lewat GitHub: tiap
-`git push` ke `main` otomatis menerbitkan ulang. Tidak ada yang perlu disetel —
-tidak ada perintah build, tidak ada folder keluaran.
+| di ≥900px | dulu (keliru) | sekarang | kelas yang memang ditulis |
+|---|---|---|---|
+| padding samping | 24px | 40px | `nav:px-10` |
+| jarak antar blok | 80px | 96px | `nav:gap-24` |
+| padding atas-bawah | 112px | 144px | `nav:py-36` |
 
-Kalau suatu saat proyek Vercel-nya dibuat ulang, **Framework Preset harus
-`Other` dan Build Command harus kosong.** Kalau diimpor dari repo ini, Vercel
-memilih itu sendiri — repo ini tidak punya `package.json`, jadi tidak ada yang
-bisa disalahdeteksi. Yang perlu diwaspadai cuma kalau setelan itu diubah
-manual.
-
-Alasannya ada riwayatnya. Proyek Vercel yang pertama dibuat waktu situs ini
-masih React + Vite, jadi Build Command-nya `vite build`. Setelah ditulis ulang
-jadi HTML biasa, perintah itu gagal terus — `vite: command not found`, exit
-127 — dan yang berbahaya bukan kegagalannya, melainkan caranya gagal: `git
-push` tetap sukses, GitHub tetap terisi, tapi Vercel diam-diam bertahan
-menayangkan bangunan React terakhir yang berhasil. Berminggu-minggu perubahan
-tidak pernah kelihatan di situs yang tayang, tanpa satu pun tanda peringatan.
-
-Jadi setelah mengubah apa pun yang berhubungan dengan penerbitan, **buka situs
-yang tayang dan pastikan perubahannya benar-benar ada di sana.** Jangan percaya
-pada `git push` yang sukses.
-
-Kalau suatu saat pindah ke Netlify atau GitHub Pages, cukup seret foldernya —
-tidak ada langkah tambahan.
+Halaman jadi sekitar 650px lebih tinggi di 1440px. Kalau tampilan lama yang
+diinginkan, ubah nilai `nav:`-nya — jangan mengembalikan build beku.
 
 ## Cara mengubah isi
 
 ### Mengganti teks
 
-Cari kalimatnya di `index.html` dan ketik ulang. Selesai.
+Cari kalimatnya di `src/components/`, ketik ulang. Halaman menyegarkan sendiri.
 
 ### Mengganti foto
 
-Timpa `assets/photo/foto.jpeg`, lalu **sesuaikan rasio bingkainya** di
-`index.html`: kelas `aspect-[853/1280]` adalah rasio berkas foto yang sekarang
-(853 lebar, 1280 tinggi). Kalau foto barunya berasio lain, tulis angka barunya
-di situ.
-
-Kalau lupa disesuaikan, halaman tidak akan rusak — fotonya tetap tampil utuh —
-tapi akan muncul pita kosong di kiri-kanan atau atas-bawah, dan jarak foto ke
-garis bingkai jadi tidak lagi sama di keempat sisi. Persis itu yang dulu
-terjadi di desktop: bingkainya dipatok `4/5` padahal fotonya `853/1280`,
-menyisakan 34,6px pita gelap di kiri dan kanan saja.
-
-Jaraknya sendiri diatur `p-3` (12px) di elemen `.corner-marks` pembungkusnya,
-sama di ponsel, tablet, maupun desktop.
+Timpa `public/assets/photo/foto.jpeg`, lalu **sesuaikan rasio bingkainya** di
+`src/components/Hero.jsx`: kelas `aspect-[853/1280]` adalah rasio berkas yang
+sekarang. Kalau lupa disesuaikan, akan muncul pita kosong di satu sisi dan
+jarak foto ke garis bingkai tidak lagi sama di keempat sisinya.
 
 ### Menambah sertifikat
 
-1. Taruh PDF-nya **dan** gambar pratinjaunya (JPG, lebar sekitar 900px) di
-   `assets/certificate/`. **Beri nama dasar yang sama**, misalnya
-   `sertifikat-baru.pdf` dan `sertifikat-baru.jpg` — keduanya memang sepasang:
-   yang JPG tampil di kartu, yang PDF terbuka saat kartunya diklik.
-2. Salin satu blok `<div data-arrive>` di bagian Sertifikat, tempel di bawahnya,
-   lalu ganti nama berkas, judul, keterangan, dan ikonnya.
+1. Taruh PDF **dan** gambar pratinjaunya (JPG, lebar sekitar 900px) di
+   `public/assets/certificate/`, dengan **nama dasar yang sama**.
+2. Salin satu blok `<div data-arrive>` di `src/components/Sertifikat.jsx`,
+   lalu ganti nama berkas, judul, dan keterangannya.
 
-Angka jumlah sertifikat di bagian Pendidikan **ikut sendiri** — ia dihitung dari
-jumlah kartu, bukan ditulis manual.
+Angka jumlah sertifikat di bagian Pendidikan ikut sendiri — ia dihitung dari
+jumlah kartu.
 
 ### Mengubah kemampuan profesional
 
-Lima kartu berikon di bagian Tentang. Untuk mengganti isinya, ketik ulang
-judul dan keterangannya — keterangan yang baik di sini pendek, satu kalimat,
-dan menyebut buktinya, bukan sifatnya.
-
-Dua hal yang perlu diperhatikan kalau **menambah atau menghapus** kartu:
+Lima kartu berikon di `src/components/Keahlian.jsx`. Dua hal kalau menambah
+atau menghapus:
 
 - **Ikon, judul, dan keterangan harus jadi anak langsung `.skill-card`.**
-  Jangan dibungkus `<div>`. Ketiganya menempati barisnya masing-masing lewat
-  `grid-template-rows: subgrid`, dan itulah yang membuat ketiganya lurus
-  sejajar dengan kartu di sebelahnya meski panjang judulnya berbeda. Begitu
-  dibungkus, ketiganya masuk ke satu baris dan perataannya hilang.
+  Ketiganya menempati barisnya masing-masing lewat `grid-template-rows:
+  subgrid`, dan itulah yang membuatnya lurus sejajar dengan kartu sebelahnya.
 - **Jumlah kolomnya terikat ke jumlah kartu.** Sekarang kisinya enam kolom:
-  tiga kartu pertama merentang dua kolom, dua kartu terakhir merentang tiga,
-  sehingga kedua baris habis rata tanpa sel kosong. Kalau kartunya jadi enam,
-  ubah jadi tiga kolom biasa dan buang perentangannya; kalau jadi empat, dua
-  kolom. Kalau ditambah tanpa dihitung ulang, akan muncul sel kosong
-  berbingkai di baris terakhir yang terbaca seperti isi yang gagal dimuat.
-
-Keduanya ada di bagian "KEMAMPUAN PROFESIONAL" di `css/style.css`, lengkap
-dengan alasannya.
+  tiga kartu pertama merentang dua kolom, dua terakhir merentang tiga.
 
 ### Menambah perkakas
 
-Perkakas dibagi jadi empat kelompok berlabel — Pengembangan, Pengajaran,
-Administrasi, AI — masing-masing satu blok `<div class="tool-row">`. Isinya
-**4-2-2-3**, dan **jumlah kartu per baris ditentukan oleh Anda, bukan oleh
-lebar layar**: sama persis di ponsel, tablet, maupun desktop.
+Empat kelompok berlabel — Pengembangan, Pengajaran, Administrasi, AI — dengan
+isi **4-2-2-3**. Jumlah kartu per baris ditentukan oleh Anda, bukan lebar
+layar: sama persis di ponsel, tablet, maupun desktop.
 
-Urutan kelompoknya bukan kebetulan: tiga kelompok pertama mengikuti urutan
-peran di mesin ketik halaman sampul, supaya tiap peran yang diklaim di sana
-punya alasnya di sini. AI ditaruh terakhir karena ia cara kerja, bukan peran.
-Kalau urutan mesin ketik di `index.html` diubah, urutan baris di sini
-sebaiknya ikut.
+**Kalau menambah atau menghapus kartu, `data-delay`-nya harus dihitung ulang.**
+Tiap kartu naik 0,03 detik berurutan dari nol menembus semua kelompok, dan
+label tiap kelompok memakai jeda kartu pertamanya.
 
-Kelompok kelima, "Riset & Desain" (Figma, Google Analytics, Maze, Notion),
-dibuang bersama keempat berkas ikonnya waktu peran utama berganti dari UI/UX
-Designer jadi Web Developer — ia berdiri paling depan padahal tidak lagi
-mewakili peran mana pun yang diklaim di sampul.
-
-**Kalau menambah atau menghapus kartu, jeda animasinya harus dihitung ulang.**
-Tiap kartu punya `data-delay` yang naik 0,03 detik berurutan dari nol
-menembus semua kelompok, dan label beserta garis rambut tiap kelompok memakai
-jeda kartu pertamanya. Kalau ada lompatan angka, satu kelompok akan terlihat
-menunggu giliran yang tidak pernah datang.
-
-Satu perkakas hanya ditulis di **satu** kelompok, meski dipakai di beberapa
-peran. MS Office misalnya dipakai untuk modul ajar dan penilaian, tapi tetap
-berdiri di Administrasi saja — begitu juga VS Code yang dipakai mengajar tapi
-berdiri di Pengembangan. Yang menjelaskan perkakas mana dipakai untuk peran
-mana adalah kartu di bagian Pengalaman, bukan pengulangan ikon.
-
-Untuk menambah perkakas: salin satu blok kartu, tempel ke dalam kelompok yang
-sesuai, lalu ganti gambar dan namanya.
-
-**Untuk mencari lambangnya, buka situs resmi perkakasnya, bukan kumpulan
-lambang pihak ketiga** — yang di sana sering ketinggalan satu rona atau satu
-pergantian merek. Cara yang dipakai di sini: muat halamannya di peramban,
-lalu ambil SVG-nya langsung dari DOM. Tiga jebakan yang sudah pernah kena:
+Untuk lambangnya, **buka situs resmi perkakasnya, bukan kumpulan lambang pihak
+ketiga.** Tiga jebakan yang sudah pernah kena:
 
 - **Warna di halaman belum tentu warna mereknya.** Lambang Wayground tampil
   krem di situs mereka semata karena latar halamannya merah tua; warna
-  mereknya merah muda. Kalau ragu, **buka favicon-nya** — di sana lambangnya
-  hampir selalu tampil pada latar netral dengan warna aslinya.
+  mereknya merah muda. Kalau ragu, buka favicon-nya.
 - **Sebagian merek tidak punya berkas lambang sama sekali.** Wordmark Stitch
-  di halaman Google adalah teks hidup, bukan gambar. SVG-nya di sini dibuat
-  dengan mengurai font yang dimuat halaman itu dan mengambil lekuk hurufnya.
-- **Rona lama masih banyak beredar.** Figma sudah berganti palet; yang dipakai
-  di sini rona dari halaman unduhan mereka sendiri.
-
-Dua hal yang perlu diperhatikan kalau menambah:
-
-- **Kelompok berisi lima kartu akan berisi lima di semua perangkat**, termasuk
-  ponsel — di sana tiap kartu cuma kebagian seperlima lebar layar dan namanya
-  hampir pasti pecah beberapa baris.
-- **Nama perkakas sebaiknya tidak lebih panjang dari "Google Workspace".**
-  Lebar kartu di desktop (9,5rem) dipas ke nama itu. Nama yang lebih panjang
-  akan pecah dua baris dan membuat tinggi kelompoknya berbeda dari yang lain.
-
-Kedua angka itu ada di bagian "KISI PERKAKAS" paling bawah `css/style.css`,
-lengkap dengan alasannya.
-
-Untuk menambah **kelompok baru**, salin satu blok `tool-row` utuh beserta
-label dan garis rambutnya, lalu ganti namanya. `.tool-label` di CSS masih
-selebar 10,5rem — dulu dipas ke "Riset & Desain" yang sekarang sudah tidak
-ada, jadi ada kelonggaran. Kalau nama kelompoknya lebih panjang dari itu,
-lebarkan angkanya — kalau tidak,
-garis rambut kelompok itu tidak akan lurus sejajar dengan yang lain.
+  adalah teks hidup, bukan gambar. SVG-nya di sini dibuat dengan mengurai font
+  yang dimuat halaman itu.
+- **Rona lama masih banyak beredar.** Figma sudah berganti palet.
 
 ### Mengubah warna
 
-Semua warna ada di `css/style.css`, di blok `:root` paling atas. Ubah satu
-nilai di sana dan seluruh situs ikut berubah.
+Semua di blok `@theme` paling atas `src/index.css`. Ubah satu nilai dan
+seluruh situs ikut — termasuk kelas seperti `bg-accent` dan `text-text-muted`,
+karena keduanya dihasilkan dari token yang sama.
 
 ## Yang perlu diketahui sebelum mengutak-atik
 
-**Kelas seperti `mb-4` atau `flex` datang dari Tailwind, tapi Tailwind sudah
-tidak ada di sini.** `css/style.css` adalah hasil kompilasinya yang dibekukan —
-ia hanya berisi kelas yang memang dipakai halaman ini. Artinya: memakai kelas
-BARU yang belum pernah dipakai (misalnya `mt-14` kalau belum ada) tidak akan
-berpengaruh apa-apa. Untuk gaya baru, tulis CSS-nya sendiri di bagian bawah
-`css/style.css`.
-
-**Semua jarak kelipatan 4px, dan hampir semua ukuran font juga.** Ini datang
-gratis dari Tailwind, yang satu satuannya 0,25rem = 4px: `mb-4` jadi 16px,
-`gap-6` jadi 24px, `p-7` jadi 28px. Jadi **jangan pakai kelas pecahan** seperti
-`py-1.5` atau `gap-2.5` — keduanya meleset dari kisi. Margin tepi halaman
-memakai `px-4` (16px).
+**Semua jarak kelipatan 4px, dan hampir semua ukuran font juga.** Satu satuan
+Tailwind 0,25rem = 4px: `mb-4` jadi 16px, `gap-6` jadi 24px. Jangan pakai
+kelas pecahan seperti `py-1.5`. Margin tepi halaman `px-4` (16px).
 
 Ukuran font memakai sepuluh langkah: 12, 14, 16, 18, 20, 24, 28, 40, 52, 68.
-Tidak ada angka ganjil. Delapan di antaranya kelipatan 4; **14 dan 18 sengaja
-dikecualikan**, karena tanpa keduanya `-body-small` dan `-title-4` runtuh jadi
-16px seperti `-body` dan tiga tingkat hierarki hilang sekaligus. Di rentang
-11–24px cuma ada empat kelipatan 4 (12, 16, 20, 24) untuk menampung tujuh
-tingkat teks — aritmetikanya memang tidak muat.
+Delapan di antaranya kelipatan 4; **14 dan 18 sengaja dikecualikan**, karena
+tanpa keduanya `-body-small` dan `-title-4` runtuh jadi 16px dan tiga tingkat
+hierarki hilang sekaligus.
 
-Tiga utilitas — `.py-2`, `.py-4`, dan `.p-3` — ditulis tangan di bagian bawah
-`css/style.css`. Ketiganya tidak ikut terkompilasi karena belum pernah dipakai.
+**`wide:` dan `roomy:` bukan sekadar lebar layar.** Keduanya juga menanyakan
+orientasi, dan `roomy:` menanyakan tinggi — supaya tablet potret tidak dipaksa
+tata letak dua kolom. Definisinya `@custom-variant` di `src/index.css`.
 
-`.p-3` layak diperhatikan karena caranya gagal berbeda. Dua yang pertama
-memang kelas baru, jadi ketiadaannya ketahuan saat dipasang. Tapi `p-3` sudah
-menempel di bingkai foto halaman sampul sejak versi HTML pertama (waktu itu
-`p-2.5`) — dan diam-diam tidak berefek apa-apa selama itu, sehingga garis
-bingkainya menempel rapat ke foto di semua perangkat. Kelihatan seperti
-pilihan desain, padahal kelasnya cuma mati.
+**Gerak dipasang lewat `useLayoutEffect` dan WAJIB membongkar diri.** React
+StrictMode memasang lalu melepas lalu memasang lagi tiap efek waktu
+pengembangan, dan simpul DOM-nya tidak dibuat ulang. Tanpa pembongkaran, tiap
+pendengar peristiwa dan pemicu scroll terpasang dua kali. Karena itu setiap
+efek samping di `src/lib/animasi.js` didaftarkan lewat `dengar()`,
+`tambahTicker()`, dan `amati()` — jangan panggil `addEventListener`,
+`gsap.ticker.add`, atau `new ResizeObserver` langsung.
 
-Pelajarannya: **kelas yang salah ketik gampang ketahuan, kelas yang mati
-tidak** — kelas lain di elemen yang sama tetap bekerja, jadi tidak ada tanda
-apa pun. Kalau ada jarak yang "kelihatannya sudah diatur tapi kok tidak ada",
-cari kelasnya di `css/style.css` dulu, jangan percaya pada HTML-nya.
+**Komentar di dalam berkas menjelaskan KENAPA, bukan apa.** Sebagian besar
+angka di situs ini hasil pengukuran, bukan selera.
 
-**Komentar di dalam berkas menjelaskan KENAPA, bukan apa.** Sebelum mengubah
-angka yang terlihat aneh, baca komentar di atasnya — sebagian besar angka di
-situs ini hasil pengukuran, bukan selera, dan komentarnya menyebutkan apa yang
-rusak kalau diubah.
+## Cara menerbitkan
 
-**Bagian Keahlian pernah jadi panggung, sekarang tidak lagi.** Dulu ia
-selebar layar dan disematkan (di-*pin*): kata raksasa bertumpuk di atas
-monolit 3D berputar, hurufnya pecah ke segala arah waktu digulir, lalu kartu
-masuk dari ruang yang ditinggalkannya. Monolit, kabut abu di belakangnya, dan
-ledakan hurufnya dibuang seluruhnya — beserta pin dan scrub yang jadi
-mesinnya. Sekarang isinya tiga kartu peran dalam wadah biasa yang ikut aliran
-halaman, sama seperti bagian lain.
+Butuh build, jadi tidak bisa lagi sekadar menyeret folder.
 
-Riwayat pengukurannya disimpan karena ia yang menjelaskan kenapa jangan
-mencoba "mengoptimalkan" panggung itu kembali alih-alih membuangnya:
+Di Vercel: Framework Preset **Vite**, Build Command `npm run build`, Output
+Directory `dist`. Kalau diimpor dari repo ini, Vercel memilih itu sendiri.
 
-- **Memotong jumlah elemen tidak menolong.** Diukur tiga kali, per huruf 20,6
-  fps dan per kata 21,6 fps — selisihnya di dalam derau alat ukur.
-- **Ambangnya salah kaprah.** Lebar layar bukan ukuran kekuatan perangkat.
-  Laptop lemah 1920px justru mendapat jalur terberat, sementara tablet kuat
-  mendapat jalur ringan.
-- **Yang benar-benar mahal adalah efek buram dan pin.** Buram dihitung per
-  piksel layar, bukan per elemen. Pin yang digabung *scrub* lebih mahal lagi:
-  mematikan 40 hurufnya cuma memberi 3 fps, mematikan panggungnya memberi 17.
-
-Angka lengkapnya ada di bagian "KEAHLIAN" paling bawah `css/style.css`.
-
-## Riwayat
-
-Situs ini sebelumnya dibangun dengan React + Vite + Tailwind. Versi itu masih
-tersimpan utuh di riwayat Git dan bisa dikembalikan kapan saja:
-
-```
-git checkout 42744df
-```
+Setelah mengubah apa pun yang berhubungan dengan penerbitan, **buka situs yang
+tayang dan pastikan perubahannya benar-benar ada di sana.** Pernah terjadi
+`git push` sukses berminggu-minggu sementara Vercel diam-diam terus
+menayangkan bangunan lama yang berhasil, karena setiap build baru gagal.
+Jangan percaya pada `git push` yang sukses.
