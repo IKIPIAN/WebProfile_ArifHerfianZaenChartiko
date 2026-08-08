@@ -1,0 +1,699 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEMA — satu sumber kebenaran untuk warna, font, dan lengkung gerak.
+
+   Bedanya besar dengan versi sebelumnya. Dulu berkas ini HASIL KOMPILASI yang
+   dibekukan: ia cuma berisi kelas yang kebetulan sudah dipakai, dan kelas baru
+   seperti `p-3` atau `mt-10` tidak berefek apa-apa — diam-diam, tanpa tanda.
+   Sekarang Tailwind berjalan sungguhan waktu build, jadi kelas apa pun hidup.
+
+   Token di bawah ini yang membuat kelas seperti `bg-accent`, `text-text-muted`,
+   dan `ease-brand` ada. Menambah warna baru cukup menambah satu baris di sini.
+   ═══════════════════════════════════════════════════════════════════════ */
+@theme {
+  --color-background: #040508;
+  --color-surface: #101218;
+  --color-text: #d8d8d8;
+  --color-text-muted: #808080;
+  --color-divider: #2a2a2a;
+  --color-line: #434343;
+  --color-accent: #ff6a3d;
+  --color-on-accent: #040508;
+
+  /* Rona terang untuk bagian Pendidikan dan Sertifikat, yang latarnya dibalik */
+  --color-panel: #f2f2f2;
+  --color-panel-text: #0c0c0c;
+  --color-panel-muted: #6b6b6b;
+  --color-panel-line: #cfcfcf;
+  --color-panel-surface: #ffffff;
+
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-power: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --animate-kedip: kedip 1.1s step-end infinite;
+
+  @keyframes kedip {
+    50% { opacity: 0 }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VARIAN KHUSUS — `wide:` dan `roomy:` BUKAN sekadar lebar layar.
+
+   Keduanya juga menanyakan ORIENTASI, dan `roomy:` menanyakan tinggi. Itu
+   disengaja: tata letak dua kolom di halaman sampul hanya masuk akal kalau
+   layarnya benar-benar mendatar. Tablet 800px tegak akan kejang kalau dipaksa
+   dua kolom, padahal lebarnya cukup.
+
+   Kalau ditulis sebagai breakpoint biasa (--breakpoint-wide: 640px), syarat
+   orientasinya hilang dan bug itu kembali. Jadi ditulis sebagai custom variant.
+   ═══════════════════════════════════════════════════════════════════════ */
+@custom-variant nav (@media (width >= 900px));
+@custom-variant wide (@media (width >= 640px) and (orientation: landscape));
+@custom-variant roomy (@media (width >= 900px) and (orientation: landscape) and (height >= 600px));
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ALIAS TOKEN — nama pendek untuk dipakai CSS tulisan tangan di bawah.
+
+   Aturan khusus di bawah memakai var(--accent), bukan var(--color-accent).
+   Alias ini yang menyambungkannya, jadi nilainya tetap SATU tempat: @theme.
+   Jangan menulis ulang nilai warnanya di sini — nanti ada dua sumber
+   kebenaran yang bisa berbeda diam-diam.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --background: var(--color-background);
+  --surface: var(--color-surface);
+  --text: var(--color-text);
+  --text-muted: var(--color-text-muted);
+  --divider: var(--color-divider);
+  --line: var(--color-line);
+  --accent: var(--color-accent);
+  --on-accent: var(--color-on-accent);
+  --panel: var(--color-panel);
+  --panel-text: var(--color-panel-text);
+  --panel-muted: var(--color-panel-muted);
+  --panel-line: var(--color-panel-line);
+  --panel-surface: var(--color-panel-surface);
+
+  --font-display: var(--font-sans);
+
+  --shadow-card-color: #00000080;
+  --ease: var(--ease-brand);
+  --duration-quick: 0.3s;
+  --duration-slow: 0.5s;
+
+  /* Butiran halus yang ditumpuk di beberapa bagian. Ditulis sebagai SVG
+     sebaris, bukan berkas gambar: ia cuma 300-an bita dan tidak menambah
+     satu pun permintaan jaringan. */
+  --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ATURAN MILIK SITUS — semua yang bukan utilitas Tailwind.
+
+   Skala tipografi, bilah status, penanda bab, kartu keahlian, kisi perkakas,
+   panggung sertifikat, dan tanda sudut foto. Dipindahkan apa adanya dari
+   berkas hasil kompilasi yang lama, jadi tampilannya tidak bergeser.
+   ═══════════════════════════════════════════════════════════════════════ */
+/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-scale-x:1;--tw-scale-y:1;--tw-scale-z:1;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-border-style:solid;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-ordinal:initial;--tw-slashed-zero:initial;--tw-numeric-figure:initial;--tw-numeric-spacing:initial;--tw-numeric-fraction:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial}}}
+
+
+
+body{font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:var(--background);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+::selection{background:var(--text);color:var(--background)}
+
+::-webkit-scrollbar{width:9px}
+
+::-webkit-scrollbar-track{background:var(--background)}
+
+::-webkit-scrollbar-thumb{background:var(--line);border:3px solid var(--background);border-radius:999px}
+
+.-display,.-display-stat,.-h1,.-h2,.-title-3,.-title-4{font-family:var(--font-display);font-weight:500}
+
+.-display{letter-spacing:-.045em;font-size:52px;line-height:.96}
+
+.-display-stat{letter-spacing:-.04em;font-size:clamp(3.25rem,5.2vw,5rem);line-height:1}
+
+.-h1{letter-spacing:-.04em;font-size:40px;line-height:1}
+
+.-h2{letter-spacing:-.03em;font-size:28px;line-height:1.05}
+
+.-title-3{letter-spacing:-.02em;font-size:20px;line-height:1.25}
+
+.-title-4{letter-spacing:-.015em;font-size:18px;line-height:1.3}
+
+.-body{font-size:16px;line-height:1.6}
+
+.-body-small{font-size:14px;line-height:1.6}
+
+.-body-smaller{font-size:12px;line-height:1.55}
+
+.-caption{font-family:var(--font-mono);letter-spacing:.14em;text-transform:uppercase;font-size:14px;font-weight:400;line-height:1.4}
+
+.-caption-small{font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:400;line-height:1.4}
+
+.-mono{font-family:var(--font-mono);font-size:14px;font-weight:400}
+
+@media (width<=899px){.-display{letter-spacing:-.03em;font-size:clamp(2.5rem,8.2vw,3.5rem);line-height:.95}.-h1{font-size:clamp(2rem,6.2vw,2.5rem)}.-h2{font-size:clamp(1.5rem,4.4vw,1.75rem)}.-title-3{font-size:20px}.-title-4{font-size:18px}.-body{font-size:16px}.-body-small{font-size:14px}.-body-smaller{font-size:12px}.-caption{font-size:14px}.-caption-small{font-size:12px}.-mono{font-size:14px}}
+
+@media (width>=640px) and (width<=899px){.-display{font-size:clamp(3.5rem,min(11vw,9svh),6rem)}}
+
+@media (width>=900px){.-display{letter-spacing:-.05em;font-size:clamp(5rem,7.5vw,108px)}.-h1{font-size:68px}.-h2{font-size:40px}.-title-3{font-size:24px}.-caption{font-size:14px}.-caption-small{font-size:12px}.-mono{font-size:16px}}
+
+@media (width>=900px) and (orientation:portrait){.-display{font-size:clamp(5rem,11vw,9rem)}}
+
+html.lenis,html.lenis body{height:auto}
+
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+
+.lenis.lenis-stopped{overflow:hidden}
+
+[data-band=panel]{background:var(--panel);color:var(--panel-text);--text:var(--panel-text);--text-muted:var(--panel-muted);--divider:var(--panel-line);--line:var(--panel-line);--surface:var(--panel-surface);--color-text:var(--panel-text);--color-text-muted:var(--panel-muted);--color-divider:var(--panel-line);--color-line:var(--panel-line);--color-surface:var(--panel-surface)}
+
+[data-band=void]{background:linear-gradient(to bottom, var(--background) 0, #000 24vh)}
+
+[data-band=surface]{background:var(--surface)}
+
+.band-fade-to-panel,.band-fade-to-dark{position:relative}
+
+.band-fade-to-panel{background:linear-gradient(180deg, var(--background) 0%, var(--panel) 100%)}
+
+.band-fade-to-dark{background:linear-gradient(180deg, var(--panel) 0%, var(--background) 100%)}
+
+.band-fade-to-panel:after,.band-fade-to-dark:after,[data-band=void]:after{content:"";z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;background-image:var(--noise-fine);background-size:180px 180px;position:absolute;inset:0}
+
+.status-bar{color:var(--text);transition:color var(--duration-slow) var(--ease)}
+
+.status-bar--panel{--text:var(--panel-text);--text-muted:var(--panel-muted);--line:var(--panel-line);--background:var(--panel);--color-text:var(--panel-text);--color-text-muted:var(--panel-muted);--color-line:var(--panel-line)}
+
+.chapter-tip{border:1px solid var(--line);background:var(--background);border-radius:999px;padding:4px 8px;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translate(-50%,4px)}
+
+@supports (color:color-mix(in lab, red, red)){.chapter-tip{background:color-mix(in srgb, var(--background) 85%, transparent)}}
+
+.chapter-tip{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--text);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--duration-quick) var(--ease), transform var(--duration-quick) var(--ease)}
+
+.chapter-dot--last .chapter-tip{left:auto;right:0;transform:translateY(4px)}
+
+.chapter-dot:hover .chapter-tip,.chapter-dot:focus-visible .chapter-tip{opacity:1;transform:translate(-50%)}
+
+.chapter-dot--last:hover .chapter-tip,.chapter-dot--last:focus-visible .chapter-tip{transform:translate(0)}
+
+[data-anim=line-mask]{margin-bottom:-.2em;padding-bottom:.2em;display:block;overflow:hidden}
+
+[data-anim=line-mask]>span{will-change:transform;display:block;transform:translateY(125%)}
+
+[data-component=scrub-reveal]{clip-path:inset(0% 0% 100%);will-change:clip-path, transform}
+
+[data-component=image-reveal]{position:relative;overflow:hidden}
+
+[data-component=image-reveal] .bg{background:var(--accent);clip-path:inset(0% 0% 100%);z-index:1;position:absolute;inset:0}
+
+[data-component=image-reveal] .media{object-fit:cover;clip-path:inset(0% 0% 100%);width:100%;height:100%;display:block}
+
+[data-anim=marquee]{white-space:nowrap;display:flex;overflow:hidden}
+
+[data-anim=marquee]>.marquee-track{will-change:transform;flex:none;display:flex}
+
+.odometer-value{white-space:nowrap}
+
+.odometer{vertical-align:bottom;height:1em;line-height:1;display:inline-block;overflow:hidden}
+
+.odometer-col{will-change:transform;flex-direction:column;display:flex}
+
+.odometer-col>span{font-variant-numeric:tabular-nums;display:block}
+
+.hinge-list{perspective:1400px;transform-style:preserve-3d;flex-wrap:wrap;justify-content:center;display:flex}
+
+.hinge-list>[data-hinge]{transform-origin:50% 0;backface-visibility:hidden;will-change:transform, opacity}
+
+.stage-card{border:1px solid var(--divider);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);pointer-events:auto;background:linear-gradient(150deg,#ffffff12,#ffffff05);border-radius:14px;width:100%;min-width:0;padding:1.75rem;position:relative}
+
+.stage-orbit{grid-template-columns:1fr 1fr;place-items:stretch center;gap:1rem;width:100%;display:grid;position:relative}
+
+.stage-card h3{min-width:0;font-size:clamp(.875rem,3.625vw + .15rem,1.6rem)}
+
+@media (width>=900px){.stage-card h3{font-size:clamp(1.3rem,4.2vw - 1rem,2.375rem)}}
+
+@media (width<=899px){.stage-orbit{gap:.75rem}.stage-card{padding:1.25rem}}
+
+@media (width<=639px){.stage-orbit{gap:.5rem}.stage-card{padding:1rem}.stage-card>div:first-child{flex-direction:column-reverse;align-items:flex-start;gap:.5rem;margin-bottom:1.25rem}.stage-card svg{width:2rem;height:2rem}.stage-card p{font-size:12px;line-height:1.55}}
+
+@media (width<=360px){.stage-card{padding:.75rem}.stage-card p{font-size:12px}.stage-card svg{width:1.75rem;height:1.75rem}}
+
+@supports (color:color-mix(in lab, red, red)){}
+
+.arrival-stage{flex-direction:column;justify-content:flex-start;height:100vh;display:flex;position:relative;overflow:hidden}
+
+.arrival-head{flex:none;padding:10vh 0 3vh}
+
+.arrival-fit{flex:auto;justify-content:center;align-items:center;width:100%;min-height:0;display:flex}
+
+.arrival-stage--flow,.arrival-stage--flow .arrival-fit{height:auto}
+
+.arrival-stage--flow{padding:4rem 0 5rem}
+
+.arrival-stage--flow .arrival-head{padding-top:0}
+
+.arrival-grid{will-change:transform;flex-wrap:wrap;place-content:center;gap:1.25rem;width:100%;max-width:1180px;margin:0 auto;padding:0 1.5rem;display:flex}
+
+.arrival-grid>*{will-change:transform, opacity;width:clamp(15rem,24vw,21rem)}
+
+@media (width<=899px){.arrival-stage,.arrival-fit{height:auto}.arrival-head{padding:5rem 0 2.5rem}.arrival-grid>*{width:min(22rem,100%)}}
+
+@media (prefers-reduced-motion:reduce){.arrival-stage,.arrival-fit{height:auto}}
+
+.corner-marks{position:relative}
+
+.corner-marks:before,.corner-marks:after{content:"";border-color:var(--line);pointer-events:none;width:9px;height:9px;position:absolute}
+
+.corner-marks:before{border-top:1px solid;border-left:1px solid;top:-1px;left:-1px}
+
+.corner-marks:after{border-bottom:1px solid;border-right:1px solid;bottom:-1px;right:-1px}
+
+.link-mono{font-family:var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--text);align-items:center;gap:.75rem;padding-bottom:8px;font-size:14px;display:inline-flex;position:relative}
+
+.link-mono:after{content:"";transform-origin:100%;width:100%;height:1px;transition:transform .5s var(--ease);background:currentColor;position:absolute;bottom:0;left:0;transform:scaleX(1)}
+
+.link-mono:hover:after{transform-origin:100%;transform:scaleX(0)}
+
+.link-mono .arrow{transition:transform .5s var(--ease)}
+
+.link-mono:hover .arrow{transform:translate(6px)}
+
+@media (width<=380px){.link-mono{letter-spacing:.1em;font-size:12px}}
+
+.letter-hover{vertical-align:top;display:inline-block;overflow:hidden}
+
+.letter-hover>span{transition:transform .42s var(--ease);display:inline-block}
+
+.letter-hover:hover>span,.group:hover .letter-hover>span{transform:translateY(-100%)}
+
+
+
+.animate-kedip{animation:1.1s step-end infinite kedip}
+
+@media (prefers-reduced-motion:reduce){.animate-kedip{animation:none}[data-component=scrub-reveal],[data-component=image-reveal] .media{clip-path:inset(0%)}[data-component=image-reveal] .bg{display:none}[data-anim=line-mask]>span{transform:none}[data-anim=marquee]>.marquee-track{transform:none!important}}
+
+@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}
+
+@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}
+
+@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}
+
+@property --tw-scale-x{syntax:"*";inherits:false;initial-value:1}
+
+@property --tw-scale-y{syntax:"*";inherits:false;initial-value:1}
+
+@property --tw-scale-z{syntax:"*";inherits:false;initial-value:1}
+
+@property --tw-rotate-x{syntax:"*";inherits:false}
+
+@property --tw-rotate-y{syntax:"*";inherits:false}
+
+@property --tw-rotate-z{syntax:"*";inherits:false}
+
+@property --tw-skew-x{syntax:"*";inherits:false}
+
+@property --tw-skew-y{syntax:"*";inherits:false}
+
+@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}
+
+@property --tw-leading{syntax:"*";inherits:false}
+
+@property --tw-font-weight{syntax:"*";inherits:false}
+
+@property --tw-tracking{syntax:"*";inherits:false}
+
+@property --tw-ordinal{syntax:"*";inherits:false}
+
+@property --tw-slashed-zero{syntax:"*";inherits:false}
+
+@property --tw-numeric-figure{syntax:"*";inherits:false}
+
+@property --tw-numeric-spacing{syntax:"*";inherits:false}
+
+@property --tw-numeric-fraction{syntax:"*";inherits:false}
+
+@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}
+
+@property --tw-shadow-color{syntax:"*";inherits:false}
+
+@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}
+
+@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}
+
+@property --tw-inset-shadow-color{syntax:"*";inherits:false}
+
+@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}
+
+@property --tw-ring-color{syntax:"*";inherits:false}
+
+@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}
+
+@property --tw-inset-ring-color{syntax:"*";inherits:false}
+
+@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}
+
+@property --tw-ring-inset{syntax:"*";inherits:false}
+
+@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}
+
+@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}
+
+@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}
+
+@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}
+
+@property --tw-backdrop-blur{syntax:"*";inherits:false}
+
+@property --tw-backdrop-brightness{syntax:"*";inherits:false}
+
+@property --tw-backdrop-contrast{syntax:"*";inherits:false}
+
+@property --tw-backdrop-grayscale{syntax:"*";inherits:false}
+
+@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}
+
+@property --tw-backdrop-invert{syntax:"*";inherits:false}
+
+@property --tw-backdrop-opacity{syntax:"*";inherits:false}
+
+@property --tw-backdrop-saturate{syntax:"*";inherits:false}
+
+@property --tw-backdrop-sepia{syntax:"*";inherits:false}
+
+@property --tw-duration{syntax:"*";inherits:false}
+
+@property --tw-ease{syntax:"*";inherits:false}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GAYA TAMBAHAN — ditulis tangan, di luar hasil kompilasi Tailwind di atas.
+   Letaknya sengaja paling bawah supaya menang atas utilitas Tailwind dan
+   aman ditambah tanpa menyentuh baris hasil kompilasi.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* KISI PERKAKAS — lima kelompok berlabel, jumlah kartu per baris dikunci.
+
+   Susunannya 4-3-2-2-3 dan tidak berubah di lebar layar mana pun, karena tiap
+   kelompok adalah wadahnya sendiri: baris berisi empat kartu selamanya
+   berisi empat. Tidak ada satu pun titik henti (breakpoint) yang menentukan
+   pengelompokannya.
+
+   Kenapa berlabel dan rata kiri, bukan dipusatkan: baris yang panjangnya
+   berbeda-beda kalau dipusatkan tidak punya tepi lurus untuk dipegang mata,
+   jadi terbaca sebagai zigzag alih-alih sebagai lima kelompok. Rata kiri
+   memberi tepi itu, dan namanya menjelaskan kenapa satu baris cuma berisi
+   dua — itu memang kelompoknya, bukan sisa yang tidak muat.
+
+   Polanya sengaja sama dengan bagian Bahasa di bawahnya: label, garis
+   rambut, lalu isinya. */
+.tool-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 1.25rem;
+  padding: 1.75rem 0;
+}
+
+.tool-items {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 1.5rem;
+  width: 100%;
+}
+
+/* Di layar sempit label berdiri sendiri di atas, dan kartu berbagi lebar
+   layar berempat. Seperempat itulah yang menjaga baris berisi empat tetap
+   muat tanpa membungkus. */
+.tool-items > * {
+  width: 25%;
+}
+
+/* Ambangnya 1024px, bukan 640px, dan itu hasil ukur bukan tebak: dengan
+   label duduk di samping, area kartu di tablet 768px hanya tersisa 512px --
+   tidak cukup untuk empat kartu selebar 9,5rem, jadi baris Desain membungkus
+   diam-diam jadi 3+1. Di bawah 1024px label naik ke atas, kartu memakai
+   lebar penuh, dan empat kartu kembali muat. */
+@media (min-width: 1024px) {
+  /* Lebar tetap, bukan mengikuti panjang tulisan: inilah yang membuat garis
+     rambut keempat kelompok lurus sejajar.
+
+     Angka 10,5rem dulu dipas ke "RISET & DESAIN" (142px), label terpanjang
+     waktu itu. Kelompok itu sudah dibuang, dan yang terpanjang sekarang
+     "PENGEMBANGAN" — lebih pendek, jadi kelonggarannya bertambah. Sengaja
+     TIDAK dikecilkan mengikuti label baru: pas-pasan berbahaya di sini,
+     karena begitu satu label pecah dua baris, kelurusan garis rambut seluruh
+     kelompok ikut hilang, dan huruf tidak selalu dirender sama persis di
+     setiap peramban dan sistem operasi. Angka ini baru perlu dinaikkan kalau
+     ada label yang lebih panjang dari "RISET & DESAIN" ditambahkan. */
+  .tool-label {
+    width: 10.5rem;
+  }
+
+  .tool-items {
+    flex: 1 1 0;
+    width: auto;
+  }
+
+  /* Lebar tetap juga di sini, supaya kolom kartu lurus dari kelompok satu
+     ke kelompok berikutnya meski jumlahnya berbeda.
+
+     9,5rem bukan angka selera. "Google Workspace" pada 14px selebar 127px;
+     dikurangi padding kiri-kanan kartu 2x8px, 9,5rem menyisakan 136px --
+     lebar terkecil yang masih memuatnya dalam satu baris. Nama yang pecah
+     dua baris membuat tinggi tiap kelompok berbeda-beda, dan tepi bawah
+     bergerigi itulah yang tadi terbaca sebagai tidak rapi. */
+  .tool-items > * {
+    width: 9.5rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KEAHLIAN — apa yang dibuang dari sini, dan kenapa jangan dihidupkan lagi.
+
+   Bagian ini dulu panggung selebar layar yang di-pin, berisi tiga hal:
+
+     1. Monolit 3D (.slab) — kotak miring berputar dengan butiran, kisi, dan
+        kilau, ditumpuk dari empat elemen.
+     2. Kabut abu (.stage-fog) — tiga radial-gradient putih samar yang
+        melayang pelan, ditambah latar .stage sendiri yang punya
+        radial-gradient #0b0d12 di tengahnya.
+     3. Kata raksasa (.stage-word) yang pecah jadi 40 huruf dan terlempar ke
+        segala arah waktu digulir.
+
+   Ketiganya dibuang pada 8 Agustus 2026, beserta pin dan scrub yang jadi
+   mesinnya — karena ketiganya memang satu-satunya alasan mesin itu ada.
+   Yang tersisa tiga kartu peran, dalam wadah biasa yang ikut aliran halaman,
+   memakai scrub-reveal yang sama seperti bagian lain.
+
+   RIWAYAT PENGUKURANNYA DISIMPAN, karena ia yang menjelaskan kenapa jangan
+   mencoba "mengoptimalkan" panggung itu kembali alih-alih membuangnya:
+
+     per huruf, blur menyala        20,6 fps    p95 83ms
+     per kata,  blur menyala        21,6 fps    p95 83ms
+     per huruf, blur mati           28,5 fps    p95 67ms
+
+     apa adanya                     24,1 fps    111 dari 145 frame tersendat
+     40 huruf dimatikan, pin jalan  27,0 fps     97 dari 158   <- +3 fps saja
+     panggung dimatikan seluruhnya  41,5 fps     21 dari 191   <- +17 fps
+
+   Dua kesimpulan yang mahal didapat:
+
+   - Jumlah elemen tidak penting. Memotong 40 huruf jadi 4 baris kata cuma
+     memberi 1 fps, di dalam derau pengukuran.
+   - Yang memakan frame adalah blur (dihitung PER PIKSEL LAYAR, bukan per
+     elemen) dan `pin: true` yang digabung `scrub` — Lenis memicu
+     ScrollTrigger.update tiap frame, dan trigger ter-pin paling mahal
+     dihitung ulang. `pinType: "transform"` sudah diuji dan TIDAK menolong
+     (22,9 fps, di bawah angka dasar). Jangan dicoba lagi.
+
+   Diukur di Poco M3 Pro 5G, bukan di laptop.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Kartu peran. `backdrop-filter: blur(14px)` dari baris hasil kompilasi
+   dimatikan di sini: ia memaksa peramban memburamkan ulang apa pun di
+   belakang kartu setiap frame. Sekarang di belakangnya memang tidak ada apa-
+   apa lagi yang perlu tembus pandang, jadi latar hampir pekat justru lebih
+   tepat — sekaligus gratis. */
+.stage-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--surface) 96%, transparent),
+    color-mix(in srgb, var(--surface) 90%, transparent)
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KISI 4 — tiga utilitas jarak yang tidak ada di hasil kompilasi.
+
+   Seluruh jarak di situs ini kelipatan 4px. Itu datang gratis dari Tailwind,
+   yang satu satuannya 0,25rem = 4px: mb-4 jadi 16px, gap-6 jadi 24px, p-7
+   jadi 28px. Yang meleset cuma kelas pecahan — py-1.5 (6px) di label kotak
+   dan py-3.5 (14px) di tombol.
+
+   Penggantinya py-2 dan py-4 TIDAK ADA di baris hasil kompilasi di atas,
+   karena Tailwind hanya mengompilasi kelas yang benar-benar dipakai dan
+   keduanya belum pernah dipakai. Menukar kelasnya begitu saja akan
+   menghapus paddingnya. Jadi keduanya ditulis di sini.
+
+   p-3 masalahnya kebalikannya, dan lebih licik: kelas itu SUDAH TERPASANG di
+   bingkai foto halaman sampul sejak versi HTML pertama (waktu itu p-2.5),
+   tapi tidak pernah ikut terkompilasi juga. Jadi paddingnya 0px dan garis
+   bingkainya menempel rapat ke foto di semua perangkat — terlihat seperti
+   pilihan desain, padahal kelasnya cuma mati. Kelas yang salah ketik gampang
+   ketahuan karena tidak ada apa-apa yang muncul; kelas yang mati begini tidak,
+   karena yang lain di elemen sama tetap bekerja. Kalau ada jarak yang
+   "kelihatannya sudah diatur tapi kok tidak ada", curigai ini dulu: cari
+   kelasnya di baris hasil kompilasi, bukan di HTML.
+
+   Kalau suatu saat Tailwind dijalankan ulang, tiga aturan ini boleh dibuang.
+   ═══════════════════════════════════════════════════════════════════════ */
+.py-2 { padding-block: 0.5rem }
+
+/* 8px  — label kotak */
+.py-4 { padding-block: 1rem }
+
+/* 16px — tombol utama */
+.p-3  { padding: 0.75rem }
+
+/* 12px — bingkai foto sampul */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KEMAMPUAN PROFESIONAL — ikon, judul, dan keterangan yang lurus sejajar.
+
+   Tiap kartu berisi tiga hal bertumpuk: ikon, judul, keterangan. Supaya
+   barisnya terbaca sebagai satu baris utuh, ketiganya harus lurus sejajar
+   dengan kartu di sebelahnya. Masalahnya panjang judulnya berbeda-beda —
+   "Adaptabilitas" satu baris, "Analisis & Pemecahan Masalah" bisa tiga di
+   layar sempit — jadi kesejajarannya tidak datang dengan sendirinya.
+
+   CARA LAMA DAN KENAPA IA GAGAL
+
+   Dulu kartunya flex-column dengan justify-between: ikon didorong ke atas,
+   blok teks ke bawah. Karena kartu satu baris tingginya sama rata, blok teks
+   yang lebih tinggi mulai lebih ATAS — judul 3 baris jadi tidak sejajar
+   dengan judul 2 baris di sebelahnya. Ada tinggi cadangan min-h-12 (48px)
+   untuk menahannya, tapi 48px cuma muat dua baris; judul yang tiga baris
+   (67px) melewatinya dan perataannya lepas.
+
+   Diukur sebelum diperbaiki: di >=768px semua judul kebetulan jatuh 2 baris
+   sehingga terlihat sejajar, tapi di 360, 390, dan 414px jarak ikon ke judul
+   jadi 60px di satu kartu dan 16px di kartu sebelahnya. Jadi kesejajarannya
+   selama ini KEBETULAN, bukan diatur — dan yang kebetulan akan lepas lagi
+   begitu ada judul yang lebih panjang ditambahkan.
+
+   CARA SEKARANG
+
+   subgrid: tiap kartu meminjam tiga baris milik kisi induknya, jadi tinggi
+   baris ikon, baris judul, dan baris keterangan ditentukan BERSAMA oleh
+   seluruh kartu dalam satu baris. Yang paling tinggi menentukan, sisanya
+   ikut. Tidak ada angka cadangan yang perlu ditebak, dan berapa pun panjang
+   judul yang ditambahkan nanti perataannya tetap.
+
+   Konsekuensinya kartu berjudul pendek menyisakan ruang kosong di bawah
+   keterangannya. Itu memang pertukarannya, dan ia pilihan yang benar:
+   ruang kosong yang rata terbaca sebagai kolom, tulisan yang naik-turun
+   tidak terbaca sebagai apa pun.
+
+   TIGA HAL YANG TIDAK BOLEH DIUBAH SEMBARANGAN
+
+   1. Ikon, judul, dan keterangan harus jadi anak LANGSUNG .skill-card. Begitu
+      dibungkus div, ketiganya masuk ke satu baris subgrid dan perataannya
+      hilang total. Efek naik saat disentuh kursor — yang dulu jadi alasan
+      pembungkus itu ada — sekarang dipasang langsung ke judul dan keterangan.
+
+   2. Jangan pasang min-height ke .skill-card. Tinggi paksa di elemen yang
+      merentang tiga baris akan dibagikan ke ketiga barisnya, dan jarak ikon
+      ke judul mengembang lagi persis seperti cara lama. Tinggi kartu sekarang
+      ditentukan isinya, dan itu memang yang diinginkan.
+
+   3. Jaraknya ditulis sebagai margin di anaknya, bukan row-gap di induknya.
+      row-gap milik kisi induk, dan mengubahnya akan merenggangkan seluruh
+      halaman, bukan cuma kartu ini.
+
+   KOLOM — DAN KENAPA ANGKANYA ENAM
+
+   Kartunya lima, jumlah ganjil, jadi kisi berkolom tetap selalu menyisakan
+   sel kosong di baris terakhir. Sel kosong itu bukan sekadar jelek: ia
+   dikelilingi garis kartu di kiri dan atasnya tapi tidak punya garis sendiri,
+   sehingga sudut kanan-bawah kisinya menganga dan terbaca seperti isi yang
+   gagal dimuat. Dulu masalah ini dihindari dengan flex-wrap — kartu baris
+   terakhir memanjang sendiri mengisi sisa lebar.
+
+   Sekarang kisinya ENAM kolom, dan kartunya merentang: tiga kartu pertama
+   dua kolom (3 x 2 = 6, baris penuh), dua kartu terakhir tiga kolom
+   (2 x 3 = 6, baris penuh juga). Enam adalah kelipatan persekutuan terkecil
+   dari 3 dan 2, jadi kedua baris habis rata tanpa sisa. Hasilnya sama persis
+   dengan flex-wrap dulu — baris atas tiga kartu, baris bawah dua kartu
+   selebar setengah — tapi kali ini di atas kisi sungguhan, yang dibutuhkan
+   subgrid untuk bekerja.
+
+   ANGKA ENAM ITU TERIKAT KE JUMLAH KARTU. Kalau nanti kartunya jadi enam,
+   ubah jadi kisi biasa tiga kolom (2 baris x 3) dan buang perentangannya;
+   kalau jadi empat, dua kolom. Kalau ditambah tanpa dihitung ulang, kartu
+   keenam akan merentang tiga kolom sendirian dan menyisakan lubang lagi.
+
+   Di >=1024px kelimanya muat berdampingan, jadi kisinya jadi lima kolom dan
+   perentangannya dimatikan. Angka 1024 bukan selera: sebelum diperbaiki,
+   di lebar itu kartu kelima terlempar ke baris sendirian dan memanjang jadi
+   975px — satu kartu selebar layar penuh di bawah empat kartu sempit.
+   ═══════════════════════════════════════════════════════════════════════ */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.skill-card              { grid-column: span 2 }
+
+/* tiga kartu pertama */
+.skill-card:nth-child(n + 4) { grid-column: span 3 }
+
+/* dua kartu terakhir */
+
+@media (width >= 1024px) {
+  .skill-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) }
+  .skill-card,
+  .skill-card:nth-child(n + 4) { grid-column: auto }
+}
+
+.skill-card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+}
+
+.skill-card > i    { margin-bottom: 1rem }
+
+/* 16px — ikon ke judul */
+.skill-card > span { display: block }
+
+.skill-card > p    { margin-top: 0.5rem }
+
+/* 8px  — judul ke keterangan */
+
+.skill-card > span,
+.skill-card > p {
+  transition: transform .5s var(--ease-brand);
+}
+
+.skill-card:hover > span,
+.skill-card:hover > p { transform: translateY(-2px) }
+
+/* Peramban tanpa subgrid — Chrome di bawah 117, Safari di bawah 16, dan
+   sebagian WebView Android bawaan aplikasi. Di sana kartunya kembali jadi
+   kotak biasa dan judulnya diberi tinggi cadangan 72px, cukup untuk tiga
+   baris pada 14px/1,6. Ikon dan judul tetap sejajar karena jaraknya tetap;
+   yang bisa meleset cuma keterangan, dan cuma kalau ada judul yang lebih
+   dari tiga baris. */
+@supports not (grid-template-rows: subgrid) {
+  .skill-card { display: block; grid-row: auto }
+  .skill-card > span { min-height: 4.5rem }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KARTU PERAN UTAMA — melebar dua kolom.
+
+   Bagian Keahlian berisi tiga kartu, satu untuk tiap peran yang diketikkan
+   di halaman sampul. Kartu pertama melebar sepenuh baris supaya hierarkinya
+   TERLIHAT, bukan dijelaskan: pembaca langsung tahu mana peran yang dilamar
+   lebih dulu tanpa perlu membaca label "utama" atau "penunjang".
+
+   Ia juga yang membuat tiga kartu tetap mengisi kisi dua kolom dengan rapi.
+   Tanpa ini, kartu ketiga berdiri sendirian menyisakan satu sel kosong yang
+   terbaca sebagai ada yang lupa dipasang.
+
+   Di ponsel (<=639px) kisinya sudah satu kolom, jadi aturan ini tidak
+   mengubah apa pun di sana — semua kartu memang sudah selebar layar.
+   ═══════════════════════════════════════════════════════════════════════ */
+.stage-card--lead { grid-column: 1 / -1 }
