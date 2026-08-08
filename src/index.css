@@ -241,25 +241,15 @@ html.lenis,html.lenis body{height:auto}
 
 @supports (color:color-mix(in lab, red, red)){}
 
-.arrival-stage{flex-direction:column;justify-content:flex-start;height:100vh;display:flex;position:relative;overflow:hidden}
 
-.arrival-head{flex:none;padding:10vh 0 3vh}
 
-.arrival-fit{flex:auto;justify-content:center;align-items:center;width:100%;min-height:0;display:flex}
 
-.arrival-stage--flow,.arrival-stage--flow .arrival-fit{height:auto}
 
-.arrival-stage--flow{padding:4rem 0 5rem}
 
-.arrival-stage--flow .arrival-head{padding-top:0}
 
-.arrival-grid{will-change:transform;flex-wrap:wrap;place-content:center;gap:1.25rem;width:100%;max-width:1180px;margin:0 auto;padding:0 1.5rem;display:flex}
 
-.arrival-grid>*{will-change:transform, opacity;width:clamp(15rem,24vw,21rem)}
 
-@media (width<=899px){.arrival-stage,.arrival-fit{height:auto}.arrival-head{padding:5rem 0 2.5rem}.arrival-grid>*{width:min(22rem,100%)}}
 
-@media (prefers-reduced-motion:reduce){.arrival-stage,.arrival-fit{height:auto}}
 
 .corner-marks{position:relative}
 
@@ -794,4 +784,125 @@ html.pembuka-aktif body {
 .pembuka-lambang [data-pembuka-goresan] path,
 .pembuka-lambang [data-pembuka-kunci] path {
   stroke-width: 12;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GALERI AKORDEON — bagian Sertifikat.
+
+   Menggantikan .arrival-* (panggung yang di-pin setinggi satu layar dengan
+   kisi kartu yang hanyut masuk). Aturan lamanya ikut dibuang, bukan
+   ditinggalkan menganggur.
+
+   PEMBAGIAN RUANG SEPENUHNYA flex-grow, tanpa satu pun lebar piksel. Nilai
+   grow-nya disetel GSAP di initGaleriAkordeon(), jadi di sini panelnya cuma
+   diberi basis yang sama (flex: 1 1 0) dan wadahnya diberi tinggi tetap --
+   yang membesar mengambil porsi, yang lain menyusut, tanpa ada angka yang
+   harus dihitung ulang saat lebar layar berubah.
+
+   perspective ditaruh di WADAH, bukan di tiap panel. Kalau tiap panel punya
+   perspektifnya sendiri, titik hilangnya ikut berpindah bersama panelnya dan
+   deretan yang miring tidak lagi terbaca sebagai satu ruang.
+   ═══════════════════════════════════════════════════════════════════════ */
+.galeri {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Tegak di layar sempit: enam bilah mendatar setinggi ~55px masih bisa
+     disentuh, sementara enam bilah TEGAK selebar 55px tidak. */
+  height: min(76svh, 560px);
+  perspective: 1400px;
+}
+
+@media (width >= 900px) {
+  .galeri {
+    flex-direction: row;
+    height: clamp(320px, 52svh, 460px);
+  }
+}
+
+.galeri-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--panel-surface);
+  /* flex-grow ikut disebut karena itu yang dianimasikan; tanpa ini peramban
+     tidak menyiapkan lapisannya dan tiap frame memicu tata letak ulang. */
+  will-change: flex-grow, transform;
+}
+
+.galeri-panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.galeri-media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.galeri-media img {
+  width: 100%;
+  height: 100%;
+  /* object-position atas: sertifikat menaruh judul dan nama di bagian atas
+     lembar, jadi itu yang harus selamat saat panelnya menyempit jadi bilah. */
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.galeri-tirai {
+  position: absolute;
+  inset: 0;
+  background: #0c0c0c;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.galeri-label {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: #fff;
+  /* Tirai landai sendiri, terlepas dari peredup di atas: tanpa ini teksnya
+     jatuh di atas bagian pindaian yang kebetulan putih dan hilang. */
+  background: linear-gradient(to top, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0));
+  pointer-events: none;
+}
+
+.galeri-ikon {
+  flex: none;
+  font-size: 16px;
+}
+
+.galeri-teks {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.galeri-judul {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.galeri-sumber {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.75;
 }

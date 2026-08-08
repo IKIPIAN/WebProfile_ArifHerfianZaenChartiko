@@ -77,12 +77,21 @@ jarak foto ke garis bingkai tidak lagi sama di keempat sisinya.
 ### Menambah sertifikat
 
 1. Taruh PDF **dan** gambar pratinjaunya (JPG, lebar sekitar 900px) di
-   `public/assets/certificate/`, dengan **nama dasar yang sama**.
-2. Salin satu blok `<div data-arrive>` di `src/components/Sertifikat.jsx`,
-   lalu ganti nama berkas, judul, dan keterangannya.
+   `public/assets/certificate/`, dengan **nama dasar yang sama** — nama itu
+   dipakai dua kali, untuk `.pdf` yang dibuka dan `.jpg` yang ditampilkan.
+2. Tambahkan satu baris ke array `SERTIFIKAT` di paling atas
+   `src/components/Sertifikat.jsx`: `berkas`, `judul`, `sumber`, `ikon`,
+   `rinci`.
 
-Angka jumlah sertifikat di bagian Pendidikan ikut sendiri — ia dihitung dari
-jumlah kartu.
+Tidak ada markup yang perlu disalin — keenam panelnya dihasilkan dari array
+itu. Angka jumlah sertifikat di bagian Pendidikan juga ikut sendiri, karena ia
+menghitung `[data-panel]`.
+
+Bagian ini **galeri akordeon**: satu panel terbuka, sisanya menyempit jadi
+bilah. Mendatar di ≥900px, menumpuk tegak di bawah itu — enam bilah mendatar
+setinggi 49px masih bisa disentuh, enam bilah tegak selebar 49px tidak.
+Menambah sertifikat membuat tiap bilah makin sempit; di atas sekitar sepuluh,
+pertimbangkan tata letak lain.
 
 ### Mengubah kemampuan profesional
 

@@ -642,311 +642,141 @@ export function pasangAnimasi() {
   }
 
   /*
-   * LEMBARAN YANG MELAYANG MASUK.
+   * GALERI AKORDEON — satu panel terbuka, sisanya menyempit jadi bilah.
    *
-   * ATURAN GERAKNYA, dan ini yang membedakannya dari versi yang terlalu liar:
-   *   1. LEMBARAN SELALU TEGAK. Miringnya paling jauh 2,5°. Rotasi besar
-   *      membuat sertifikat terbaca seperti kartu remi yang dilempar —
-   *      sedangkan ini dokumen, dan dokumen berdiri tegak.
-   *   2. DATANG DARI BAWAH, BUKAN DARI SUDUT. Jalur diagonal dari pojok jauh
-   *      memaksa mata melompat ke empat penjuru.
-   *   3. TIAP LEMBARAN PUNYA LAJU SENDIRI, jadi selama penggabungan mereka
-   *      tidak pernah sejajar rapi.
-   *   4. TIDAK PERNAH BENAR-BENAR DIAM — ada ayunan halus beberapa piksel.
+   * Menggantikan panggung kedatangan sertifikat yang lama (kisi yang di-pin
+   * setinggi satu layar, kartu hanyut dari empat sudut, gelombang kertas di
+   * ticker). Yang itu animasi SEKALI JALAN saat digulir; ini interaksi yang
+   * bisa dijelajahi, dan enam sertifikat memang lebih masuk akal ditelusuri
+   * satu per satu daripada ditabur sekaligus.
+   *
+   * CARA MEMBAGI RUANGNYA. Semua panel flex item. Yang aktif diberi flexGrow
+   * `tumbuh`, sisanya 1, jadi pembagiannya proporsional dan tidak pernah
+   * dihitung dalam piksel -- lebar wadah boleh berubah tanpa satu angka pun
+   * ikut disesuaikan. `tumbuh` diturunkan dari RASIO, porsi layar yang ingin
+   * ditempati panel aktif:
+   *
+   *     tumbuh = RASIO * (n - 1) / (1 - RASIO)
+   *
+   * Dengan RASIO 0,52 dan n 6: tumbuh = 0,52*5/0,48 = 5,42. Panel aktif jadi
+   * 5,42 bagian dari total 10,42 bagian, yaitu 52%. Sisanya 9,6% seorang.
+   *
+   * KENAPA TIDAK ADA grayscale. Komponen aslinya meredupkan panel non-aktif
+   * dengan filter: grayscale(). Filter dihitung ulang oleh peramban tiap
+   * frame untuk seluruh piksel gambar, dan di sini gambarnya enam pindaian
+   * sertifikat berukuran penuh. Repo ini sudah pernah membuang dua filter
+   * karena alasan yang sama (blur kabut dan backdrop-filter kartu, +6 fps di
+   * ponsel). Peredupnya di sini <span> hitam ber-opacity: compositor cuma
+   * menyusun ulang lapisan, tidak menghitung ulang piksel.
+   *
+   * KETUK PERTAMA MEMILIH, KETUK KEDUA MEMBUKA. Di perangkat sentuh tidak ada
+   * hover, jadi tanpa aturan ini panel pertama yang disentuh langsung membuka
+   * PDF dan galeri ini tidak akan pernah bisa ditelusuri.
    */
-  function initSheetArrival() {
-    var root = $(".arrival-stage");
-    if (!root || prefersReducedMotion()) return;
+  function initGaleriAkordeon() {
+    var akar = $('[data-component="galeri"]');
+    if (!akar) return;
 
-    var grid = $(".arrival-grid", root);
-    var fit = $(".arrival-fit", root);
-    var CORNERS = [{ x: -1, y: -1 }, { x: 1, y: -1 }, { x: 1, y: 1 }, { x: -1, y: 1 }];
+    var panel = $$("[data-panel]", akar);
+    if (!panel.length) return;
 
-    /*
-     * GOYANGAN KERTAS — digerakkan ticker dengan gelombang sinus, bukan tween
-     * berulang, karena harus bisa DIMATIKAN: tween yoyo tak berhingga hanya
-     * bisa dihentikan mendadak di posisi mana pun ia kebetulan berada, dan itu
-     * terlihat sebagai kartu yang tersentak. Dengan sinus dikali satu peredam,
-     * mematikannya berarti menyusutkan amplitudonya ke nol.
-     *
-     * Tiap sumbu punya FREKUENSI SENDIRI yang tidak habis membagi satu sama
-     * lain. Kalau seirama, ketiganya kembali ke titik awal bersamaan dan
-     * terbaca sebagai bandul mekanis.
-     */
-    function createPaperWave(floats) {
-      var wave = { amp: 1 };
-      var TAU = Math.PI * 2;
-      var sheets = floats.map(function (el, i) {
-        var ragam = ((i * 29) % 13) / 12;
-        gsap.set(el, { transformPerspective: 900, transformOrigin: "50% 50%" });
-        return {
-          el: el, arah: i % 2 === 0 ? 1 : -1, fase: ragam * TAU,
-          ay: 11 + ragam * 6, ar: 0.9 + ragam * 0.8, at: 3.5 + ragam * 3, ax: 2 + ragam * 2.4,
-          fy: 0.19 + ragam * 0.05, fr: 0.13 + ragam * 0.04, ft: 0.1 + ragam * 0.03,
-        };
-      });
+    var RASIO = 0.52;
+    var MIRING = 6;
+    var DURASI = 0.55;
+    var tumbuh = panel.length > 1 ? (RASIO * (panel.length - 1)) / (1 - RASIO) : 1;
 
-      function tick(waktu) {
-        var a = wave.amp;
-        sheets.forEach(function (s) {
-          gsap.set(s.el, {
-            y: Math.sin(waktu * s.fy * TAU + s.fase) * s.ay * s.arah * a,
-            rotate: Math.sin(waktu * s.fr * TAU + s.fase * 1.7) * s.ar * s.arah * a,
-            rotateY: Math.sin(waktu * s.ft * TAU + s.fase * 0.6) * s.at * s.arah * a,
-            rotateX: Math.cos(waktu * s.ft * TAU + s.fase * 0.6) * s.ax * -s.arah * a,
-          });
-        });
-      }
-      tambahTicker(tick);
-      return { wave: wave, stop: function () { gsap.ticker.remove(tick); } };
-    }
+    var mendatarQ = window.matchMedia("(min-width: 900px)");
+    var aktif = 0;
+    var tl = null;
+    var pertama = true;
 
-    var mm = gsap.matchMedia();
+    function terapkan() {
+      var mendatar = mendatarQ.matches;
+      var durasi = pertama || prefersReducedMotion() ? 0 : DURASI;
 
-    function createArrival() {
-      var cards = $$("[data-arrive]", grid);
-      var floats = $$("[data-float]", grid);
-      if (!cards.length) return;
+      if (tl) tl.kill();
+      tl = gsap.timeline();
 
-      var FLOOR = 0.72;
+      panel.forEach(function (p, i) {
+        var ini = i === aktif;
+        var media = $("[data-panel-media]", p);
+        var tirai = $("[data-panel-tirai]", p);
+        var teks = $("[data-panel-teks]", p);
 
-      function neededScale() {
-        gsap.set(grid, { scale: 1 });
-        var available = fit.clientHeight;
-        /* offsetHeight, BUKAN scrollHeight: scrollHeight ikut menghitung luapan
-           dari anak yang sedang di-transform — dan di sini seluruh kartu memang
-           sedang melayang. */
-        var needed = grid.offsetHeight;
-        return needed > available ? available / needed : 1;
-      }
+        /* Panel sebelum yang aktif miring ke satu arah, sesudahnya ke arah
+           sebaliknya, jadi keduanya seolah membuka jalan ke tengah. */
+        var derajat = ini ? 0 : i < aktif ? MIRING : -MIRING;
+        var ubah = { flexGrow: ini ? tumbuh : 1, duration: durasi, ease: EASE };
+        if (mendatar) ubah.rotationY = derajat;
+        else ubah.rotationX = -derajat;
+        tl.to(p, ubah, 0);
 
-      /*
-       * DUA SYARAT, BUKAN SATU, sebelum panggung ini boleh di-pin.
-       *
-       * 1. Panggungnya memang setinggi satu layar. Ini TIDAK selalu benar:
-       *    CSS memberi `height: 100vh` hanya di >=900px, dan di bawah itu
-       *    menggantinya jadi `height: auto`. Dulu syarat ini tidak diperiksa,
-       *    sehingga di tablet 768px panggung setinggi 2171px tetap di-pin
-       *    seolah setinggi 1024px — sebagian besar isinya tersemat di luar
-       *    pandangan dan tidak pernah benar-benar terlihat berhenti.
-       *
-       * 2. Kisinya masih bisa diperkecil tanpa melewati ambang keterbacaan.
-       *    Memaksa enam sertifikat muat di satu layar ponsel menuntut skala
-       *    sekitar 0,2 — tulisannya tidak lagi bisa dibaca, dan menyematkan
-       *    sesuatu yang tak terbaca adalah kemunduran, bukan gaya.
-       *
-       * Kalau salah satu tidak terpenuhi, panggung melepas pin dan tumbuh
-       * mengikuti isinya. Animasinya sendiri TIDAK berubah — kartu tetap
-       * datang dari sudut, tetap bergelombang, tetap mendarat lurus.
-       */
-      var satuLayar = root.getBoundingClientRect().height <= window.innerHeight + 1;
-      var flow = !satuLayar || neededScale() < FLOOR;
-      root.classList.toggle("arrival-stage--flow", flow);
+        p.setAttribute("aria-current", ini ? "true" : "false");
 
-      function applyFit() {
-        if (flow) { gsap.set(grid, { scale: 1 }); return; }
-        gsap.set(grid, { scale: neededScale(), transformOrigin: "center center" });
-      }
-      applyFit();
-
-      var settleTimer = 0;
-      var ro = amati(fit, function () {
-        clearTimeout(settleTimer);
-        settleTimer = setTimeout(applyFit, 180);
-      });
-      ro.observe(grid);
-      bersih.push(function () { clearTimeout(settleTimer); });
-
-      /*
-       * DUA BENTANGAN, BUKAN SATU — dan pemisahan inilah kuncinya.
-       *
-       * Kalau pin dan animasi memakai pemicu yang sama, keduanya mulai di titik
-       * yang sama juga — artinya SATU LAYAR PENUH scroll dihabiskan hanya untuk
-       * mendekat, dengan kisi yang masih kosong. Dengan pin berdiri sendiri,
-       * animasinya bebas mulai LEAD layar lebih awal.
-       */
-      var LEAD = 0.55, PIN = 1;
-
-      if (!flow) {
-        ScrollTrigger.create({
-          trigger: root, start: "top top",
-          end: function () { return "+=" + Math.round(window.innerHeight * PIN); },
-          pin: true, anticipatePin: 1, invalidateOnRefresh: true,
-          /* Pin menyisipkan spacer dan mendorong turun semua isi di bawahnya,
-             jadi ia harus dihitung lebih dulu daripada pemicu mana pun yang
-             posisinya bergantung pada tata letak itu. */
-          refreshPriority: 1,
-        });
-      }
-
-      /*
-       * DUA CARA MENDATANGKAN, karena dua tata letak yang berbeda.
-       *
-       * DI-PIN: seluruh kisi terlihat sekaligus dan layarnya ditahan, jadi satu
-       * timeline sepanjang jarak pin memang benar — lembaran berdatangan
-       * bergantian mengisi kisi yang sama-sama terpandang.
-       *
-       * MENGALIR: satu kolom ke bawah, dan hanya satu kartu yang benar-benar
-       * terpandang pada satu saat. Timeline tunggal salah di sini, dan
-       * salahnya terasa: ia direntangkan sepanjang SELURUH bagian — 2182px di
-       * ponsel — sehingga tiap kartu masih merayap mendekat padahal kartu
-       * berikutnya sudah masuk layar, dan tidak ada satu pun yang pernah
-       * terlihat BERHENTI.
-       *
-       * Jadi di mode mengalir tiap kartu memakai pemicunya sendiri, pendek,
-       * dan yang menentukan bukan posisi bagiannya melainkan posisi KARTU ITU:
-       * mulai saat tepi atasnya menyentuh 92% tinggi layar, selesai saat
-       * menyentuh 48% — kira-kira ketika kartunya duduk di tengah. Lewat titik
-       * itu progresnya sudah 1 dan ia diam sampai digulir balik.
-       */
-      var tl = gsap.timeline({
-        defaults: { ease: EASE_SCRUB },
-        scrollTrigger: flow
-          ? { trigger: root, start: "clamp(top 88%)", end: "clamp(bottom 92%)", scrub: SCRUB_PIN, invalidateOnRefresh: true }
-          : {
-              trigger: root, start: "top " + LEAD * 100 + "%",
-              end: function () { return "+=" + Math.round(window.innerHeight * (LEAD + PIN)); },
-              scrub: SCRUB_PIN, invalidateOnRefresh: true,
-            },
-      });
-
-      var pemicuKartu = [];
-
-      cards.forEach(function (card, i) {
-        var sudut = CORNERS[i % CORNERS.length];
-        var ragam = ((i * 41) % 17) / 16;
-
-        /*
-         * JARAK BERANGKAT BEDA ANTARA DUA MODE, dan harus beda.
-         *
-         * Di mode pin, kartu punya lebih dari satu layar penuh scroll untuk
-         * menempuh perjalanannya, jadi sepertiga layar terasa lapang.
-         * Di mode mengalir jatahnya cuma 44% tinggi layar — sekitar 370px di
-         * ponsel. Jarak sejauh itu di ruang sesempit itu terbaca sebagai
-         * kartu yang dilempar, bukan diletakkan, dan sebagian besar
-         * perjalanannya habis di luar bingkai.
-         */
-        var dari = flow
-          ? {
-              x: sudut.x * (window.innerWidth * 0.22 + ragam * 40),
-              y: 40 + ragam * 24,
-              rotate: sudut.x * (0.8 + ragam * 0.8),
-              scale: 0.97, opacity: 0,
-            }
-          : {
-              /* Sepertiga layar sudah cukup untuk membuatnya masuk dari luar
-                 bingkai sambil menyisakan hampir seluruh perjalanan untuk
-                 dinikmati. Versi 0,55 lebar layar membuat sebagian besar
-                 perjalanan habis di luar pandangan. */
-              x: sudut.x * (window.innerWidth * 0.32 + ragam * 90),
-              y: sudut.y * (window.innerHeight * 0.34 + ragam * 80),
-              rotate: sudut.x * (1.2 + ragam * 1.3),
-              scale: 0.95, opacity: 0,
-            };
-
-        var ke = {
-          x: 0, y: 0,
-          /* Mendarat LURUS. Sisa miring menghidupkan bidang yang sedang
-             bergerak, tapi begitu semuanya di tempat, kisi yang tiap kartunya
-             miring sendiri terbaca tidak rapi — bukan sebagai gaya. */
-          rotate: 0, scale: 1, opacity: 1,
-          /*
-           * SATU-SATUNYA TEMPAT ATURAN "easing harus none" DILANGGAR, dan
-           * pelanggarannya disengaja. Gerakannya masih 1:1 dengan jarak
-           * scroll; yang diubah cuma bentuk gerak DI DALAM satu kedatangan.
-           * Dengan `none`, lembaran melaju penuh lalu berhenti mendadak — dan
-           * saat di-scroll balik, lompatan kecepatan itulah yang terasa.
-           */
-          ease: "power2.out",
-        };
-
-        if (flow) {
-          ke.scrollTrigger = {
-            trigger: card, start: "top 92%", end: "top 48%",
-            scrub: SCRUB_PIN, invalidateOnRefresh: true,
-          };
-          var t = gsap.fromTo(card, dari, ke);
-          if (t.scrollTrigger) pemicuKartu.push(t.scrollTrigger);
-          return;
+        if (media) {
+          /* Paralaks: media panel yang jauh dari yang aktif digeser lebih
+             banyak, dibatasi 1,5 langkah supaya panel di ujung tidak melompat
+             sejauh jaraknya dari yang aktif. */
+          var jarak = Math.max(-1.5, Math.min(1.5, aktif - i));
+          var geser = jarak * 26;
+          tl.to(media, {
+            x: mendatar ? (ini ? 0 : geser) : 0,
+            y: mendatar ? 0 : ini ? 0 : geser,
+            scale: ini ? 1 : 1.06,
+            duration: durasi, ease: EASE,
+          }, 0);
         }
 
-        ke.duration = 0.5 + ragam * 0.18;
-        /* Jeda antar lembaran sengaja lebih rapat daripada durasinya, jadi
-           selalu ada beberapa lembaran melayang bersamaan. */
-        tl.fromTo(card, dari, ke, 0.06 + i * 0.03);
+        if (tirai) tl.to(tirai, { opacity: ini ? 0 : 0.55, duration: durasi, ease: EASE }, 0);
+        if (teks) {
+          tl.to(teks, {
+            opacity: ini ? 1 : 0,
+            x: ini ? 0 : -12,
+            duration: ini ? durasi : durasi * 0.6,
+            ease: EASE,
+          }, 0);
+        }
       });
 
-      /*
-       * DUA SEBAB GELOMBANG INI DIMATIKAN, dan keduanya berdiri sendiri.
-       *
-       * PERTAMA, di mode mengalir ia melawan maksud desainnya sendiri. Tiap
-       * kartu sekarang sengaja BERHENTI begitu sampai di tengah layar; kalau
-       * setelah itu ia masih bergoyang pelan, "berhenti" tidak pernah benar-
-       * benar terjadi. Di mode pin persoalannya tidak muncul, karena di sana
-       * gelombangnya diredam ke nol pada 66% timeline saat kisi sudah utuh.
-       *
-       * KEDUA, di perangkat lemah ia mahal — dan justru INI, bukan jumlah
-       * kartunya, yang menentukan kemulusan bagian ini. Kedatangan kartu
-       * digerakkan scroll lalu selesai; gelombang ini terpasang di gsap.ticker
-       * dan menulis y, rotate, rotateY, rotateX ke setiap lembaran di setiap
-       * frame selamanya. Dua di antaranya rotasi 3D pada gambar sertifikat
-       * berukuran penuh.
-       *
-       * Diukur pada CPU dicekik 6x, 390x844, tiga ulangan tiap kondisi:
-       *
-       *   6 kartu + gelombang        24,2 fps    38 frame >50ms
-       *   2 kartu + gelombang        38,9 fps     3 frame >50ms
-       *   6 kartu, tanpa gelombang   52,9 fps     1 frame >50ms
-       *
-       * Jadi memangkas kartu tidak menyentuh sebabnya sama sekali.
-       */
-      var wave = createPaperWave(flow || perangkatLemah() ? [] : floats);
-      tl.to(wave.wave, { amp: 0, duration: 0.18, ease: "power1.inOut" }, 0.66);
-
-      /*
-       * JEDA DIAM DI UJUNG. ScrollTrigger merentangkan SELURUH timeline
-       * sepanjang jarak scrub; selama timeline habis tepat di lembaran
-       * terakhir, "selesai" dan "boleh lanjut" jatuh di titik yang sama — kisi
-       * utuh hanya ada satu frame sebelum pin lepas.
-       */
-      tl.to({}, { duration: 0.2 }, 0.8);
-
-      return function () {
-        clearTimeout(settleTimer);
-        ro.disconnect();
-        wave.stop();
-        /* Pemicu per-kartu di mode mengalir tidak ikut mati bersama timeline,
-           karena ia memang bukan miliknya. Tanpa ini, berganti lebar layar
-           meninggalkan pemicu lama yang masih mengawasi kartu yang sama. */
-        pemicuKartu.forEach(function (t) { t.kill(true); });
-        gsap.set(cards.concat(floats, [grid]), { clearProps: "all" });
-      };
+      pertama = false;
     }
 
-    /*
-     * SATU KEDATANGAN UNTUK SEMUA LEBAR.
-     *
-     * Dulu ponsel punya fungsinya sendiri, dan tiga hal membuatnya berbeda:
-     * hanya DUA lembaran pertama yang dianimasikan, datangnya dari samping
-     * bukan dari sudut, dan gelombang kertasnya hanya mengenai dua lembaran
-     * itu. Akibatnya empat dari enam sertifikat muncul begitu saja tanpa
-     * gerak apa pun — dan sertifikat yang muncul tiba-tiba terbaca sebagai
-     * halaman yang belum selesai, bukan sebagai pilihan desain.
-     *
-     * Memangkasnya juga tidak dibayar apa-apa. Diukur pada panggung Keahlian,
-     * jumlah elemen bukan yang memakan frame: mematikan empat puluh huruf di
-     * sana hanya mengembalikan 3 fps, sementara melepas pin mengembalikan 17.
-     * Empat lembaran tambahan di sini jauh lebih murah daripada itu.
-     *
-     * Yang membedakan antar lebar sekarang hanya SATU hal, dan itu keputusan
-     * tata letak bukan animasi: panggung disematkan kalau isinya memang muat
-     * satu layar tanpa mengorbankan keterbacaan, dan mengalir kalau tidak.
-     * Di ponsel enam sertifikat tidak akan pernah muat, jadi ia mengalir.
-     */
-    mm.add(DEVICE.desktop, createArrival);
-    mm.add(DEVICE.tablet, createArrival);
-    mm.add(DEVICE.mobile, createArrival);
+    function pilih(i) {
+      if (i === aktif) return;
+      aktif = (i + panel.length) % panel.length;
+      terapkan();
+    }
+
+    /* Hover hanya dipasang di penunjuk yang benar-benar bisa melayang. Di
+       layar sentuh pointerenter tetap terkirim saat jari menyentuh, dan itu
+       membuat panel berganti tepat sebelum klik diproses. */
+    var bisaHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+    panel.forEach(function (p, i) {
+      dengar(p, "pointerenter", function () { if (bisaHover.matches) pilih(i); });
+      dengar(p, "focus", function () { pilih(i); });
+      dengar(p, "click", function (e) {
+        if (i !== aktif) { e.preventDefault(); pilih(i); }
+      });
+      dengar(p, "keydown", function (e) {
+        var maju = e.key === "ArrowRight" || e.key === "ArrowDown";
+        var mundur = e.key === "ArrowLeft" || e.key === "ArrowUp";
+        if (!maju && !mundur) return;
+        e.preventDefault();
+        var tujuan = (i + (maju ? 1 : -1) + panel.length) % panel.length;
+        pilih(tujuan);
+        panel[tujuan].focus();
+      });
+    });
+
+    /* Berganti orientasi menukar sumbu miring DAN sumbu tumbuh, jadi tata
+       letaknya harus dihitung ulang, bukan cuma digambar ulang. */
+    dengar(mendatarQ, "change", function () { pertama = true; terapkan(); });
+    amati(akar, function () { terapkan(); });
+
+    terapkan();
   }
+
 
   /*
    * LATAR HIDUP — MEDAN GARIS.
@@ -1435,7 +1265,7 @@ export function pasangAnimasi() {
     initOdometers();
     initMarquees();
     initHingeCards();
-    initSheetArrival();
+    initGaleriAkordeon();
     initAmbientLines();
 
     initTypewriter();

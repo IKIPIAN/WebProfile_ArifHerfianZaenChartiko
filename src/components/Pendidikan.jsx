@@ -63,10 +63,16 @@ export default function Pendidikan() {
               <div className="flex flex-col gap-5 border-t border-line pt-7">
                 <div className="flex items-baseline justify-between gap-4">
                   <span className="-caption-small text-text-muted">Sertifikat</span>
-                  {/* Angkanya DIHITUNG dari jumlah kartu di bagian Sertifikat oleh
-                       js/main.js, bukan ditulis di sini. Menambah sertifikat berarti
-                       angka ini ikut sendiri. */}
-                  <span className="odometer-value -h2 leading-none" data-odometer-count="#sertifikat [data-arrive]"></span>
+                  {/* Angkanya DIHITUNG dari jumlah panel di bagian Sertifikat oleh
+                       src/lib/animasi.js, bukan ditulis di sini. Menambah sertifikat
+                       berarti angka ini ikut sendiri.
+
+                       Selektornya [data-panel], bukan [data-arrive]: bagian itu
+                       dirombak jadi galeri akordeon pada 8 Agustus 2026 dan
+                       atribut lamanya ikut hilang. Kalau selektor ini terlewat,
+                       yang muncul bukan galat melainkan angka 0 yang terbaca
+                       seperti keterangan yang benar. */}
+                  <span className="odometer-value -h2 leading-none" data-odometer-count="#sertifikat [data-panel]"></span>
                 </div>
               </div>
             </div>
