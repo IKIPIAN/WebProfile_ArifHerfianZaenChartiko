@@ -581,65 +581,262 @@ export function pasangAnimasi() {
   }
 
   /*
-   * BALOK MENDATAR YANG BERPUTAR TURUN.
+   * TUMPUKAN KARTU PENGALAMAN — yang depan dibaca utuh, yang belakang
+   * mengintip di sudut, dan tiap beberapa detik yang depan jatuh lalu masuk
+   * ke belakang tumpukan. Polanya CardSwap dari reactbits.dev.
    *
-   * Kartu berdiri sebaris tapi mulanya terlipat RATA ke belakang pada garis
-   * engsel di tepi atasnya. Angkanya diukur dari referensi, bukan dikira-kira:
-   * perspective 1400px di WADAH (bukan tiap kartu, supaya titik pandangnya
-   * satu), engsel di tepi atas, rotateX -92° → 0°, jarak antar kartu 20,83°.
+   * SLOT. Kartu di slot ke-i digeser x +i*dx, y -i*dy, z -i*dz, diperkecil,
+   * dan zIndex-nya menurun. Posisinya diturunkan dari NOMOR SLOT, bukan
+   * disimpan per kartu; berputar cuma berarti memutar isi array `urutan` lalu
+   * menata ulang. Tidak ada keadaan yang bisa menyimpang sendiri.
    *
-   * -92°, BUKAN -90°: tepat di 90° kartu jadi bidang setebal nol yang bisa
-   * berkedip jadi garis rambut seperak-piksel.
+   * TINGGINYA DIUKUR, TIDAK DIPATOK. CardSwap aslinya memakai ukuran tetap
+   * 500x400 dan isi yang lebih panjang terpotong begitu saja. Di sini tinggi
+   * tumpukan = kartu TERTINGGI + ruang untuk kartu belakang mengintip,
+   * dihitung ulang lewat ResizeObserver di tiap kartu. Rincian pekerjaan
+   * boleh sepanjang apa pun tanpa satu baris pun hilang.
+   *
+   * HANYA KARTU BELAKANG YANG DIMIRINGKAN. Aslinya seluruh tumpukan di-skew,
+   * termasuk yang sedang dibaca. Teks CV yang miring melelahkan dibaca, dan
+   * kartu depan di sini justru satu-satunya yang memang untuk dibaca.
+   *
+   * TANPA JAVASCRIPT KARTUNYA TETAP TERBACA. Posisi absolut baru dipasang
+   * setelah kelas .tukar-siap ditambahkan dari sini; sebelum itu kartunya
+   * mengalir ke bawah sebagai daftar biasa. Kalau skripnya gagal dimuat, yang
+   * tersisa daftar pengalaman yang utuh, bukan tumpukan yang saling menimpa.
    */
-  function initHingeCards() {
-    var list = $(".hinge-list");
-    if (!list || prefersReducedMotion()) return;
+  function initTukarKartu() {
+    var akar = $('[data-component="tukar"]');
+    if (!akar) return;
 
-    var cards = $$("[data-hinge]", list);
-    if (!cards.length) return;
+    var tumpuk = $("[data-tukar-tumpuk]", akar);
+    var kartu = $$("[data-kartu]", tumpuk || akar);
+    if (!tumpuk || kartu.length < 2) return;
 
-    var LIPAT = -92;
-    var JEDA = 0.2264;
-    var dari = { rotateX: LIPAT, autoAlpha: 0 };
-    var ke = { rotateX: 0, autoAlpha: 1, duration: 1, ease: EASE_SCRUB };
+    var kendali = $("[data-tukar-kendali]", akar);
+    var JEDA_AUTO = 5200;
+    var kecilQ = window.matchMedia("(max-width: 639px)");
 
-    var mm = gsap.matchMedia();
+    var urutan = kartu.map(function (_, i) { return i; });
+    var otomatis = null;
+    var diambilAlih = false;
 
-    /* Sebaris: SATU pemicu untuk semua kartu, karena posisi vertikalnya sama
-       dan yang membedakan hanyalah gilirannya. */
-    function rowCards() {
-      var tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: list, start: "clamp(top 82%)", end: "clamp(top 45%)",
-          scrub: SCRUB, invalidateOnRefresh: true,
-        },
-      });
-      cards.forEach(function (card, i) { tl.fromTo(card, dari, ke, i * JEDA); });
-      return function () { gsap.set(cards, { clearProps: "all" }); };
+    function ukuran() {
+      return kecilQ.matches
+        ? { dx: 12, dy: 12, dz: 40, susut: 0.045, miring: 0, jatuh: 90 }
+        : { dx: 26, dy: 22, dz: 60, susut: 0.04, miring: 4, jatuh: 150 };
     }
 
-    /* Bertumpuk: tiap kartu dapat pemicunya SENDIRI. Satu pemicu bersama akan
-       memutar kartu bawah selagi ia masih jauh di luar layar, dan pembaca tiba
-       di sana setelah geraknya selesai — tidak ada yang tersisa untuk dilihat. */
-    function stackedCards() {
-      cards.forEach(function (card) {
-        gsap.fromTo(card, dari, Object.assign({}, ke, {
-          scrollTrigger: {
-            trigger: card, start: "clamp(top 90%)", end: "clamp(top 66%)",
-            scrub: SCRUB, invalidateOnRefresh: true,
-          },
-        }));
-      });
-      return function () { gsap.set(cards, { clearProps: "all" }); };
+    function slot(i) {
+      var u = ukuran();
+      return {
+        x: i * u.dx, y: -i * u.dy, z: -i * u.dz,
+        scale: 1 - i * u.susut,
+        skewY: i === 0 ? 0 : u.miring,
+        /* 0,8 bukan 0,55: kartu belakang berlatar --surface (#101218) di atas
+           --background (#040508), jadi meredupkannya terlalu jauh membuatnya
+           lenyap dan tumpukan terbaca sebagai satu kartu biasa. */
+        autoAlpha: i === 0 ? 1 : 0.8,
+        zIndex: kartu.length - i,
+      };
     }
 
-    /* Tablet memakai koreografi SEBARIS seperti desktop: sejak kartunya berdiri
-       berdampingan, pemicu sendiri-sendiri membuat keduanya berputar bersamaan
-       tanpa giliran — dan gelombang yang jadi maksud transisi ini hilang. */
-    mm.add(DEVICE.desktop, rowCards);
-    mm.add(DEVICE.tablet, rowCards);
-    mm.add(DEVICE.mobile, stackedCards);
+    /* Kartu belakang dikeluarkan dari urutan tab DAN dari pembaca layar.
+       aria-hidden saja tidak cukup: tautan di dalamnya tetap bisa difokus
+       keyboard, dan fokus yang mendarat di sesuatu yang tidak terlihat adalah
+       cara tercepat membuat halaman terasa rusak. */
+    function tandai() {
+      urutan.forEach(function (idx, i) {
+        kartu[idx].inert = i !== 0;
+        kartu[idx].setAttribute("aria-hidden", i === 0 ? "false" : "true");
+      });
+      if (!kendali) return;
+      $$("[data-titik]", kendali).forEach(function (b, i) {
+        var aktif = urutan[0] === i;
+        b.setAttribute("aria-selected", aktif ? "true" : "false");
+        b.tabIndex = aktif ? 0 : -1;
+      });
+    }
+
+    /*
+     * SATU timeline hidup pada satu waktu, dan yang lama DIBUNUH lebih dulu.
+     *
+     * Ini memperbaiki cacat yang terlihat sebagai kartu belakang menembus
+     * kartu depan. Penyebabnya bukan z-index atau latar tembus pandang --
+     * keduanya terukur benar (z 2 lawan 1, opacity 1, latar rgb(16,18,24)
+     * opak). Penyebabnya balapan: putar() menjadwalkan tl.set(zIndex) pada
+     * detik 0,4 dan tl.to(autoAlpha) pada 0,42. Kalau pengguna menekan titik
+     * pemilih sebelum itu, tata() memasang nilai yang benar, lalu penjadwalan
+     * lama menimpanya sepersekian detik kemudian.
+     *
+     * zIndex disetel langsung ke style, bukan lewat GSAP, supaya ia berpindah
+     * SEKETIKA -- kartu yang naik harus sudah berada di atas sebelum satu
+     * frame pun digambar.
+     */
+    var tlAktif = null;
+    function bunuhTl() {
+      if (tlAktif) { tlAktif.kill(); tlAktif = null; }
+    }
+    bersih.push(bunuhTl);
+
+    function tata(beranimasi) {
+      bunuhTl();
+      var d = beranimasi && !prefersReducedMotion() ? 0.55 : 0;
+      var tl = gsap.timeline();
+      urutan.forEach(function (idx, i) {
+        var s = slot(i);
+        kartu[idx].style.zIndex = s.zIndex;
+        tl.to(kartu[idx], {
+          x: s.x, y: s.y, z: s.z, scale: s.scale, skewY: s.skewY,
+          autoAlpha: s.autoAlpha, duration: d, ease: EASE,
+        }, 0);
+      });
+      tlAktif = tl;
+      tandai();
+    }
+
+    function putar() {
+      bunuhTl();
+      var keluarIdx = urutan[0];
+      var keluar = kartu[keluarIdx];
+      urutan.push(urutan.shift());
+
+      var u = ukuran();
+      var akhir = slot(urutan.indexOf(keluarIdx));
+      var tl = gsap.timeline();
+
+      /* Jatuh sampai hilang DULU, baru dipindahkan ke slot belakang. Kalau
+         langsung ditweenkan ke sana, ia terlihat menyelinap menembus kartu
+         yang sedang naik. */
+      tl.to(keluar, { y: "+=" + u.jatuh, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 0);
+      tl.call(function () { keluar.style.zIndex = akhir.zIndex; }, null, 0.4);
+      tl.set(keluar, {
+        x: akhir.x, y: akhir.y, z: akhir.z, scale: akhir.scale,
+        skewY: akhir.skewY,
+      }, 0.4);
+      tl.to(keluar, { autoAlpha: akhir.autoAlpha, duration: 0.45, ease: EASE }, 0.42);
+
+      urutan.forEach(function (idx, i) {
+        if (idx === keluarIdx) return;
+        var s = slot(i);
+        tl.call(function () { kartu[idx].style.zIndex = s.zIndex; }, null, 0.1);
+        tl.to(kartu[idx], {
+          x: s.x, y: s.y, z: s.z, scale: s.scale, skewY: s.skewY,
+          autoAlpha: s.autoAlpha, duration: 0.55, ease: EASE,
+        }, 0.1);
+      });
+
+      tlAktif = tl;
+      tandai();
+    }
+
+    function pilih(idx) {
+      if (urutan[0] === idx) return;
+      var pos = urutan.indexOf(idx);
+      urutan = urutan.slice(pos).concat(urutan.slice(0, pos));
+      tata(true);
+    }
+
+    function mulaiOtomatis() {
+      if (otomatis || diambilAlih || prefersReducedMotion()) return;
+      otomatis = setInterval(putar, JEDA_AUTO);
+    }
+    function jedaOtomatis() {
+      if (otomatis) { clearInterval(otomatis); otomatis = null; }
+    }
+    bersih.push(jedaOtomatis);
+
+    /* Titik pemilih dibuat dari JUMLAH kartu, lewat tambahSimpul() supaya ikut
+       dibongkar. Ia juga satu-satunya jalan keyboard ke kartu yang sedang
+       tidak di depan, karena kartu belakang sengaja di-inert. */
+    if (kendali) {
+      kartu.forEach(function (_, i) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "tukar-titik";
+        b.setAttribute("data-titik", "");
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-label", "Pengalaman ke-" + (i + 1));
+        dengar(b, "click", function () {
+          /* Sekali pengguna memilih sendiri, perputaran otomatis berhenti
+             untuk seterusnya. Kartu yang bergeser sendiri saat sedang dibaca
+             adalah gangguan, bukan animasi. */
+          diambilAlih = true;
+          jedaOtomatis();
+          pilih(i);
+        });
+        dengar(b, "keydown", function (e) {
+          var maju = e.key === "ArrowRight" || e.key === "ArrowDown";
+          var mundur = e.key === "ArrowLeft" || e.key === "ArrowUp";
+          if (!maju && !mundur) return;
+          e.preventDefault();
+          diambilAlih = true;
+          jedaOtomatis();
+          var tujuan = (i + (maju ? 1 : -1) + kartu.length) % kartu.length;
+          pilih(tujuan);
+          $$("[data-titik]", kendali)[tujuan].focus();
+        });
+        tambahSimpul(kendali, b);
+      });
+    }
+
+    /*
+     * SEMUA KARTU DISAMAKAN SETINGGI YANG TERTINGGI, bukan cuma wadahnya.
+     *
+     * Ini bukan kerapian. Terukur di 390x844: kartu Guru Informatika 761px
+     * (lima butir rincian) dan Staf Administrasi 615px (empat butir). Saat
+     * yang pendek berada di depan, yang tinggi di belakangnya menyembul 146px
+     * di bawah dan isinya terbaca di samping kartu depan -- tumpukannya
+     * terlihat seperti dua kartu yang salah tumpuk, bukan satu tumpukan.
+     * Skala 0,955 tidak menolong karena 761 x 0,955 masih lebih besar dari
+     * 615.
+     *
+     * Tinggi dilepas ke auto DULU sebelum diukur: tanpa itu yang terbaca
+     * adalah tinggi yang dipasang putaran sebelumnya, dan kartunya tidak akan
+     * pernah bisa mengecil lagi saat layar melebar.
+     *
+     * Penjaga `sedangUkur` memutus umpan balik: menyetel tinggi kartu memicu
+     * ResizeObserver yang mengamati kartu itu sendiri.
+     */
+    var sedangUkur = false;
+    function ukur() {
+      if (sedangUkur) return;
+      sedangUkur = true;
+
+      var u = ukuran();
+      var ruang = (kartu.length - 1) * u.dy;
+
+      kartu.forEach(function (k) { k.style.height = "auto"; });
+      var tinggi = 0;
+      kartu.forEach(function (k) { tinggi = Math.max(tinggi, k.offsetHeight); });
+      kartu.forEach(function (k) { k.style.height = tinggi + "px"; });
+
+      tumpuk.style.setProperty("--tukar-atas", ruang + "px");
+      tumpuk.style.height = tinggi + ruang + "px";
+
+      requestAnimationFrame(function () { sedangUkur = false; });
+    }
+
+    akar.classList.add("tukar-siap");
+    bersih.push(function () { akar.classList.remove("tukar-siap"); });
+
+    kartu.forEach(function (k) { amati(k, ukur); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ukur);
+
+    dengar(akar, "pointerenter", jedaOtomatis);
+    dengar(akar, "pointerleave", mulaiOtomatis);
+    dengar(akar, "focusin", jedaOtomatis);
+    dengar(akar, "focusout", mulaiOtomatis);
+    dengar(document, "visibilitychange", function () {
+      if (document.hidden) jedaOtomatis(); else mulaiOtomatis();
+    });
+    dengar(kecilQ, "change", function () { ukur(); tata(false); });
+
+    ukur();
+    tata(false);
+    mulaiOtomatis();
   }
+
 
   /*
    * GALERI AKORDEON — satu panel terbuka, sisanya menyempit jadi bilah.
@@ -1264,7 +1461,7 @@ export function pasangAnimasi() {
     initSplitWords();
     initOdometers();
     initMarquees();
-    initHingeCards();
+    initTukarKartu();
     initGaleriAkordeon();
     initAmbientLines();
 

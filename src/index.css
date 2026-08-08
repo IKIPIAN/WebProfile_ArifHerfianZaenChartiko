@@ -221,9 +221,6 @@ html.lenis,html.lenis body{height:auto}
 
 .odometer-col>span{font-variant-numeric:tabular-nums;display:block}
 
-.hinge-list{perspective:1400px;transform-style:preserve-3d;flex-wrap:wrap;justify-content:center;display:flex}
-
-.hinge-list>[data-hinge]{transform-origin:50% 0;backface-visibility:hidden;will-change:transform, opacity}
 
 .stage-card{border:1px solid var(--divider);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);pointer-events:auto;background:linear-gradient(150deg,#ffffff12,#ffffff05);border-radius:14px;width:100%;min-width:0;padding:1.75rem;position:relative}
 
@@ -905,4 +902,128 @@ html.pembuka-aktif body {
   text-transform: uppercase;
   white-space: nowrap;
   opacity: 0.75;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TUMPUKAN KARTU PENGALAMAN.
+
+   Menggantikan .hinge-list (kartu berdampingan yang berputar pada engsel di
+   tepi atasnya). Aturan lamanya ikut dibuang, bukan ditinggalkan menganggur.
+
+   POSISI ABSOLUT BARU BERLAKU SETELAH .tukar-siap, dan kelas itu ditambahkan
+   dari JavaScript. Urutannya disengaja: tanpa skrip, kartunya mengalir ke
+   bawah sebagai daftar biasa yang utuh terbaca. Kalau aturan absolut ini
+   ditulis tanpa syarat, kegagalan memuat skrip meninggalkan dua kartu yang
+   saling menimpa di tempat yang sama.
+
+   perspective ditaruh di WADAH. Kalau tiap kartu punya perspektifnya sendiri,
+   titik hilangnya ikut berpindah bersama kartunya dan tumpukan yang miring
+   tidak lagi terbaca sebagai satu ruang.
+
+   Tinggi .tukar-tumpuk dan --tukar-atas DISETEL DARI JS, hasil pengukuran
+   kartu tertinggi. Tidak ada tinggi tetap di sini: rincian pekerjaan boleh
+   sepanjang apa pun tanpa satu baris pun terpotong.
+   ═══════════════════════════════════════════════════════════════════════ */
+.tukar-tumpuk {
+  position: relative;
+  perspective: 1600px;
+}
+
+.tukar-kartu {
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  /* Kolom flex, supaya .tukar-isi bisa flex:1 dan MEREGANG setinggi kartu.
+     Tanpa ini height:100% di dalamnya tidak punya tinggi induk untuk dirujuk
+     (kartunya cuma punya min-height), grid di dalamnya berhenti setinggi
+     isinya, dan `mt-auto` pada baris tag tidak punya sisa ruang untuk
+     didorong -- tagnya menempel di bawah tautan alih-alih di dasar kartu. */
+  display: flex;
+  flex-direction: column;
+}
+
+.tukar-siap .tukar-kartu {
+  position: absolute;
+  inset-inline: 0;
+  top: var(--tukar-atas, 0px);
+  margin-bottom: 0;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+@media (width >= 640px) {
+  .tukar-kartu { padding: 2rem }
+}
+
+@media (width >= 900px) {
+  .tukar-kartu {
+    padding: 2.5rem;
+    /* "Satu kartu memenuhi layar": di desktop kartunya diberi lantai tinggi
+       supaya ia mengisi ruang, bukan mengambang kecil di tengah bagian. Ini
+       LANTAI, bukan tinggi tetap -- isi yang lebih panjang tetap mendorongnya
+       tumbuh, dan tumpukannya ikut karena tingginya diukur dari isi. */
+    min-height: min(56svh, 480px);
+  }
+}
+
+.tukar-isi {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+}
+
+/* Dua kolom di >=900px. Kartu selebar 56rem dengan rincian satu kolom penuh
+   menghasilkan baris sekitar 120 karakter; mata kehilangan tempat saat
+   berpindah baris. Kiri identitas pekerjaan, kanan rinciannya. */
+@media (width >= 900px) {
+  .tukar-isi {
+    display: grid;
+    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: stretch;
+  }
+}
+
+.tukar-kiri {
+  display: flex;
+  flex-direction: column;
+}
+
+.tukar-rinci {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tukar-kendali {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* Bilah, bukan bulatan: bentuk yang sama dengan penanda bab di bilah status,
+   jadi "yang ini sedang aktif" dinyatakan dengan kosakata yang sudah dipakai
+   di tempat lain di situs ini. */
+.tukar-titik {
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.4s var(--ease), width 0.4s var(--ease);
+}
+
+.tukar-titik[aria-selected="true"] {
+  width: 56px;
+  background: var(--text);
+}
+
+.tukar-titik:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }

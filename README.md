@@ -93,6 +93,16 @@ setinggi 49px masih bisa disentuh, enam bilah tegak selebar 49px tidak.
 Menambah sertifikat membuat tiap bilah makin sempit; di atas sekitar sepuluh,
 pertimbangkan tata letak lain.
 
+### Menambah pengalaman kerja
+
+Salin satu blok `<article data-kartu>` di `src/components/Pengalaman.jsx`. Titik
+pemilih di bawah tumpukan ikut sendiri — jumlahnya dihitung dari jumlah kartu.
+
+Tumpukannya **menyamakan tinggi semua kartu ke yang tertinggi**, dan tinggi itu
+diukur, bukan dipatok. Jadi rincian pekerjaan boleh sepanjang apa pun tanpa ada
+yang terpotong. Kalau satu kartu jauh lebih panjang dari yang lain, yang pendek
+akan menyisakan ruang kosong di bawah — seimbangkan jumlah butirnya.
+
 ### Mengubah kemampuan profesional
 
 Lima kartu berikon di `src/components/Keahlian.jsx`. Dua hal kalau menambah
